@@ -4,10 +4,13 @@ module App
 
 import Prelude
 import Effect (Effect)
-import Effect.Console as Console
-import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getProps, getState, modifyState)
+import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getState)
 import React.DOM as DOM
 import React.DOM.Props as Props
+import Zypr.Example.Lambdas as Lambdas
+import Zypr.Path (Path(..))
+import Zypr.RenderEditor (editorClass)
+import Zypr.SyntaxTheme (basicSyntaxTheme)
 
 type AppProps
   = {}
@@ -34,13 +37,24 @@ appComponent this =
   render _ =
     DOM.div
       [ Props.className "app" ]
-      [ DOM.text "hello world"
-      , createLeafElement dropdownClass
-          { label: "Dropdown A"
-          , items: [ "a", "b", "c" ]
+      [ createLeafElement editorClass
+          { stateInit:
+              { location:
+                  { term: Lambdas.term
+                  , path: Top
+                  }
+              , syntaxTheme: basicSyntaxTheme
+              }
           }
       ]
 
+-- [ DOM.text "hello world"
+-- , createLeafElement dropdownClass
+--     { label: "Dropdown A"
+--     , items: [ "a", "b", "c" ]
+--     }
+-- ]
+{-
 type DropdownProps
   = { label :: String, items :: Array String }
 
@@ -91,3 +105,4 @@ dropdownComponent this = do
     { render: render <$> getState this
     , state: stateInit
     }
+-}
