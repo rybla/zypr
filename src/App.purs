@@ -44,6 +44,7 @@ appComponent this =
                   , path: Top
                   }
               , syntaxTheme: basicSyntaxTheme
+              , console: []
               }
           }
       ]

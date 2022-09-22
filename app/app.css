@@ -1,3 +1,11 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* dropdown */
+
 .dropdown {
   border: 10px solid black;
   padding: 10px;
@@ -16,4 +24,74 @@
 
 .hidden {
   display: none;
+}
+
+/* editor */
+
+.editor {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* program */
+
+.program {
+  margin: 0;
+  padding: 10px;
+  font-size: 12pt;
+  font-family: monospace;
+}
+
+/* syntax */
+
+
+.term {
+  display: inline-block;
+}
+
+.term.var {}
+
+.term.lam {}
+
+.term.app {}
+
+.term.let {}
+
+.selected>.term {
+  box-shadow: 0 0 0 2px blue;
+}
+
+/* token */
+
+.token {
+  display: inline-block;
+  white-space: pre;
+}
+
+.console {
+  margin: 0;
+  padding: 10px;
+  position: fixed;
+  bottom: 0;
+
+  font-size: 10pt;
+  font-family: monospace;
+}
+
+.console-item {
+  margin-top: 8px;
+  padding: 5px;
+  width: calc(100% - 10px);
+
+  border-radius: 10px;
+}
+
+.console-item-info {
+  background-color: orange;
+}
+
+.console-item-error {
+  background-color: red;
 }
