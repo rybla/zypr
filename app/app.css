@@ -1,0 +1,19 @@
+.dropdown {
+  border: 10px solid black;
+  padding: 10px;
+}
+
+.dropdown .dropdown-label {
+  font-weight: bold;
+  text-decoration: underline;
+  cursor: pointer;
+  user-select: none;
+}
+
+.dropdown .dropdown-items {}
+
+.dropdown .dropdown-item {}
+
+.hidden {
+  display: none;
+}

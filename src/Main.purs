@@ -1,0 +1,25 @@
+module Main where
+
+import Data.Maybe (fromJust)
+import Effect (Effect)
+import Prelude
+import App (appClass)
+import Partial.Unsafe (unsafePartial)
+import React as React
+import ReactDOM as ReactDOM
+import Web.DOM.NonElementParentNode (getElementById) as DOM
+import Web.HTML (window) as DOM
+import Web.HTML.HTMLDocument (toNonElementParentNode) as DOM
+import Web.HTML.Window (document) as DOM
+
+main :: Effect Unit
+main =
+  void do
+    window <- DOM.window
+    document <- DOM.document window
+    let
+      node = DOM.toNonElementParentNode document
+    element <- do
+      element <- DOM.getElementById "main" node
+      pure $ unsafePartial $ fromJust element
+    void $ ReactDOM.render (React.createLeafElement appClass {}) element
