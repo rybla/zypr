@@ -34103,6 +34103,74 @@
     };
     return Let_bod2;
   }();
+  var snocPath = function(v) {
+    return function(p) {
+      if (v instanceof Top) {
+        return p;
+      }
+      ;
+      if (v instanceof Lam_var) {
+        return new Lam_var({
+          "var": snocPath(v["value0"]["var"])(p),
+          bod: v.value0.bod,
+          md: v.value0.md
+        });
+      }
+      ;
+      if (v instanceof Lam_bod) {
+        return new Lam_bod({
+          "var": v["value0"]["var"],
+          bod: snocPath(v.value0.bod)(p),
+          md: v.value0.md
+        });
+      }
+      ;
+      if (v instanceof App_apl) {
+        return new App_apl({
+          apl: snocPath(v.value0.apl)(p),
+          arg: v.value0.arg,
+          md: v.value0.md
+        });
+      }
+      ;
+      if (v instanceof App_arg) {
+        return new App_arg({
+          apl: v.value0.apl,
+          arg: snocPath(v.value0.arg)(p),
+          md: v.value0.md
+        });
+      }
+      ;
+      if (v instanceof Let_var) {
+        return new Let_var({
+          "var": snocPath(v["value0"]["var"])(p),
+          imp: v.value0.imp,
+          bod: v.value0.bod,
+          md: v.value0.md
+        });
+      }
+      ;
+      if (v instanceof Let_imp) {
+        return new Let_imp({
+          "var": v["value0"]["var"],
+          imp: snocPath(v.value0.imp)(p),
+          bod: v.value0.bod,
+          md: v.value0.md
+        });
+      }
+      ;
+      if (v instanceof Let_bod) {
+        return new Let_bod({
+          "var": v["value0"]["var"],
+          imp: v.value0.imp,
+          bod: snocPath(v.value0.bod)(p),
+          md: v.value0.md
+        });
+      }
+      ;
+      throw new Error("Failed pattern match at Zypr.Path (line 33, column 1 - line 33, column 33): " + [v.constructor.name, p.constructor.name]);
+    };
+  };
   var showPath = {
     show: function(v) {
       if (v instanceof Top) {
@@ -34947,11 +35015,11 @@
     if (loc.term instanceof Lam) {
       return pure2({
         term: loc["term"]["value0"]["var"],
-        path: new Lam_var({
-          "var": loc.path,
+        path: snocPath(loc.path)(new Lam_var({
+          "var": Top.value,
           bod: loc.term.value0.bod,
           md: loc.term.value0.md
-        })
+        }))
       });
     }
     ;

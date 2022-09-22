@@ -38,6 +38,9 @@ stepRight loc = case loc.path of
 stepDown :: Location -> Maybe Location
 stepDown loc = case loc.term of
   Var var -> Nothing
+  -- TODO: this is wrong, because it puts the previous path at the var
+  -- Lam lam -> pure { term: lam.var, path: snocPath loc.path (Lam_var { var: Top, bod: lam.bod, md: lam.md }) }
+  -- TODO: this is wrong, because it shuffles the above term into the var position
   Lam lam -> pure { term: lam.var, path: Lam_var { var: loc.path, bod: lam.bod, md: lam.md } }
   -- App app -> ?a
   -- Let let_ -> ?a

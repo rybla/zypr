@@ -49,6 +49,7 @@ body {
 
 .term {
   display: inline-block;
+  border-radius: 10px;
 }
 
 .term.var {}

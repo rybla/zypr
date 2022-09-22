@@ -29,3 +29,25 @@ instance showPath :: Show Path where
     Let_var let_ -> "(let " <> show let_.var <> " = " <> show let_.imp <> " in " <> show let_.bod <> ")"
     Let_imp let_ -> "(let " <> show let_.var <> " = " <> show let_.imp <> " in " <> show let_.bod <> ")"
     Let_bod let_ -> "(let " <> show let_.var <> " = " <> show let_.imp <> " in " <> show let_.bod <> ")"
+
+snocPath :: Path -> Path -> Path
+snocPath Top p = p
+
+snocPath (Lam_var lam) p = Lam_var lam { var = snocPath lam.var p }
+
+snocPath (Lam_bod lam) p = Lam_bod lam { bod = snocPath lam.bod p }
+
+snocPath (App_apl app) p = App_apl app { apl = snocPath app.apl p }
+
+snocPath (App_arg app) p = App_arg app { arg = snocPath app.arg p }
+
+snocPath (Let_var let_) p = Let_var let_ { var = snocPath let_.var p }
+
+snocPath (Let_imp let_) p = Let_imp let_ { imp = snocPath let_.imp p }
+
+snocPath (Let_bod let_) p = Let_bod let_ { bod = snocPath let_.bod p }
+
+-- snocPath Top p = p
+-- snocPath (Lam_var lam) p = Lam_var lam { var = snocPath lam.var p }
+-- snocPath (Lam_bod lam) p = Lam_bod lam {bod = snocPath lam.bod p }
+-- snocPath (App)
