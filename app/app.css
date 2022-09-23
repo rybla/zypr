@@ -51,16 +51,18 @@ body {
 
 .term {
   display: inline-block;
-  border-radius: 10px;
+  border-radius: 6px;
 }
 
-.term.var {}
+.term-var {
+  padding: 0 2px;
+}
 
-.term.lam {}
+.term-lam {}
 
-.term.app {}
+.term-app {}
 
-.term.let {}
+.term-let {}
 
 /* select */
 
@@ -118,7 +120,7 @@ body {
   overflow-x: scroll;
   white-space: pre;
 
-  border-radius: 10px;
+  border-radius: 6px;
 }
 
 .console-item-info {
