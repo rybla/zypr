@@ -33840,6 +33840,10 @@
     };
   };
   var div2 = /* @__PURE__ */ mkDOM(false)("div");
+  var br = function(props) {
+    return mkDOM(false)("br")(props)([]);
+  };
+  var br$prime = /* @__PURE__ */ br([]);
 
   // output/Zypr.EditorTypes/index.js
   var TopMode = /* @__PURE__ */ function() {
@@ -36954,8 +36958,10 @@
   };
 
   // output/Zypr.RenderEditor/index.js
+  var intercalate6 = /* @__PURE__ */ intercalate3(monoidArray);
   var map6 = /* @__PURE__ */ map(functorArray);
   var append1 = /* @__PURE__ */ append(semigroupArray);
+  var intercalate13 = /* @__PURE__ */ intercalate3(monoidString);
   var pprint3 = /* @__PURE__ */ pprint(ppTerm);
   var pprint1 = /* @__PURE__ */ pprint(ppPath);
   var map12 = /* @__PURE__ */ map(functorEffect);
@@ -37003,23 +37009,23 @@
             return "console-item-log";
           }
           ;
-          throw new Error("Failed pattern match at Zypr.RenderEditor (line 104, column 16 - line 107, column 53): " + [v.type_.constructor.name]);
+          throw new Error("Failed pattern match at Zypr.RenderEditor (line 102, column 16 - line 105, column 53): " + [v.type_.constructor.name]);
         }())])(v.res)];
       };
-      return [div2([className("console")])(concat(map6(renderConsoleItem)(append1(state3.console)(function() {
+      return [div2([className("console")])(intercalate6([br$prime])(map6(renderConsoleItem)(append1(state3.console)(function() {
         if (state3.mode instanceof TopMode) {
-          return [stringEditorConsoleInfo("term: " + pprint3(state3.mode.value0.term))];
+          return [stringEditorConsoleInfo(intercalate13("\n")(["[mode: top]", "  term: " + pprint3(state3.mode.value0.term)]))];
         }
         ;
         if (state3.mode instanceof CursorMode) {
-          return [stringEditorConsoleInfo("cursor location:" + ("\n  path: " + (pprint1(state3.mode.value0.location.path) + ("\n  term: " + pprint3(state3.mode.value0.location.term)))))];
+          return [stringEditorConsoleInfo(intercalate13("\n")(["[mode: cursor]", "cursor location:", "  path: " + pprint1(state3.mode.value0.location.path), "  term: " + pprint3(state3.mode.value0.location.term)]))];
         }
         ;
         if (state3.mode instanceof SelectMode) {
-          return [stringEditorConsoleInfo("selection start location:" + ("\n  path: " + (pprint1(state3.mode.value0.locationStart.path) + ("\n  term: " + pprint3(state3.mode.value0.locationStart.term))))), stringEditorConsoleInfo("selection end location:" + ("\n  path: " + (pprint1(state3.mode.value0.locationEnd.path) + ("\n  term: " + pprint3(state3.mode.value0.locationEnd.term)))))];
+          return [stringEditorConsoleInfo(intercalate13("\n")(["[mode: select]", "selection start location:", "  path: " + pprint1(state3.mode.value0.locationStart.path), "  term: " + pprint3(state3.mode.value0.locationStart.term), "selection end location:", "  path: " + pprint1(state3.mode.value0.locationEnd.path), "  term: " + pprint3(state3.mode.value0.locationEnd.term)]))];
         }
         ;
-        throw new Error("Failed pattern match at Zypr.RenderEditor (line 71, column 10 - line 98, column 14): " + [state3.mode.constructor.name]);
+        throw new Error("Failed pattern match at Zypr.RenderEditor (line 71, column 10 - line 96, column 14): " + [state3.mode.constructor.name]);
       }()))))];
     };
   };
@@ -37075,13 +37081,13 @@
         return v.id;
       },
       lam: function(v) {
-        return concat([tk_lambda, tk_space, v.bnd, tk_space, tk_mapsto, tk_space, assoc(v.bod)]);
+        return assoc(concat([tk_lambda, tk_space, v.bnd, tk_space, tk_mapsto, tk_space, v.bod]));
       },
       app: function(v) {
-        return concat([v.apl, tk_space, v.arg]);
+        return assoc(concat([v.apl, tk_space, v.arg]));
       },
       let_: function(v) {
-        return concat([tk_let, tk_space, v.bnd, tk_space, tk_assign, v.imp, tk_space, tk_in, tk_space, v.bod]);
+        return assoc(concat([tk_let, tk_space, v.bnd, tk_space, tk_assign, v.imp, tk_space, tk_in, tk_space, v.bod]));
       }
     }
   };

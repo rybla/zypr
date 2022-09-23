@@ -33,13 +33,13 @@ basicSyntaxTheme =
           \{ dat, id } -> id
       , lam:
           \{ dat, bnd, bod } ->
-            concat [ tk_lambda, tk_space, bnd, tk_space, tk_mapsto, tk_space, assoc bod ]
+            assoc $ concat [ tk_lambda, tk_space, bnd, tk_space, tk_mapsto, tk_space, bod ]
       , app:
           \{ dat, apl, arg } ->
-            concat [ apl, tk_space, arg ]
+            assoc $ concat [ apl, tk_space, arg ]
       , let_:
           \{ dat, bnd, imp, bod } ->
-            concat [ tk_let, tk_space, bnd, tk_space, tk_assign, imp, tk_space, tk_in, tk_space, bod ]
+            assoc $ concat [ tk_let, tk_space, bnd, tk_space, tk_assign, imp, tk_space, tk_in, tk_space, bod ]
       }
   }
 

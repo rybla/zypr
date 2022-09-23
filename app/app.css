@@ -123,12 +123,16 @@ body {
   position: fixed;
   bottom: 0;
 
-  font-size: 10pt;
+  box-shadow: 0 -1px 0 0 tan;
+  background-color: rgb(21, 33, 58);
+
+  font-size: 8pt;
   font-family: monospace;
 }
 
 .console-item {
-  margin-top: 8px;
+  display: inline-block;
+  /* margin-top: 8px; */
   padding: 5px;
   overflow-x: scroll;
   white-space: pre;

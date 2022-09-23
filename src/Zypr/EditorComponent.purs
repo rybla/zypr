@@ -1,7 +1,7 @@
 module Zypr.RenderEditor where
 
 import Prelude
-import Data.Array (concat)
+import Data.Array (concat, intercalate, (:))
 import Effect (Effect)
 import Effect.Console as Console
 import React (ReactClass, ReactElement, ReactThis, component, getProps, getState)
@@ -65,36 +65,34 @@ renderProgram this state =
 renderConsole :: EditorThis -> EditorState -> Res
 renderConsole this state =
   [ DOM.div [ Props.className "console" ]
-      $ concat
+      $ intercalate [ DOM.br' ]
       $ map renderConsoleItem
       $ state.console
       <> case state.mode of
           TopMode top ->
-            [ stringEditorConsoleInfo
-                $ "term: "
-                <> pprint top.term
+            [ stringEditorConsoleInfo <<< intercalate "\n"
+                $ [ "[mode: top]"
+                  , "  term: " <> pprint top.term
+                  ]
             ]
           CursorMode cursor ->
-            [ stringEditorConsoleInfo
-                $ "cursor location:"
-                <> "\n  path: "
-                <> pprint cursor.location.path
-                <> "\n  term: "
-                <> pprint cursor.location.term
+            [ stringEditorConsoleInfo <<< intercalate "\n"
+                $ [ "[mode: cursor]"
+                  , "cursor location:"
+                  , "  path: " <> pprint cursor.location.path
+                  , "  term: " <> pprint cursor.location.term
+                  ]
             ]
           SelectMode select ->
-            [ stringEditorConsoleInfo
-                $ "selection start location:"
-                <> "\n  path: "
-                <> pprint select.locationStart.path
-                <> "\n  term: "
-                <> pprint select.locationStart.term
-            , stringEditorConsoleInfo
-                $ "selection end location:"
-                <> "\n  path: "
-                <> pprint select.locationEnd.path
-                <> "\n  term: "
-                <> pprint select.locationEnd.term
+            [ stringEditorConsoleInfo <<< intercalate "\n"
+                $ [ "[mode: select]"
+                  , "selection start location:"
+                  , "  path: " <> pprint select.locationStart.path
+                  , "  term: " <> pprint select.locationStart.term
+                  , "selection end location:"
+                  , "  path: " <> pprint select.locationEnd.path
+                  , "  term: " <> pprint select.locationEnd.term
+                  ]
             ]
   ]
   where
