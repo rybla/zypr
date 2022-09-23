@@ -4,7 +4,7 @@ import Data.Tuple.Nested
 import Prelude
 import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.Reader (ReaderT, runReaderT)
-import Control.Monad.State (StateT, get, put, runStateT)
+import Control.Monad.State (StateT, get, modify_, put, runStateT)
 import Data.Either (Either(..))
 import Data.Identity (Identity)
 import Data.Maybe (Maybe(..))
@@ -13,6 +13,7 @@ import Effect.Console as Console
 import React (ReactThis, getProps, getState, modifyState)
 import Zypr.EditorConsole (logEditorConsole, stringEditorConsoleError)
 import Zypr.EditorTypes (EditorState, EditorProps)
+import Zypr.Location (Location)
 import Zypr.Location as Location
 import Zypr.SyntaxTheme (Res)
 
@@ -29,6 +30,10 @@ runEditorEffect this eff = do
       -- Console.log $ "[!] " <> err
       modifyState this $ logEditorConsole (stringEditorConsoleError err)
     Right (_ /\ state') -> modifyState this \_ -> state'
+
+setLocation :: Location -> EditorEffect Unit
+setLocation loc = do
+  modify_ _ { location = loc }
 
 stepLeft :: EditorEffect Unit
 stepLeft = do

@@ -6,6 +6,8 @@
   , "debug"
   , "effect"
   , "either"
+  , "exceptions"
+  , "foldable-traversable"
   , "identity"
   , "lists"
   , "maybe"

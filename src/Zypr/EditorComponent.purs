@@ -7,6 +7,7 @@ import Effect.Console as Console
 import React (ReactClass, ReactElement, ReactThis, component, getProps, getState)
 import React.DOM as DOM
 import React.DOM.Props as Props
+import Undefined (undefined)
 import Web.Event.Event (EventType(..))
 import Web.Event.EventTarget (addEventListener, eventListener)
 import Web.HTML (window)
@@ -51,7 +52,7 @@ editorComponent this = do
 renderProgram :: EditorState -> Res
 renderProgram state =
   [ DOM.div [ Props.className "program" ]
-      $ renderLocation state.syntaxTheme state.location
+      $ undefined -- renderLocation state.syntaxTheme state.location
   ]
 
 renderConsole :: EditorState -> Res

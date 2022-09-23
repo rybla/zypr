@@ -1,68 +1,110 @@
 module Zypr.Location where
 
+import Data.Tuple.Nested
 import Prelude
 import Zypr.Metadata
 import Zypr.Path
 import Zypr.Syntax
+import Data.Array (null, reverse, uncons, unsnoc, (:))
 import Data.Maybe (Maybe(..))
+import Undefined (undefined)
 
 type Location
   = { term :: Term -- the Term at this Location
     , path :: Path -- the Path to the Term at this Location
     }
 
-stepLeft :: Location -> Maybe Location
-stepLeft loc = case loc.path of
-  Top -> Nothing
-  Lam_var lam -> stepUp loc
-  Lam_bod lam -> pure { term: lam.var, path: Lam_var { var: lam.bod, bod: loc.term, md: lam.md } }
-  -- App_apl app -> Nothing -- TODO
-  -- App_arg app -> pure { term: app.apl, path: App_apl { apl: app.arg, arg: loc.term, md: app.md } }
-  -- Let_var let_ -> Nothing -- TODO
-  -- Let_imp let_ -> pure { term: let_.var, path: Let_var { var: let_.imp, imp: loc.term, bod: let_.bod, md: let_.md } }
-  -- Let_bod let_ -> pure { term: let_.imp, path: Let_imp { var: let_.var, imp: let_.bod, bod: loc.term, md: let_.md } }
-  _ -> Nothing
-
 stepRight :: Location -> Maybe Location
 stepRight loc = case loc.path of
-  Top -> stepDown loc
-  Lam_var lam -> pure { term: lam.bod, path: Lam_bod { var: loc.term, bod: lam.var, md: lam.md } }
-  Lam_bod lam -> stepDown loc
-  -- App_apl app -> pure { term: app.arg, path: App_arg { apl: loc.term, arg: app.apl, md: app.md } }
-  -- App_arg app -> Nothing
-  -- Let_var let_ -> pure { term: let_.imp, path: Let_imp { var: loc.term, imp: let_.var, bod: let_.bod, md: let_.md } }
-  -- Let_imp let_ -> pure { term: let_.bod, path: Let_bod { var: let_.bod, imp: loc.term, bod: let_.imp, md: let_.md } }
-  -- Let_bod let_ -> Nothing
+  Zip { node, lefts, up, rights }
+    | Just { head: term, tail: rights' } <- uncons rights ->
+      pure
+        { term
+        , path: Zip { node, lefts: loc.term : lefts, up, rights }
+        }
   _ -> Nothing
+
+stepNext :: Location -> Maybe Location
+stepNext loc = case stepRight loc of
+  Just loc' -> pure loc'
+  Nothing -> stepDown loc
+
+stepLeft :: Location -> Maybe Location
+stepLeft loc = case loc.path of
+  Zip { node, lefts, up, rights }
+    | Just { head: term, tail: lefts' } <- uncons lefts ->
+      pure
+        { term
+        , path: Zip { node, lefts, up, rights: loc.term : rights }
+        }
+  _ -> Nothing
+
+stepPrev :: Location -> Maybe Location
+stepPrev loc = case stepLeft loc of
+  Just loc' -> pure loc'
+  Nothing -> stepUp loc
 
 stepDown :: Location -> Maybe Location
 stepDown loc = case loc.term of
-  Var var -> Nothing
-  -- TODO: this is wrong, because it puts the previous path at the var
-  -- Lam lam -> pure { term: lam.var, path: snocPath loc.path (Lam_var { var: Top, bod: lam.bod, md: lam.md }) }
-  -- TODO: this is wrong, because it shuffles the above term into the var position
-  Lam lam -> pure { term: lam.var, path: Lam_var { var: loc.path, bod: lam.bod, md: lam.md } }
-  -- App app -> ?a
-  -- Let let_ -> ?a
+  Term { node, terms }
+    | Just { head: term, tail: terms' } <- uncons terms ->
+      pure
+        { term: term
+        , path: Zip { node, lefts: [], up: loc.path, rights: terms' }
+        }
   _ -> Nothing
 
--- stepDown loc = case loc.path of
---   Top -> Nothing
---   Lam_var lam -> Nothing
---   Lam_bod lam -> Nothing
---   App_apl app -> Nothing
---   App_arg app -> Nothing
---   Let_var let_ -> Nothing
---   Let_imp let_ -> Nothing
---   Let_bod let_ -> Nothing
+-- | Example: pickN [1,2,3,4,5] 2 = Just { lefts: [2,1], pick: 3, rights: [4,5] }
+pickN ::
+  forall a.
+  Array a ->
+  Int ->
+  Maybe { lefts :: Array a, pick :: a, rights :: Array a }
+pickN = go []
+  where
+  go ::
+    Array a ->
+    Array a ->
+    Int ->
+    Maybe { lefts :: Array a, pick :: a, rights :: Array a }
+  go lefts arr n
+    | n == 0, Just { head: pick, tail: rights } <- uncons arr = Just { lefts, pick, rights }
+    | n > 0, Just { head: left, tail: arr' } <- uncons arr = go (left : lefts) arr' (n - 1)
+    | otherwise = Nothing
+
+-- steps down to the Nth child of Term
+stepDownN :: Location -> Int -> Maybe Location
+stepDownN loc n = case loc.term of
+  Term { node, terms }
+    | Just { lefts, pick: term, rights } <- pickN terms n ->
+      pure
+        { term
+        , path: Zip { node, lefts, up: loc.path, rights }
+        }
+  _ -> Nothing
+
 stepUp :: Location -> Maybe Location
 stepUp loc = case loc.path of
-  Top -> Nothing
-  Lam_var lam -> pure { term: Lam { var: loc.term, bod: lam.bod, md: lam.md }, path: lam.var }
-  Lam_bod lam -> pure { term: Lam { var: lam.var, bod: loc.term, md: lam.md }, path: lam.bod }
-  -- App_apl app -> Nothing
-  -- App_arg app -> Nothing
-  -- Let_var let_ -> Nothing
-  -- Let_imp let_ -> Nothing
-  -- Let_bod let_ -> Nothing
+  Zip { node, lefts, up, rights } ->
+    pure
+      { term: Term { node, terms: reverse lefts <> [ loc.term ] <> rights }
+      , path: up
+      }
   _ -> Nothing
+
+-- step up, then get children
+-- includes self
+siblings :: Location -> Array Location
+siblings loc = case stepUp loc of
+  Just loc' -> children loc'
+  Nothing -> [ loc ]
+
+-- step down, then step right until can't
+children :: Location -> Array Location
+children loc = case stepDown loc of
+  Just loc' -> go [] loc'
+  Nothing -> []
+  where
+  go locs loc = case stepRight loc of
+    Just loc' -> go (loc : locs) loc'
+    Nothing -> reverse (loc : locs)
