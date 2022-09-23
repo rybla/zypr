@@ -24,3 +24,4 @@ type ConsoleItem
 data ConsoleItemType
   = ConsoleItemError
   | ConsoleItemInfo
+  | ConsoleItemLog

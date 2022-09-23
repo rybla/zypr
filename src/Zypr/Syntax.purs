@@ -52,14 +52,26 @@ caseTerm hdl = case _ of
 mkVar :: { var :: Var } -> Term
 mkVar { var } = Term { node: Var var, terms: [] }
 
+var :: Id -> Term
+var id = mkVar { var: { id, md: {} } }
+
 mkLam :: { lam :: Lam, bnd :: Term, bod :: Term } -> Term
 mkLam { lam, bnd, bod } = Term { node: Lam lam, terms: [ bnd, bod ] }
+
+lam :: Id -> Term -> Term
+lam id bod = mkLam { lam: { md: { indent_bod: false } }, bnd: var id, bod }
 
 mkApp :: { app :: App, apl :: Term, arg :: Term } -> Term
 mkApp { app, apl, arg } = Term { node: App app, terms: [ apl, arg ] }
 
+app :: Term -> Term -> Term
+app apl arg = mkApp { app: { md: { indent_arg: false } }, apl, arg }
+
 mkLet :: { let_ :: Let, bnd :: Term, imp :: Term, bod :: Term } -> Term
 mkLet { let_, bnd, imp } = Term { node: Let let_, terms: [ bnd, imp ] }
+
+let_ :: Term -> Term -> Term -> Term
+let_ bnd imp bod = mkLet { let_: { md: { indent_imp: false, indent_bod: false } }, bnd, imp, bod }
 
 -- instances
 derive instance genericTerm :: Generic Term _

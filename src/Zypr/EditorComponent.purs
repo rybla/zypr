@@ -7,7 +7,7 @@ import Effect.Console as Console
 import React (ReactClass, ReactElement, ReactThis, component, getProps, getState)
 import React.DOM as DOM
 import React.DOM.Props as Props
-import Undefined (undefined)
+import Text.PP (pprint)
 import Web.Event.Event (EventType(..))
 import Web.Event.EventTarget (addEventListener, eventListener)
 import Web.HTML (window)
@@ -52,7 +52,8 @@ editorComponent this = do
 renderProgram :: EditorState -> Res
 renderProgram state =
   [ DOM.div [ Props.className "program" ]
-      $ undefined -- renderLocation state.syntaxTheme state.location
+      -- renderLocation state.syntaxTheme state.location
+      [ DOM.text "<program>" ]
   ]
 
 renderConsole :: EditorState -> Res
@@ -60,7 +61,13 @@ renderConsole state =
   [ DOM.div [ Props.className "console" ]
       $ concat
           ( map renderConsoleItem $ state.console
-              <> [ stringEditorConsoleInfo $ "location: " <> show state.location ]
+              <> [ stringEditorConsoleInfo
+                    $ "location:"
+                    <> "\n  path: "
+                    <> pprint state.location.path
+                    <> "\n  term: "
+                    <> pprint state.location.term
+                ]
           )
   ]
   where
@@ -70,6 +77,7 @@ renderConsole state =
             <> case type_ of
                 ConsoleItemError -> "console-item-error"
                 ConsoleItemInfo -> "console-item-info"
+                ConsoleItemLog -> "console-item-log"
         ]
         res
     ]

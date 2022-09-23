@@ -1,9 +1,11 @@
 module Zypr.Path where
 
 import Prelude
-import Zypr.Syntax (Node, Term)
+import Zypr.Syntax
 import Data.Generic.Rep (class Generic)
 import Data.Show.Generic (genericShow)
+import Effect.Exception.Unsafe (unsafeThrow)
+import Text.PP as PP
 
 data Path
   = Top
@@ -14,6 +16,37 @@ data Path
     , rights :: Array Term -- Terms to the right
     }
 
+-- pattern matching
+casePath ::
+  forall a.
+  { top :: Unit -> a
+  , lam ::
+      { bnd :: { lam :: Lam, bnd :: Path, bod :: Term } -> a
+      , bod :: { lam :: Lam, bnd :: Term, bod :: Path } -> a
+      }
+  , app ::
+      { apl :: { app :: App, apl :: Path, arg :: Term } -> a
+      , arg :: { app :: App, apl :: Term, arg :: Path } -> a
+      }
+  , let_ ::
+      { bnd :: { let_ :: Let, bnd :: Path, imp :: Term, bod :: Term } -> a
+      , imp :: { let_ :: Let, bnd :: Term, imp :: Path, bod :: Term } -> a
+      , bod :: { let_ :: Let, bnd :: Term, imp :: Term, bod :: Path } -> a
+      }
+  } ->
+  Path ->
+  a
+casePath hdl = case _ of
+  Top -> hdl.top unit
+  Zip { node: Lam lam, lefts: [], up: bnd, rights: [ bod ] } -> hdl.lam.bnd { lam, bnd, bod }
+  Zip { node: Lam lam, lefts: [ bnd ], up: bod, rights: [] } -> hdl.lam.bod { lam, bnd, bod }
+  Zip { node: App app, lefts: [], up: apl, rights: [ arg ] } -> hdl.app.apl { app, apl, arg }
+  Zip { node: App app, lefts: [ apl ], up: arg, rights: [] } -> hdl.app.arg { app, apl, arg }
+  Zip { node: Let let_, lefts: [], up: bnd, rights: [ imp, bod ] } -> hdl.let_.bnd { let_, bnd, imp, bod }
+  Zip { node: Let let_, lefts: [ bnd ], up: imp, rights: [ bod ] } -> hdl.let_.imp { let_, bnd, imp, bod }
+  Zip { node: Let let_, lefts: [ imp, bnd ], up: bod, rights: [] } -> hdl.let_.bod { let_, bnd, imp, bod }
+  path -> unsafeThrow $ "malformed path: " <> show path
+
 -- instances
 derive instance genericPath :: Generic Path _
 
@@ -21,3 +54,22 @@ derive instance eqPath :: Eq Path
 
 instance showPath :: Show Path where
   show x = genericShow x
+
+instance ppPath :: PP.PP Path where
+  pp =
+    casePath
+      { top: \_ -> PP.pp "@"
+      , lam:
+          { bnd: \lam -> (PP.paren <<< PP.words) [ PP.pp "fun", PP.pp lam.bnd, PP.pp "=>", PP.pp lam.bod ]
+          , bod: \lam -> (PP.paren <<< PP.words) [ PP.pp "fun", PP.pp lam.bnd, PP.pp "=>", PP.pp lam.bod ]
+          }
+      , app:
+          { apl: \app -> (PP.paren <<< PP.words) [ PP.pp app.apl, PP.pp app.arg ]
+          , arg: \app -> (PP.paren <<< PP.words) [ PP.pp app.apl, PP.pp app.arg ]
+          }
+      , let_:
+          { bnd: \let_ -> (PP.paren <<< PP.words) [ PP.pp "let", PP.pp let_.bnd, PP.pp "=", PP.pp let_.imp, PP.pp "in", PP.pp let_.bod ]
+          , imp: \let_ -> (PP.paren <<< PP.words) [ PP.pp "let", PP.pp let_.bnd, PP.pp "=", PP.pp let_.imp, PP.pp "in", PP.pp let_.bod ]
+          , bod: \let_ -> (PP.paren <<< PP.words) [ PP.pp "let", PP.pp let_.bnd, PP.pp "=", PP.pp let_.imp, PP.pp "in", PP.pp let_.bod ]
+          }
+      }

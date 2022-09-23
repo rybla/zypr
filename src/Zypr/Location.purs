@@ -7,7 +7,6 @@ import Zypr.Path
 import Zypr.Syntax
 import Data.Array (null, reverse, uncons, unsnoc, (:))
 import Data.Maybe (Maybe(..))
-import Undefined (undefined)
 
 type Location
   = { term :: Term -- the Term at this Location
@@ -20,7 +19,7 @@ stepRight loc = case loc.path of
     | Just { head: term, tail: rights' } <- uncons rights ->
       pure
         { term
-        , path: Zip { node, lefts: loc.term : lefts, up, rights }
+        , path: Zip { node, lefts: loc.term : lefts, up, rights: rights' }
         }
   _ -> Nothing
 
@@ -35,7 +34,7 @@ stepLeft loc = case loc.path of
     | Just { head: term, tail: lefts' } <- uncons lefts ->
       pure
         { term
-        , path: Zip { node, lefts, up, rights: loc.term : rights }
+        , path: Zip { node, lefts: lefts', up, rights: loc.term : rights }
         }
   _ -> Nothing
 

@@ -74,6 +74,7 @@ body {
 .console {
   margin: 0;
   padding: 10px;
+  width: calc(100% - 20px);
   position: fixed;
   bottom: 0;
 
@@ -84,15 +85,20 @@ body {
 .console-item {
   margin-top: 8px;
   padding: 5px;
-  width: calc(100% - 10px);
+  overflow-x: scroll;
+  white-space: pre;
 
   border-radius: 10px;
 }
 
 .console-item-info {
-  background-color: orange;
+  background-color: rgb(255, 199, 94);
+}
+
+.console-item-log {
+  background-color: tan;
 }
 
 .console-item-error {
-  background-color: red;
+  background-color: rgb(255, 94, 94);
 }

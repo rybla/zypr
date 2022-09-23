@@ -6,14 +6,14 @@ import Zypr.Location
 import Zypr.Path
 import Zypr.Syntax
 import Zypr.SyntaxTheme
-import Data.Array (concat, concatMap, intercalate)
+import Data.Array (concat, concatMap, intercalate, length, zip)
+import Data.Maybe (Maybe(..))
 import Data.String (joinWith)
 import Data.String.CodeUnits as String
 import Effect.Exception.Unsafe (unsafeThrow)
 import React (ReactThis)
 import React.DOM as DOM
 import React.DOM.Props as Props
-import Undefined (undefined)
 import Zypr.EditorEffect (runEditorEffect, setLocation)
 import Zypr.EditorTypes (EditorProps, EditorState)
 
@@ -22,18 +22,49 @@ type RenderArgs
     , thm :: SyntaxTheme
     }
 
+-- renders 
 renderLocation :: RenderArgs -> Location -> Res
-renderLocation args loc = renderPath args loc loc.path loc
+-- renderLocation args loc = case loc.path of
+--   Top -> renderLocationTerm args loc
+--   Zip { node, lefts, up, rights } -> renderNode args ?a ?a
+renderLocation = unsafeThrow "unimplemented: renderLocation"
 
-renderPath :: RenderArgs -> Location -> Path -> (Location -> Res)
-renderPath args loc = case _ of
-  Top -> renderNode' args
+renderLocationPath :: RenderArgs -> Location -> (Res -> Res)
+renderLocationPath args loc = case loc.path of
+  Top -> identity
   Zip { node, lefts, up, rights } -> \res ->
-    ?a
+    let
+      i = length lefts
 
-renderNode' :: RenderArgs -> Location -> Res
-renderNode' = undefined
+      k = renderLocationPath args (unsafeFromJust $ stepUp loc)
+    in
+      -- renderNode args loc
+      --   $ map ?a (lefts <> [ ?a ] <> rights)
+      unsafeThrow "unimplemented: renderLocationPath"
 
+{-}
+-- Renders a `Path` to this `Location` and the `Term` at this location 
+renderLocationPath :: RenderArgs -> Location -> Res
+renderLocationPath args loc = ?a
+
+= case _ of
+  Top -> renderLocationTerm args
+  Zip { node, lefts, up, rights } -> \loc' ->
+    let
+      _ = ?a
+    in
+      renderNode args loc
+        ( map ?a
+            $ (lefts <> [ ?a ] <> rights) `zip` ?a
+        )
+-}
+-- only render `Term` at this `Location`
+renderLocationTerm :: RenderArgs -> Location -> Res
+renderLocationTerm args loc =
+  renderNode args loc
+    $ map (renderLocationTerm args) (children loc)
+
+-- only render `Node` at this `Location`, using pre-rendered children 
 renderNode :: RenderArgs -> Location -> Array Res -> Res
 renderNode args loc@{ term: Term { node } } ress =
   [ DOM.div
@@ -67,3 +98,7 @@ renderNode args loc@{ term: Term { node } } ress =
 -- renderNode _ _ _ = unsafeThrow "malformed term"
 -- renderPreNode :: Node -> Res -> Res
 -- renderPreNode node res = [ DOM.div [ Props.className "term" ] res ]
+unsafeFromJust :: forall a. Maybe a -> a
+unsafeFromJust = case _ of
+  Just a -> a
+  Nothing -> unsafeThrow "unsafeFromJust: Nothing"

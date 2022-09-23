@@ -1,11 +1,29 @@
-module Zypr.Example.Lambdas
-  ( term
-  ) where
+module Zypr.Example.Lambdas where
 
 import Prelude
 import Zypr.Metadata
 import Zypr.Syntax
-import Undefined (undefined)
+import Data.Foldable (foldr)
+import Zypr.Path (Path(..))
+
+xxx :: Path
+xxx =
+  ( Zip
+      { lefts: [ (Term { node: (Var { id: "a", md: {} }), terms: [] }) ]
+      , node: (Lam { md: { indent_bod: false } })
+      , rights:
+          [ ( Term
+                { node: (Lam { md: { indent_bod: false } })
+                , terms:
+                    [ (Term { node: (Var { id: "b", md: {} }), terms: [] })
+                    , (Term { node: (Var { id: "a", md: {} }), terms: [] })
+                    ]
+                }
+            )
+          ]
+      , up: Top
+      }
+  )
 
 -- term :: Term
 -- term =
@@ -25,4 +43,4 @@ import Undefined (undefined)
 --       , md: defaultLamMetadata
 --       }
 term :: Term
-term = undefined
+term = foldr ($) (var "a") [ lam "a", lam "b" ]
