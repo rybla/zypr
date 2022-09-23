@@ -37,10 +37,6 @@ editorComponent this = do
       $ concat
           [ renderProgram this state
           , renderConsole this state
-          -- , [ DOM.div [ Props.className "console" ]
-          --       [ DOM.div [ Props.className "console-item" ]
-          --       ]
-          --   ]
           ]
 
   componentDidMount = do

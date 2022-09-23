@@ -1,17 +1,16 @@
 module Zypr.Path where
 
 import Prelude
-import Zypr.Syntax
+import Zypr.Syntax (AppData, LamData, LetData, Term, TermData(..))
 import Data.Generic.Rep (class Generic)
 import Data.Show.Generic (genericShow)
 import Effect.Exception.Unsafe (unsafeThrow)
-import Partial.Unsafe (unsafeCrashWith)
 import Text.PP as PP
 
 data Path
   = Top
   | Zip
-    { node :: Node -- Node of Term
+    { dat :: TermData -- TermData of Term
     , lefts :: Array Term -- Terms to the left, reversed
     , up :: Path -- Path up
     , rights :: Array Term -- Terms to the right
@@ -22,30 +21,30 @@ casePath ::
   forall a.
   { top :: Unit -> a
   , lam ::
-      { bnd :: { lam :: Lam, bnd :: Path, bod :: Term } -> a
-      , bod :: { lam :: Lam, bnd :: Term, bod :: Path } -> a
+      { bnd :: { dat :: LamData, bnd :: Path, bod :: Term } -> a
+      , bod :: { dat :: LamData, bnd :: Term, bod :: Path } -> a
       }
   , app ::
-      { apl :: { app :: App, apl :: Path, arg :: Term } -> a
-      , arg :: { app :: App, apl :: Term, arg :: Path } -> a
+      { apl :: { dat :: AppData, apl :: Path, arg :: Term } -> a
+      , arg :: { dat :: AppData, apl :: Term, arg :: Path } -> a
       }
   , let_ ::
-      { bnd :: { let_ :: Let, bnd :: Path, imp :: Term, bod :: Term } -> a
-      , imp :: { let_ :: Let, bnd :: Term, imp :: Path, bod :: Term } -> a
-      , bod :: { let_ :: Let, bnd :: Term, imp :: Term, bod :: Path } -> a
+      { bnd :: { dat :: LetData, bnd :: Path, imp :: Term, bod :: Term } -> a
+      , imp :: { dat :: LetData, bnd :: Term, imp :: Path, bod :: Term } -> a
+      , bod :: { dat :: LetData, bnd :: Term, imp :: Term, bod :: Path } -> a
       }
   } ->
   Path ->
   a
 casePath hdl = case _ of
   Top -> hdl.top unit
-  Zip { node: Lam lam, lefts: [], up: bnd, rights: [ bod ] } -> hdl.lam.bnd { lam, bnd, bod }
-  Zip { node: Lam lam, lefts: [ bnd ], up: bod, rights: [] } -> hdl.lam.bod { lam, bnd, bod }
-  Zip { node: App app, lefts: [], up: apl, rights: [ arg ] } -> hdl.app.apl { app, apl, arg }
-  Zip { node: App app, lefts: [ apl ], up: arg, rights: [] } -> hdl.app.arg { app, apl, arg }
-  Zip { node: Let let_, lefts: [], up: bnd, rights: [ imp, bod ] } -> hdl.let_.bnd { let_, bnd, imp, bod }
-  Zip { node: Let let_, lefts: [ bnd ], up: imp, rights: [ bod ] } -> hdl.let_.imp { let_, bnd, imp, bod }
-  Zip { node: Let let_, lefts: [ imp, bnd ], up: bod, rights: [] } -> hdl.let_.bod { let_, bnd, imp, bod }
+  Zip { dat: LamData dat, lefts: [], up: bnd, rights: [ bod ] } -> hdl.lam.bnd { dat, bnd, bod }
+  Zip { dat: LamData dat, lefts: [ bnd ], up: bod, rights: [] } -> hdl.lam.bod { dat, bnd, bod }
+  Zip { dat: AppData dat, lefts: [], up: apl, rights: [ arg ] } -> hdl.app.apl { dat, apl, arg }
+  Zip { dat: AppData dat, lefts: [ apl ], up: arg, rights: [] } -> hdl.app.arg { dat, apl, arg }
+  Zip { dat: LetData dat, lefts: [], up: bnd, rights: [ imp, bod ] } -> hdl.let_.bnd { dat, bnd, imp, bod }
+  Zip { dat: LetData dat, lefts: [ bnd ], up: imp, rights: [ bod ] } -> hdl.let_.imp { dat, bnd, imp, bod }
+  Zip { dat: LetData dat, lefts: [ imp, bnd ], up: bod, rights: [] } -> hdl.let_.bod { dat, bnd, imp, bod }
   path -> unsafeThrow $ "malformed path: " <> show path
 
 -- instances

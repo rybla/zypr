@@ -16,10 +16,10 @@ type SyntaxTheme
         { name :: String
         }
     , term ::
-        { var :: { var :: Var, id :: Res } -> Res
-        , lam :: { lam :: Lam, bnd :: Res, bod :: Res } -> Res
-        , app :: { app :: App, apl :: Res, arg :: Res } -> Res
-        , let_ :: { let_ :: Let, bnd :: Res, imp :: Res, bod :: Res } -> Res
+        { var :: { dat :: VarData, id :: Res } -> Res
+        , lam :: { dat :: LamData, bnd :: Res, bod :: Res } -> Res
+        , app :: { dat :: AppData, apl :: Res, arg :: Res } -> Res
+        , let_ :: { dat :: LetData, bnd :: Res, imp :: Res, bod :: Res } -> Res
         }
     }
 
@@ -30,15 +30,15 @@ basicSyntaxTheme =
       }
   , term:
       { var:
-          \{ var, id } -> id
+          \{ dat, id } -> id
       , lam:
-          \{ lam, bnd, bod } ->
+          \{ dat, bnd, bod } ->
             concat [ tk_lambda, tk_space, bnd, tk_space, tk_mapsto, tk_space, assoc bod ]
       , app:
-          \{ app, apl, arg } ->
+          \{ dat, apl, arg } ->
             concat [ apl, tk_space, arg ]
       , let_:
-          \{ let_, bnd, imp, bod } ->
+          \{ dat, bnd, imp, bod } ->
             concat [ tk_let, tk_space, bnd, tk_space, tk_assign, imp, tk_space, tk_in, tk_space, bod ]
       }
   }

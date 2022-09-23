@@ -16,11 +16,11 @@ type Location
 
 stepRight :: Location -> Maybe Location
 stepRight loc = case loc.path of
-  Zip { node, lefts, up, rights }
+  Zip { dat, lefts, up, rights }
     | Just { head: term, tail: rights' } <- uncons rights ->
       pure
         { term
-        , path: Zip { node, lefts: loc.term : lefts, up, rights: rights' }
+        , path: Zip { dat, lefts: loc.term : lefts, up, rights: rights' }
         }
   _ -> Nothing
 
@@ -31,11 +31,11 @@ stepNext loc = case stepRight loc of
 
 stepLeft :: Location -> Maybe Location
 stepLeft loc = case loc.path of
-  Zip { node, lefts, up, rights }
+  Zip { dat, lefts, up, rights }
     | Just { head: term, tail: lefts' } <- uncons lefts ->
       pure
         { term
-        , path: Zip { node, lefts: lefts', up, rights: loc.term : rights }
+        , path: Zip { dat, lefts: lefts', up, rights: loc.term : rights }
         }
   _ -> Nothing
 
@@ -45,12 +45,12 @@ stepPrev loc = case stepLeft loc of
   Nothing -> stepUp loc
 
 stepDown :: Location -> Maybe Location
-stepDown loc = case loc.term of
-  Term { node, terms }
+stepDown loc = case toGenTerm loc.term of
+  { dat, terms }
     | Just { head: term, tail: terms' } <- uncons terms ->
       pure
         { term: term
-        , path: Zip { node, lefts: [], up: loc.path, rights: terms' }
+        , path: Zip { dat, lefts: [], up: loc.path, rights: terms' }
         }
   _ -> Nothing
 
@@ -74,32 +74,24 @@ pickN = go []
 
 -- steps down to the Nth child of Term
 stepDownN :: Location -> Int -> Maybe Location
-stepDownN loc n = case loc.term of
-  Term { node, terms }
+stepDownN loc n = case toGenTerm loc.term of
+  { dat, terms }
     | Just { lefts, pick: term, rights } <- pickN terms n ->
       pure
         { term
-        , path: Zip { node, lefts, up: loc.path, rights }
+        , path: Zip { dat, lefts, up: loc.path, rights }
         }
   _ -> Nothing
 
 stepUp :: Location -> Maybe Location
 stepUp loc = case loc.path of
-  Zip { node, lefts, up, rights } ->
+  Zip { dat, lefts, up, rights } ->
     pure
-      { term: Term { node, terms: reverse lefts <> [ loc.term ] <> rights }
+      { term: fromGenTerm { dat, terms: reverse lefts <> [ loc.term ] <> rights }
       , path: up
       }
   _ -> Nothing
 
-{-
--- step up, then get children
--- includes self
-siblings :: Location -> Array Location
-siblings loc = case stepUp loc of
-  Just loc' -> children loc'
-  Nothing -> [ loc ]
--}
 siblings :: Location -> { lefts :: Array Location, rights :: Array Location }
 siblings loc = { lefts: goLeft [] loc, rights: goRight [] loc }
   where

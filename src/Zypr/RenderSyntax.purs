@@ -44,12 +44,12 @@ renderLocationSelect args locStart locEnd =
 renderLocationPath :: RenderArgs -> Location -> (Res -> Res)
 renderLocationPath args loc = case loc.path of
   Top -> identity
-  Zip { node, lefts, up, rights } -> \res ->
+  Zip { dat, lefts, up, rights } -> \res ->
     let
       loc' = unsafeFromJust $ stepUp loc
     in
       renderLocationPath args loc'
-        $ renderNode args loc'
+        $ renderTermData args loc'
         $ concat
             [ map (renderLocationTerm args) sbls.lefts
             , [ res ]
@@ -61,7 +61,7 @@ renderLocationPath args loc = case loc.path of
 -- only render `Term` at this `Location`
 renderLocationTerm :: RenderArgs -> Location -> Res
 renderLocationTerm args loc =
-  renderNode args loc
+  renderTermData args loc
     $ map (renderLocationTerm args) (children loc)
 
 renderCursor :: RenderArgs -> Res -> Res
@@ -82,36 +82,39 @@ renderSelectEnd args res =
       res
   ]
 
--- only render `Node` at this `Location`, using pre-rendered children 
-renderNode :: RenderArgs -> Location -> Array Res -> Res
-renderNode args loc@{ term: Term { node } } ress =
-  [ DOM.div
-      [ Props.className
-          <<< intercalate " "
-          <<< concat
-          $ [ [ "term"
-              , case node of
-                  Var _ -> "term-var"
-                  Lam _ -> "term-lam"
-                  App _ -> "term-app"
-                  Let _ -> "term-let"
+-- only render `TermData` at this `Location`, using pre-rendered children 
+renderTermData :: RenderArgs -> Location -> Array Res -> Res
+renderTermData args loc@{ term } ress =
+  let
+    { dat } = toGenTerm term
+  in
+    [ DOM.div
+        [ Props.className
+            <<< intercalate " "
+            <<< concat
+            $ [ [ "term"
+                , case dat of
+                    VarData _ -> "term-var"
+                    LamData _ -> "term-lam"
+                    AppData _ -> "term-app"
+                    LetData _ -> "term-let"
+                ]
               ]
-            ]
-      , Props.onClick \event -> do
-          stopPropagation event
-          runEditorEffect args.this do
-            setLocation loc
-      ] case node /\ ress of
-      Var var /\ [] -> args.thm.term.var { var, id: [ DOM.text var.id ] }
-      Lam lam /\ [ bnd, bod ] -> args.thm.term.lam { lam, bnd, bod }
-      App app /\ [ apl, arg ] -> args.thm.term.app { app, apl, arg }
-      Let let_ /\ [ bnd, imp, bod ] -> args.thm.term.let_ { let_, bnd, imp, bod }
-      _ ->
-        unsafeThrow
-          $ "renderNode: malformed term:"
-          <> ("\n  node: " <> show node)
-          <> ("\n  ress: " <> "[" <> show (length ress) <> "]")
-  ]
+        , Props.onClick \event -> do
+            stopPropagation event
+            runEditorEffect args.this do
+              setLocation loc
+        ] case dat /\ ress of
+        VarData dat /\ [] -> args.thm.term.var { dat, id: [ DOM.text dat.id ] }
+        LamData dat /\ [ bnd, bod ] -> args.thm.term.lam { dat, bnd, bod }
+        AppData dat /\ [ apl, arg ] -> args.thm.term.app { dat, apl, arg }
+        LetData dat /\ [ bnd, imp, bod ] -> args.thm.term.let_ { dat, bnd, imp, bod }
+        _ ->
+          unsafeThrow
+            $ "renderTermData: malformed term:"
+            <> ("\n  dat: " <> show dat)
+            <> ("\n  ress: " <> "[" <> show (length ress) <> "]")
+    ]
 
 unsafeFromJust :: forall a. Maybe a -> a
 unsafeFromJust = case _ of
