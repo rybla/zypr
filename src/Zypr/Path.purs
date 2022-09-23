@@ -5,6 +5,7 @@ import Zypr.Syntax
 import Data.Generic.Rep (class Generic)
 import Data.Show.Generic (genericShow)
 import Effect.Exception.Unsafe (unsafeThrow)
+import Partial.Unsafe (unsafeCrashWith)
 import Text.PP as PP
 
 data Path
@@ -56,20 +57,23 @@ instance showPath :: Show Path where
   show x = genericShow x
 
 instance ppPath :: PP.PP Path where
-  pp =
-    casePath
-      { top: \_ -> PP.pp "@"
-      , lam:
-          { bnd: \lam -> (PP.paren <<< PP.words) [ PP.pp "fun", PP.pp lam.bnd, PP.pp "=>", PP.pp lam.bod ]
-          , bod: \lam -> (PP.paren <<< PP.words) [ PP.pp "fun", PP.pp lam.bnd, PP.pp "=>", PP.pp lam.bod ]
-          }
-      , app:
-          { apl: \app -> (PP.paren <<< PP.words) [ PP.pp app.apl, PP.pp app.arg ]
-          , arg: \app -> (PP.paren <<< PP.words) [ PP.pp app.apl, PP.pp app.arg ]
-          }
-      , let_:
-          { bnd: \let_ -> (PP.paren <<< PP.words) [ PP.pp "let", PP.pp let_.bnd, PP.pp "=", PP.pp let_.imp, PP.pp "in", PP.pp let_.bod ]
-          , imp: \let_ -> (PP.paren <<< PP.words) [ PP.pp "let", PP.pp let_.bnd, PP.pp "=", PP.pp let_.imp, PP.pp "in", PP.pp let_.bod ]
-          , bod: \let_ -> (PP.paren <<< PP.words) [ PP.pp "let", PP.pp let_.bnd, PP.pp "=", PP.pp let_.imp, PP.pp "in", PP.pp let_.bod ]
-          }
-      }
+  pp = go (PP.pp "@")
+    where
+    go :: PP.Doc -> Path -> PP.Doc
+    go doc =
+      casePath
+        { top: \_ -> doc
+        , lam:
+            { bnd: \lam -> go ((PP.paren <<< PP.words) [ PP.pp "fun", doc, PP.pp "=>", PP.pp lam.bod ]) lam.bnd
+            , bod: \lam -> go ((PP.paren <<< PP.words) [ PP.pp "fun", PP.pp lam.bnd, PP.pp "=>", doc ]) lam.bod
+            }
+        , app:
+            { apl: \app -> go ((PP.paren <<< PP.words) [ doc, PP.pp app.arg ]) app.apl
+            , arg: \app -> go ((PP.paren <<< PP.words) [ doc, PP.pp app.arg ]) app.arg
+            }
+        , let_:
+            { bnd: \let_ -> go ((PP.paren <<< PP.words) [ PP.pp "let", doc, PP.pp "=", PP.pp let_.imp, PP.pp "in", PP.pp let_.bod ]) let_.bnd
+            , imp: \let_ -> go ((PP.paren <<< PP.words) [ PP.pp "let", PP.pp let_.bnd, PP.pp "=", doc, PP.pp "in", PP.pp let_.bod ]) let_.imp
+            , bod: \let_ -> go ((PP.paren <<< PP.words) [ PP.pp "let", PP.pp let_.bnd, PP.pp "=", PP.pp let_.imp, PP.pp "in", PP.pp let_.bod ]) let_.bod
+            }
+        }

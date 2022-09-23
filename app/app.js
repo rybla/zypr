@@ -35158,7 +35158,7 @@
         return new Zip(x.value0);
       }
       ;
-      throw new Error("Failed pattern match at Zypr.Path (line 51, column 1 - line 51, column 46): " + [x.constructor.name]);
+      throw new Error("Failed pattern match at Zypr.Path (line 52, column 1 - line 52, column 46): " + [x.constructor.name]);
     },
     from: function(x) {
       if (x instanceof Top) {
@@ -35169,7 +35169,7 @@
         return new Inr(x.value0);
       }
       ;
-      throw new Error("Failed pattern match at Zypr.Path (line 51, column 1 - line 51, column 46): " + [x.constructor.name]);
+      throw new Error("Failed pattern match at Zypr.Path (line 52, column 1 - line 52, column 46): " + [x.constructor.name]);
     }
   };
   var genericShow3 = /* @__PURE__ */ genericShow(genericPath);
@@ -35249,41 +35249,46 @@
   };
   var $lazy_ppPath = /* @__PURE__ */ $runtime_lazy3("ppPath", "Zypr.Path", function() {
     return {
-      pp: casePath({
-        top: function(v) {
-          return pp3("@");
-        },
-        lam: {
-          bnd: function(lam2) {
-            return paren(words([pp3("fun"), pp($lazy_ppPath(0))(lam2.bnd), pp3("=>"), pp12(lam2.bod)]));
-          },
-          bod: function(lam2) {
-            return paren(words([pp3("fun"), pp12(lam2.bnd), pp3("=>"), pp($lazy_ppPath(0))(lam2.bod)]));
-          }
-        },
-        app: {
-          apl: function(app) {
-            return paren(words([pp($lazy_ppPath(0))(app.apl), pp12(app.arg)]));
-          },
-          arg: function(app) {
-            return paren(words([pp12(app.apl), pp($lazy_ppPath(0))(app.arg)]));
-          }
-        },
-        let_: {
-          bnd: function(let_) {
-            return paren(words([pp3("let"), pp($lazy_ppPath(0))(let_.bnd), pp3("="), pp12(let_.imp), pp3("in"), pp12(let_.bod)]));
-          },
-          imp: function(let_) {
-            return paren(words([pp3("let"), pp12(let_.bnd), pp3("="), pp($lazy_ppPath(0))(let_.imp), pp3("in"), pp12(let_.bod)]));
-          },
-          bod: function(let_) {
-            return paren(words([pp3("let"), pp12(let_.bnd), pp3("="), pp12(let_.imp), pp3("in"), pp($lazy_ppPath(0))(let_.bod)]));
-          }
-        }
-      })
+      pp: function() {
+        var go2 = function(doc) {
+          return casePath({
+            top: function(v) {
+              return doc;
+            },
+            lam: {
+              bnd: function(lam2) {
+                return go2(paren(words([pp3("fun"), doc, pp3("=>"), pp12(lam2.bod)])))(lam2.bnd);
+              },
+              bod: function(lam2) {
+                return go2(paren(words([pp3("fun"), pp12(lam2.bnd), pp3("=>"), doc])))(lam2.bod);
+              }
+            },
+            app: {
+              apl: function(app) {
+                return go2(paren(words([doc, pp12(app.arg)])))(app.apl);
+              },
+              arg: function(app) {
+                return go2(paren(words([doc, pp($lazy_ppPath(0))(app.arg)])))(app.arg);
+              }
+            },
+            let_: {
+              bnd: function(let_) {
+                return go2(paren(words([pp3("let"), doc, pp3("="), pp12(let_.imp), pp3("in"), pp12(let_.bod)])))(let_.bnd);
+              },
+              imp: function(let_) {
+                return go2(paren(words([pp3("let"), pp12(let_.bnd), pp3("="), doc, pp3("in"), pp12(let_.bod)])))(let_.imp);
+              },
+              bod: function(let_) {
+                return go2(paren(words([pp3("let"), pp12(let_.bnd), pp3("="), pp12(let_.imp), pp3("in"), pp($lazy_ppPath(0))(let_.bod)])))(let_.bod);
+              }
+            }
+          });
+        };
+        return go2(pp3("@"));
+      }()
     };
   });
-  var ppPath = /* @__PURE__ */ $lazy_ppPath(58);
+  var ppPath = /* @__PURE__ */ $lazy_ppPath(59);
 
   // output/Zypr.Example.Lambdas/index.js
   var term = /* @__PURE__ */ foldr(foldableArray)(apply)(/* @__PURE__ */ $$var("a"))([/* @__PURE__ */ lam("a"), /* @__PURE__ */ lam("b")]);
