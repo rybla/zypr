@@ -37061,12 +37061,12 @@
       return makeToken(className2)([text(str)]);
     };
   };
-  var tk_assign = /* @__PURE__ */ makeStringToken("keyword")(":=");
+  var tk_assign = /* @__PURE__ */ makeStringToken("keyword")("=");
   var tk_in = /* @__PURE__ */ makeStringToken("keyword keyword-in")("in");
-  var tk_lambda = /* @__PURE__ */ makeStringToken("keyword keyword-fun")("fun");
+  var tk_lambda = /* @__PURE__ */ makeStringToken("keyword keyword-lambda")("\u03BB");
   var tk_let = /* @__PURE__ */ makeStringToken("keyword keyword-let")("let");
   var tk_lparen = /* @__PURE__ */ makeStringToken("punc punc-paren punc-lparen")("(");
-  var tk_mapsto = /* @__PURE__ */ makeStringToken("keyword keyword-mapsto")("=>");
+  var tk_mapsto = /* @__PURE__ */ makeStringToken("keyword keyword-mapsto")("\u21D2");
   var tk_rparen = /* @__PURE__ */ makeStringToken("punc punc-paren punc-rparen rparen")(")");
   var tk_space = /* @__PURE__ */ makeStringToken("space")(" ");
   var assoc = function(res) {

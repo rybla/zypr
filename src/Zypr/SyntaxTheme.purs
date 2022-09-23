@@ -54,10 +54,10 @@ tk_rparen :: Res
 tk_rparen = makeStringToken "punc punc-paren punc-rparen rparen" ")"
 
 tk_lambda :: Res
-tk_lambda = makeStringToken "keyword keyword-fun" "fun"
+tk_lambda = makeStringToken "keyword keyword-lambda" "λ"
 
 tk_mapsto :: Res
-tk_mapsto = makeStringToken "keyword keyword-mapsto" "=>"
+tk_mapsto = makeStringToken "keyword keyword-mapsto" "⇒"
 
 tk_let :: Res
 tk_let = makeStringToken "keyword keyword-let" "let"
@@ -66,7 +66,7 @@ tk_in :: Res
 tk_in = makeStringToken "keyword keyword-in" "in"
 
 tk_assign :: Res
-tk_assign = makeStringToken "keyword" ":="
+tk_assign = makeStringToken "keyword" "="
 
 assoc :: Res -> Res
 assoc res = concat [ tk_lparen, res, tk_rparen ]
