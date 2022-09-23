@@ -447,7 +447,7 @@
             }
             return element;
           };
-          function createElement2(type, config, children) {
+          function createElement2(type, config, children2) {
             var propName;
             var props = {};
             var key = null;
@@ -477,7 +477,7 @@
             }
             var childrenLength = arguments.length - 2;
             if (childrenLength === 1) {
-              props.children = children;
+              props.children = children2;
             } else if (childrenLength > 1) {
               var childArray = Array(childrenLength);
               for (var i = 0; i < childrenLength; i++) {
@@ -515,7 +515,7 @@
             var newElement = ReactElement(oldElement.type, newKey, oldElement.ref, oldElement._self, oldElement._source, oldElement._owner, oldElement.props);
             return newElement;
           }
-          function cloneElement(element, config, children) {
+          function cloneElement(element, config, children2) {
             if (element === null || element === void 0) {
               throw new Error("React.cloneElement(...): The argument must be a React element, but you passed " + element + ".");
             }
@@ -553,7 +553,7 @@
             }
             var childrenLength = arguments.length - 2;
             if (childrenLength === 1) {
-              props.children = children;
+              props.children = children2;
             } else if (childrenLength > 1) {
               var childArray = Array(childrenLength);
               for (var i = 0; i < childrenLength; i++) {
@@ -593,13 +593,13 @@
             }
             return index3.toString(36);
           }
-          function mapIntoArray(children, array, escapedPrefix, nameSoFar, callback) {
-            var type = typeof children;
+          function mapIntoArray(children2, array, escapedPrefix, nameSoFar, callback) {
+            var type = typeof children2;
             if (type === "undefined" || type === "boolean") {
-              children = null;
+              children2 = null;
             }
             var invokeCallback = false;
-            if (children === null) {
+            if (children2 === null) {
               invokeCallback = true;
             } else {
               switch (type) {
@@ -608,7 +608,7 @@
                   invokeCallback = true;
                   break;
                 case "object":
-                  switch (children.$$typeof) {
+                  switch (children2.$$typeof) {
                     case REACT_ELEMENT_TYPE:
                     case REACT_PORTAL_TYPE:
                       invokeCallback = true;
@@ -616,7 +616,7 @@
               }
             }
             if (invokeCallback) {
-              var _child = children;
+              var _child = children2;
               var mappedChild = callback(_child);
               var childKey = nameSoFar === "" ? SEPARATOR + getElementKey(_child, 0) : nameSoFar;
               if (isArray(mappedChild)) {
@@ -647,16 +647,16 @@
             var nextName;
             var subtreeCount = 0;
             var nextNamePrefix = nameSoFar === "" ? SEPARATOR : nameSoFar + SUBSEPARATOR;
-            if (isArray(children)) {
-              for (var i = 0; i < children.length; i++) {
-                child = children[i];
+            if (isArray(children2)) {
+              for (var i = 0; i < children2.length; i++) {
+                child = children2[i];
                 nextName = nextNamePrefix + getElementKey(child, i);
                 subtreeCount += mapIntoArray(child, array, escapedPrefix, nextName, callback);
               }
             } else {
-              var iteratorFn = getIteratorFn(children);
+              var iteratorFn = getIteratorFn(children2);
               if (typeof iteratorFn === "function") {
-                var iterableChildren = children;
+                var iterableChildren = children2;
                 {
                   if (iteratorFn === iterableChildren.entries) {
                     if (!didWarnAboutMaps) {
@@ -674,45 +674,45 @@
                   subtreeCount += mapIntoArray(child, array, escapedPrefix, nextName, callback);
                 }
               } else if (type === "object") {
-                var childrenString = String(children);
-                throw new Error("Objects are not valid as a React child (found: " + (childrenString === "[object Object]" ? "object with keys {" + Object.keys(children).join(", ") + "}" : childrenString) + "). If you meant to render a collection of children, use an array instead.");
+                var childrenString = String(children2);
+                throw new Error("Objects are not valid as a React child (found: " + (childrenString === "[object Object]" ? "object with keys {" + Object.keys(children2).join(", ") + "}" : childrenString) + "). If you meant to render a collection of children, use an array instead.");
               }
             }
             return subtreeCount;
           }
-          function mapChildren(children, func, context) {
-            if (children == null) {
-              return children;
+          function mapChildren(children2, func, context) {
+            if (children2 == null) {
+              return children2;
             }
             var result = [];
             var count = 0;
-            mapIntoArray(children, result, "", "", function(child) {
+            mapIntoArray(children2, result, "", "", function(child) {
               return func.call(context, child, count++);
             });
             return result;
           }
-          function countChildren(children) {
+          function countChildren(children2) {
             var n = 0;
-            mapChildren(children, function() {
+            mapChildren(children2, function() {
               n++;
             });
             return n;
           }
-          function forEachChildren(children, forEachFunc, forEachContext) {
-            mapChildren(children, function() {
+          function forEachChildren(children2, forEachFunc, forEachContext) {
+            mapChildren(children2, function() {
               forEachFunc.apply(this, arguments);
             }, forEachContext);
           }
-          function toArray(children) {
-            return mapChildren(children, function(child) {
+          function toArray(children2) {
+            return mapChildren(children2, function(child) {
               return child;
             }) || [];
           }
-          function onlyChild(children) {
-            if (!isValidElement(children)) {
+          function onlyChild(children2) {
+            if (!isValidElement(children2)) {
               throw new Error("React.Children.only expected to receive a single React element child.");
             }
-            return children;
+            return children2;
           }
           function createContext2(defaultValue4) {
             var context = {
@@ -1495,7 +1495,7 @@
               }
             }
           }
-          function createElementWithValidation(type, props, children) {
+          function createElementWithValidation(type, props, children2) {
             var validType = isValidElementType(type);
             if (!validType) {
               var info2 = "";
@@ -1561,7 +1561,7 @@
             }
             return validatedFactory;
           }
-          function cloneElementWithValidation(element, props, children) {
+          function cloneElementWithValidation(element, props, children2) {
             var newElement = cloneElement.apply(this, arguments);
             for (var i = 2; i < arguments.length; i++) {
               validateChildKeys(arguments[i], newElement.type);
@@ -3995,8 +3995,8 @@
             }
             var initialValue = props.value;
             if (initialValue == null) {
-              var children = props.children, defaultValue4 = props.defaultValue;
-              if (children != null) {
+              var children2 = props.children, defaultValue4 = props.defaultValue;
+              if (children2 != null) {
                 {
                   error3("Use the `defaultValue` or `value` props instead of setting children on <textarea>.");
                 }
@@ -4004,13 +4004,13 @@
                   if (defaultValue4 != null) {
                     throw new Error("If you supply `defaultValue` on a <textarea>, do not pass children.");
                   }
-                  if (isArray(children)) {
-                    if (children.length > 1) {
+                  if (isArray(children2)) {
+                    if (children2.length > 1) {
                       throw new Error("<textarea> can only have at most one child.");
                     }
-                    children = children[0];
+                    children2 = children2[0];
                   }
-                  defaultValue4 = children;
+                  defaultValue4 = children2;
                 }
               }
               if (defaultValue4 == null) {
@@ -5778,11 +5778,11 @@
               return false;
             }
           }
-          function onScheduleRoot(root2, children) {
+          function onScheduleRoot(root2, children2) {
             {
               if (injectedHook && typeof injectedHook.onScheduleFiberRoot === "function") {
                 try {
-                  injectedHook.onScheduleFiberRoot(rendererID, root2, children);
+                  injectedHook.onScheduleFiberRoot(rendererID, root2, children2);
                 } catch (err) {
                   if (!hasLoggedError) {
                     hasLoggedError = true;
@@ -5882,14 +5882,14 @@
           }
           function getLaneLabelMap() {
             {
-              var map9 = /* @__PURE__ */ new Map();
+              var map10 = /* @__PURE__ */ new Map();
               var lane = 1;
               for (var index4 = 0; index4 < TotalLanes; index4++) {
                 var label4 = getLabelForLane(lane);
-                map9.set(lane, label4);
+                map10.set(lane, label4);
                 lane *= 2;
               }
-              return map9;
+              return map10;
             }
           }
           function markCommitStarted(lanes) {
@@ -6849,9 +6849,9 @@
             }
             return true;
           }
-          function attemptReplayContinuousQueuedEventInMap(queuedEvent, key, map9) {
+          function attemptReplayContinuousQueuedEventInMap(queuedEvent, key, map10) {
             if (attemptReplayContinuousQueuedEvent(queuedEvent)) {
-              map9.delete(key);
+              map10.delete(key);
             }
           }
           function replayUnblockedEvents() {
@@ -13579,7 +13579,7 @@
                 ReactCurrentDispatcher$1.current = HooksDispatcherOnMountInDEV;
               }
             }
-            var children = Component(props, secondArg);
+            var children2 = Component(props, secondArg);
             if (didScheduleRenderPhaseUpdateDuringThisPass) {
               var numberOfReRenders = 0;
               do {
@@ -13599,7 +13599,7 @@
                   hookTypesUpdateIndexDev = -1;
                 }
                 ReactCurrentDispatcher$1.current = HooksDispatcherOnRerenderInDEV;
-                children = Component(props, secondArg);
+                children2 = Component(props, secondArg);
               } while (didScheduleRenderPhaseUpdateDuringThisPass);
             }
             ReactCurrentDispatcher$1.current = ContextOnlyDispatcher;
@@ -13623,7 +13623,7 @@
             if (didRenderTooFewHooks) {
               throw new Error("Rendered fewer hooks than expected. This may be caused by an accidental early return statement.");
             }
-            return children;
+            return children2;
           }
           function checkDidRenderIdHook() {
             var didRenderIdHook = localIdCounter !== 0;
@@ -16838,19 +16838,19 @@
             }
             return true;
           }
-          function validateSuspenseListChildren(children, revealOrder) {
+          function validateSuspenseListChildren(children2, revealOrder) {
             {
-              if ((revealOrder === "forwards" || revealOrder === "backwards") && children !== void 0 && children !== null && children !== false) {
-                if (isArray(children)) {
-                  for (var i = 0; i < children.length; i++) {
-                    if (!validateSuspenseListNestedChild(children[i], i)) {
+              if ((revealOrder === "forwards" || revealOrder === "backwards") && children2 !== void 0 && children2 !== null && children2 !== false) {
+                if (isArray(children2)) {
+                  for (var i = 0; i < children2.length; i++) {
+                    if (!validateSuspenseListNestedChild(children2[i], i)) {
                       return;
                     }
                   }
                 } else {
-                  var iteratorFn = getIteratorFn(children);
+                  var iteratorFn = getIteratorFn(children2);
                   if (typeof iteratorFn === "function") {
-                    var childrenIterator = iteratorFn.call(children);
+                    var childrenIterator = iteratorFn.call(children2);
                     if (childrenIterator) {
                       var step2 = childrenIterator.next();
                       var _i = 0;
@@ -21958,7 +21958,7 @@
             return root2;
           }
           var ReactVersion = "18.2.0";
-          function createPortal(children, containerInfo, implementation) {
+          function createPortal(children2, containerInfo, implementation) {
             var key = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : null;
             {
               checkKeyStringCoercion(key);
@@ -21966,7 +21966,7 @@
             return {
               $$typeof: REACT_PORTAL_TYPE,
               key: key == null ? null : "" + key,
-              children,
+              children: children2,
               containerInfo,
               implementation
             };
@@ -22393,7 +22393,7 @@
           function ReactDOMRoot(internalRoot) {
             this._internalRoot = internalRoot;
           }
-          ReactDOMHydrationRoot.prototype.render = ReactDOMRoot.prototype.render = function(children) {
+          ReactDOMHydrationRoot.prototype.render = ReactDOMRoot.prototype.render = function(children2) {
             var root2 = this._internalRoot;
             if (root2 === null) {
               throw new Error("Cannot update an unmounted root.");
@@ -22416,7 +22416,7 @@
                 }
               }
             }
-            updateContainer(children, root2, null, null);
+            updateContainer(children2, root2, null, null);
           };
           ReactDOMHydrationRoot.prototype.unmount = ReactDOMRoot.prototype.unmount = function() {
             {
@@ -22644,7 +22644,7 @@
               }
             }
           }
-          function legacyRenderSubtreeIntoContainer(parentComponent, children, container, forceHydrate, callback) {
+          function legacyRenderSubtreeIntoContainer(parentComponent, children2, container, forceHydrate, callback) {
             {
               topLevelUpdateWarnings(container);
               warnOnInvalidCallback$1(callback === void 0 ? null : callback, "render");
@@ -22652,7 +22652,7 @@
             var maybeRoot = container._reactRootContainer;
             var root2;
             if (!maybeRoot) {
-              root2 = legacyCreateRootFromDOMContainer(container, children, parentComponent, callback, forceHydrate);
+              root2 = legacyCreateRootFromDOMContainer(container, children2, parentComponent, callback, forceHydrate);
             } else {
               root2 = maybeRoot;
               if (typeof callback === "function") {
@@ -22662,7 +22662,7 @@
                   originalCallback.call(instance);
                 };
               }
-              updateContainer(children, root2, parentComponent, callback);
+              updateContainer(children2, root2, parentComponent, callback);
             }
             return getPublicRootInstance(root2);
           }
@@ -22778,12 +22778,12 @@
           }
           setRestoreImplementation(restoreControlledState$3);
           setBatchingImplementation(batchedUpdates$1, discreteUpdates, flushSync);
-          function createPortal$1(children, container) {
+          function createPortal$1(children2, container) {
             var key = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : null;
             if (!isValidContainer(container)) {
               throw new Error("Target container is not a DOM element.");
             }
-            return createPortal(children, container, null, key);
+            return createPortal(children2, container, null, key);
           }
           function renderSubtreeIntoContainer(parentComponent, element, containerNode, callback) {
             return unstable_renderSubtreeIntoContainer(parentComponent, element, containerNode, callback);
@@ -24595,9 +24595,9 @@
           }
           var endOfStartTag = stringToPrecomputedChunk(">");
           var endOfStartTagSelfClosing = stringToPrecomputedChunk("/>");
-          function pushInnerHTML(target5, innerHTML, children) {
+          function pushInnerHTML(target5, innerHTML, children2) {
             if (innerHTML != null) {
-              if (children != null) {
+              if (children2 != null) {
                 throw new Error("Can only set one of `children` or `props.dangerouslySetInnerHTML`.");
               }
               if (typeof innerHTML !== "object" || !("__html" in innerHTML)) {
@@ -24643,7 +24643,7 @@
               }
             }
             target5.push(startChunkForTag("select"));
-            var children = null;
+            var children2 = null;
             var innerHTML = null;
             for (var propKey in props) {
               if (hasOwnProperty.call(props, propKey)) {
@@ -24653,7 +24653,7 @@
                 }
                 switch (propKey) {
                   case "children":
-                    children = propValue;
+                    children2 = propValue;
                     break;
                   case "dangerouslySetInnerHTML":
                     innerHTML = propValue;
@@ -24668,12 +24668,12 @@
               }
             }
             target5.push(endOfStartTag);
-            pushInnerHTML(target5, innerHTML, children);
-            return children;
+            pushInnerHTML(target5, innerHTML, children2);
+            return children2;
           }
-          function flattenOptionChildren(children) {
+          function flattenOptionChildren(children2) {
             var content3 = "";
-            React2.Children.forEach(children, function(child) {
+            React2.Children.forEach(children2, function(child) {
               if (child == null) {
                 return;
               }
@@ -24691,7 +24691,7 @@
           function pushStartOption(target5, props, responseState, formatContext) {
             var selectedValue = formatContext.selectedValue;
             target5.push(startChunkForTag("option"));
-            var children = null;
+            var children2 = null;
             var value12 = null;
             var selected2 = null;
             var innerHTML = null;
@@ -24703,7 +24703,7 @@
                 }
                 switch (propKey) {
                   case "children":
-                    children = propValue;
+                    children2 = propValue;
                     break;
                   case "selected":
                     selected2 = propValue;
@@ -24741,7 +24741,7 @@
                     }
                   }
                 }
-                stringValue = flattenOptionChildren(children);
+                stringValue = flattenOptionChildren(children2);
               }
               if (isArray(selectedValue)) {
                 for (var i = 0; i < selectedValue.length; i++) {
@@ -24766,8 +24766,8 @@
               target5.push(selectedMarkerAttribute);
             }
             target5.push(endOfStartTag);
-            pushInnerHTML(target5, innerHTML, children);
-            return children;
+            pushInnerHTML(target5, innerHTML, children2);
+            return children2;
           }
           function pushInput(target5, props, responseState) {
             {
@@ -24838,7 +24838,7 @@
             target5.push(startChunkForTag("textarea"));
             var value12 = null;
             var defaultValue4 = null;
-            var children = null;
+            var children2 = null;
             for (var propKey in props) {
               if (hasOwnProperty.call(props, propKey)) {
                 var propValue = props[propKey];
@@ -24847,7 +24847,7 @@
                 }
                 switch (propKey) {
                   case "children":
-                    children = propValue;
+                    children2 = propValue;
                     break;
                   case "value":
                     value12 = propValue;
@@ -24867,26 +24867,26 @@
               value12 = defaultValue4;
             }
             target5.push(endOfStartTag);
-            if (children != null) {
+            if (children2 != null) {
               {
                 error3("Use the `defaultValue` or `value` props instead of setting children on <textarea>.");
               }
               if (value12 != null) {
                 throw new Error("If you supply `defaultValue` on a <textarea>, do not pass children.");
               }
-              if (isArray(children)) {
-                if (children.length > 1) {
+              if (isArray(children2)) {
+                if (children2.length > 1) {
                   throw new Error("<textarea> can only have at most one child.");
                 }
                 {
-                  checkHtmlStringCoercion(children[0]);
+                  checkHtmlStringCoercion(children2[0]);
                 }
-                value12 = "" + children[0];
+                value12 = "" + children2[0];
               }
               {
-                checkHtmlStringCoercion(children);
+                checkHtmlStringCoercion(children2);
               }
-              value12 = "" + children;
+              value12 = "" + children2;
             }
             if (typeof value12 === "string" && value12[0] === "\n") {
               target5.push(leadingNewline);
@@ -24943,7 +24943,7 @@
           }
           function pushStartTitle(target5, props, responseState) {
             target5.push(startChunkForTag("title"));
-            var children = null;
+            var children2 = null;
             for (var propKey in props) {
               if (hasOwnProperty.call(props, propKey)) {
                 var propValue = props[propKey];
@@ -24952,7 +24952,7 @@
                 }
                 switch (propKey) {
                   case "children":
-                    children = propValue;
+                    children2 = propValue;
                     break;
                   case "dangerouslySetInnerHTML":
                     throw new Error("`dangerouslySetInnerHTML` does not make sense on <title>.");
@@ -24964,8 +24964,8 @@
             }
             target5.push(endOfStartTag);
             {
-              var child = Array.isArray(children) && children.length < 2 ? children[0] || null : children;
-              if (Array.isArray(children) && children.length > 1) {
+              var child = Array.isArray(children2) && children2.length < 2 ? children2[0] || null : children2;
+              if (Array.isArray(children2) && children2.length > 1) {
                 error3("A title element received an array with more than 1 element as children. In browsers title Elements can only have Text Nodes as children. If the children being rendered output more than a single text node in aggregate the browser will display markup and comments as text in the title and hydration will likely fail and fall back to client rendering");
               } else if (child != null && child.$$typeof != null) {
                 error3("A title element received a React element for children. In the browser title Elements can only have Text Nodes as children. If the children being rendered output more than a single text node in aggregate the browser will display markup and comments as text in the title and hydration will likely fail and fall back to client rendering");
@@ -24973,11 +24973,11 @@
                 error3("A title element received a value that was not a string or number for children. In the browser title Elements can only have Text Nodes as children. If the children being rendered output more than a single text node in aggregate the browser will display markup and comments as text in the title and hydration will likely fail and fall back to client rendering");
               }
             }
-            return children;
+            return children2;
           }
           function pushStartGenericElement(target5, props, tag, responseState) {
             target5.push(startChunkForTag(tag));
-            var children = null;
+            var children2 = null;
             var innerHTML = null;
             for (var propKey in props) {
               if (hasOwnProperty.call(props, propKey)) {
@@ -24987,7 +24987,7 @@
                 }
                 switch (propKey) {
                   case "children":
-                    children = propValue;
+                    children2 = propValue;
                     break;
                   case "dangerouslySetInnerHTML":
                     innerHTML = propValue;
@@ -24999,16 +24999,16 @@
               }
             }
             target5.push(endOfStartTag);
-            pushInnerHTML(target5, innerHTML, children);
-            if (typeof children === "string") {
-              target5.push(stringToChunk(encodeHTMLTextNode(children)));
+            pushInnerHTML(target5, innerHTML, children2);
+            if (typeof children2 === "string") {
+              target5.push(stringToChunk(encodeHTMLTextNode(children2)));
               return null;
             }
-            return children;
+            return children2;
           }
           function pushStartCustomElement(target5, props, tag, responseState) {
             target5.push(startChunkForTag(tag));
-            var children = null;
+            var children2 = null;
             var innerHTML = null;
             for (var propKey in props) {
               if (hasOwnProperty.call(props, propKey)) {
@@ -25018,7 +25018,7 @@
                 }
                 switch (propKey) {
                   case "children":
-                    children = propValue;
+                    children2 = propValue;
                     break;
                   case "dangerouslySetInnerHTML":
                     innerHTML = propValue;
@@ -25038,13 +25038,13 @@
               }
             }
             target5.push(endOfStartTag);
-            pushInnerHTML(target5, innerHTML, children);
-            return children;
+            pushInnerHTML(target5, innerHTML, children2);
+            return children2;
           }
           var leadingNewline = stringToPrecomputedChunk("\n");
           function pushStartPreformattedElement(target5, props, tag, responseState) {
             target5.push(startChunkForTag(tag));
-            var children = null;
+            var children2 = null;
             var innerHTML = null;
             for (var propKey in props) {
               if (hasOwnProperty.call(props, propKey)) {
@@ -25054,7 +25054,7 @@
                 }
                 switch (propKey) {
                   case "children":
-                    children = propValue;
+                    children2 = propValue;
                     break;
                   case "dangerouslySetInnerHTML":
                     innerHTML = propValue;
@@ -25067,7 +25067,7 @@
             }
             target5.push(endOfStartTag);
             if (innerHTML != null) {
-              if (children != null) {
+              if (children2 != null) {
                 throw new Error("Can only set one of `children` or `props.dangerouslySetInnerHTML`.");
               }
               if (typeof innerHTML !== "object" || !("__html" in innerHTML)) {
@@ -25085,10 +25085,10 @@
                 }
               }
             }
-            if (typeof children === "string" && children[0] === "\n") {
+            if (typeof children2 === "string" && children2[0] === "\n") {
               target5.push(leadingNewline);
             }
-            return children;
+            return children2;
           }
           var VALID_TAG_REGEX = /^[a-zA-Z][a-zA-Z:_\.\-\d]*$/;
           var validatedTagCache = /* @__PURE__ */ new Map();
@@ -26615,16 +26615,16 @@
             }
             localIdCounter = 0;
           }
-          function finishHooks(Component, props, children, refOrContext) {
+          function finishHooks(Component, props, children2, refOrContext) {
             while (didScheduleRenderPhaseUpdate) {
               didScheduleRenderPhaseUpdate = false;
               localIdCounter = 0;
               numberOfReRenders += 1;
               workInProgressHook = null;
-              children = Component(props, refOrContext);
+              children2 = Component(props, refOrContext);
             }
             resetHooksState();
-            return children;
+            return children2;
           }
           function checkDidRenderIdHook() {
             var didRenderIdHook = localIdCounter !== 0;
@@ -26898,7 +26898,7 @@
           }
           function noop$1() {
           }
-          function createRequest(children, responseState, rootFormatContext, progressiveChunkSize, onError2, onAllReady, onShellReady, onShellError, onFatalError) {
+          function createRequest(children2, responseState, rootFormatContext, progressiveChunkSize, onError2, onAllReady, onShellReady, onShellError, onFatalError) {
             var pingedTasks = [];
             var abortSet = /* @__PURE__ */ new Set();
             var request = {
@@ -26931,7 +26931,7 @@
               false
             );
             rootSegment.parentFlushed = true;
-            var rootTask = createTask(request, children, null, rootSegment, abortSet, emptyContextObject, rootContextSnapshot, emptyTreeContext);
+            var rootTask = createTask(request, children2, null, rootSegment, abortSet, emptyContextObject, rootContextSnapshot, emptyTreeContext);
             pingedTasks.push(rootTask);
             return request;
           }
@@ -27109,7 +27109,7 @@
             task.blockedBoundary = newBoundary;
             task.blockedSegment = contentRootSegment;
             try {
-              renderNode(request, task, content3);
+              renderNode2(request, task, content3);
               pushSegmentFinale$1(contentRootSegment.chunks, request.responseState, contentRootSegment.lastPushedText, contentRootSegment.textEmbedded);
               contentRootSegment.status = COMPLETED;
               queueCompletedSegment(newBoundary, contentRootSegment);
@@ -27138,11 +27138,11 @@
           function renderHostElement(request, task, type, props) {
             pushBuiltInComponentStackInDEV(task, type);
             var segment = task.blockedSegment;
-            var children = pushStartInstance(segment.chunks, type, props, request.responseState, segment.formatContext);
+            var children2 = pushStartInstance(segment.chunks, type, props, request.responseState, segment.formatContext);
             segment.lastPushedText = false;
             var prevContext = segment.formatContext;
             segment.formatContext = getChildFormatContext(prevContext, type, props);
-            renderNode(request, task, children);
+            renderNode2(request, task, children2);
             segment.formatContext = prevContext;
             pushEndInstance(segment.chunks, type);
             segment.lastPushedText = false;
@@ -27290,7 +27290,7 @@
           }
           function renderForwardRef(request, task, type, props, ref) {
             pushFunctionComponentStackInDEV(task, type.render);
-            var children = renderWithHooks(request, task, type.render, props, ref);
+            var children2 = renderWithHooks(request, task, type.render, props, ref);
             var hasId = checkDidRenderIdHook();
             if (hasId) {
               var prevTreeContext = task.treeContext;
@@ -27298,12 +27298,12 @@
               var index3 = 0;
               task.treeContext = pushTreeContext(prevTreeContext, totalChildren, index3);
               try {
-                renderNodeDestructive(request, task, children);
+                renderNodeDestructive(request, task, children2);
               } finally {
                 task.treeContext = prevTreeContext;
               }
             } else {
-              renderNodeDestructive(request, task, children);
+              renderNodeDestructive(request, task, children2);
             }
             popComponentStackInDEV(task);
           }
@@ -27338,13 +27338,13 @@
           function renderContextProvider(request, task, type, props) {
             var context = type._context;
             var value12 = props.value;
-            var children = props.children;
+            var children2 = props.children;
             var prevSnapshot;
             {
               prevSnapshot = task.context;
             }
             task.context = pushProvider(context, value12);
-            renderNodeDestructive(request, task, children);
+            renderNodeDestructive(request, task, children2);
             task.context = popProvider(context);
             {
               if (prevSnapshot !== task.context) {
@@ -27508,12 +27508,12 @@
                 if (iterator2) {
                   var step2 = iterator2.next();
                   if (!step2.done) {
-                    var children = [];
+                    var children2 = [];
                     do {
-                      children.push(step2.value);
+                      children2.push(step2.value);
                       step2 = iterator2.next();
                     } while (!step2.done);
-                    renderChildrenArray(request, task, children);
+                    renderChildrenArray(request, task, children2);
                     return;
                   }
                   return;
@@ -27538,13 +27538,13 @@
               }
             }
           }
-          function renderChildrenArray(request, task, children) {
-            var totalChildren = children.length;
+          function renderChildrenArray(request, task, children2) {
+            var totalChildren = children2.length;
             for (var i = 0; i < totalChildren; i++) {
               var prevTreeContext = task.treeContext;
               task.treeContext = pushTreeContext(prevTreeContext, totalChildren, i);
               try {
-                renderNode(request, task, children[i]);
+                renderNode2(request, task, children2[i]);
               } finally {
                 task.treeContext = prevTreeContext;
               }
@@ -27572,7 +27572,7 @@
             var ping = newTask.ping;
             x.then(ping, ping);
           }
-          function renderNode(request, task, node) {
+          function renderNode2(request, task, node) {
             var previousFormatContext = task.blockedSegment.formatContext;
             var previousLegacyContext = task.legacyContext;
             var previousContext = task.context;
@@ -27832,9 +27832,9 @@
                 var r = true;
                 var chunks = segment.chunks;
                 var chunkIdx = 0;
-                var children = segment.children;
-                for (var childIdx = 0; childIdx < children.length; childIdx++) {
-                  var nextChild = children[childIdx];
+                var children2 = segment.children;
+                for (var childIdx = 0; childIdx < children2.length; childIdx++) {
+                  var nextChild = children2[childIdx];
                   for (; chunkIdx < nextChild.index; chunkIdx++) {
                     writeChunk(destination, chunks[chunkIdx]);
                   }
@@ -28045,7 +28045,7 @@
           }
           function onError() {
           }
-          function renderToStringImpl2(children, options2, generateStaticMarkup, abortReason) {
+          function renderToStringImpl2(children2, options2, generateStaticMarkup, abortReason) {
             var didFatal = false;
             var fatalError2 = null;
             var result = "";
@@ -28065,7 +28065,7 @@
             function onShellReady() {
               readyToStream = true;
             }
-            var request = createRequest(children, createResponseState$1(generateStaticMarkup, options2 ? options2.identifierPrefix : void 0), createRootFormatContext(), Infinity, onError, void 0, onShellReady, void 0, void 0);
+            var request = createRequest(children2, createResponseState$1(generateStaticMarkup, options2 ? options2.identifierPrefix : void 0), createRootFormatContext(), Infinity, onError, void 0, onShellReady, void 0, void 0);
             startWork(request);
             abort(request, abortReason);
             startFlowing(request, destination);
@@ -28077,11 +28077,11 @@
             }
             return result;
           }
-          function renderToString(children, options2) {
-            return renderToStringImpl2(children, options2, false, 'The server used "renderToString" which does not support Suspense. If you intended for this Suspense boundary to render the fallback content on the server consider throwing an Error somewhere within the Suspense boundary. If you intended to have the server wait for the suspended component please switch to "renderToReadableStream" which supports Suspense on the server');
+          function renderToString(children2, options2) {
+            return renderToStringImpl2(children2, options2, false, 'The server used "renderToString" which does not support Suspense. If you intended for this Suspense boundary to render the fallback content on the server consider throwing an Error somewhere within the Suspense boundary. If you intended to have the server wait for the suspended component please switch to "renderToReadableStream" which supports Suspense on the server');
           }
-          function renderToStaticMarkup(children, options2) {
-            return renderToStringImpl2(children, options2, true, 'The server used "renderToStaticMarkup" which does not support Suspense. If you intended to have the server wait for the suspended component please switch to "renderToReadableStream" which supports Suspense on the server');
+          function renderToStaticMarkup(children2, options2) {
+            return renderToStringImpl2(children2, options2, true, 'The server used "renderToStaticMarkup" which does not support Suspense. If you intended to have the server wait for the suspended component please switch to "renderToReadableStream" which supports Suspense on the server');
           }
           function renderToNodeStream() {
             throw new Error("ReactDOMServer.renderToNodeStream(): The streaming API is not available in the browser. Use ReactDOMServer.renderToString() instead.");
@@ -29875,9 +29875,9 @@
           }
           var endOfStartTag = stringToPrecomputedChunk(">");
           var endOfStartTagSelfClosing = stringToPrecomputedChunk("/>");
-          function pushInnerHTML(target5, innerHTML, children) {
+          function pushInnerHTML(target5, innerHTML, children2) {
             if (innerHTML != null) {
-              if (children != null) {
+              if (children2 != null) {
                 throw new Error("Can only set one of `children` or `props.dangerouslySetInnerHTML`.");
               }
               if (typeof innerHTML !== "object" || !("__html" in innerHTML)) {
@@ -29923,7 +29923,7 @@
               }
             }
             target5.push(startChunkForTag("select"));
-            var children = null;
+            var children2 = null;
             var innerHTML = null;
             for (var propKey in props) {
               if (hasOwnProperty.call(props, propKey)) {
@@ -29933,7 +29933,7 @@
                 }
                 switch (propKey) {
                   case "children":
-                    children = propValue;
+                    children2 = propValue;
                     break;
                   case "dangerouslySetInnerHTML":
                     innerHTML = propValue;
@@ -29948,12 +29948,12 @@
               }
             }
             target5.push(endOfStartTag);
-            pushInnerHTML(target5, innerHTML, children);
-            return children;
+            pushInnerHTML(target5, innerHTML, children2);
+            return children2;
           }
-          function flattenOptionChildren(children) {
+          function flattenOptionChildren(children2) {
             var content3 = "";
-            React2.Children.forEach(children, function(child) {
+            React2.Children.forEach(children2, function(child) {
               if (child == null) {
                 return;
               }
@@ -29971,7 +29971,7 @@
           function pushStartOption(target5, props, responseState, formatContext) {
             var selectedValue = formatContext.selectedValue;
             target5.push(startChunkForTag("option"));
-            var children = null;
+            var children2 = null;
             var value12 = null;
             var selected2 = null;
             var innerHTML = null;
@@ -29983,7 +29983,7 @@
                 }
                 switch (propKey) {
                   case "children":
-                    children = propValue;
+                    children2 = propValue;
                     break;
                   case "selected":
                     selected2 = propValue;
@@ -30021,7 +30021,7 @@
                     }
                   }
                 }
-                stringValue = flattenOptionChildren(children);
+                stringValue = flattenOptionChildren(children2);
               }
               if (isArray(selectedValue)) {
                 for (var i = 0; i < selectedValue.length; i++) {
@@ -30046,8 +30046,8 @@
               target5.push(selectedMarkerAttribute);
             }
             target5.push(endOfStartTag);
-            pushInnerHTML(target5, innerHTML, children);
-            return children;
+            pushInnerHTML(target5, innerHTML, children2);
+            return children2;
           }
           function pushInput(target5, props, responseState) {
             {
@@ -30118,7 +30118,7 @@
             target5.push(startChunkForTag("textarea"));
             var value12 = null;
             var defaultValue4 = null;
-            var children = null;
+            var children2 = null;
             for (var propKey in props) {
               if (hasOwnProperty.call(props, propKey)) {
                 var propValue = props[propKey];
@@ -30127,7 +30127,7 @@
                 }
                 switch (propKey) {
                   case "children":
-                    children = propValue;
+                    children2 = propValue;
                     break;
                   case "value":
                     value12 = propValue;
@@ -30147,26 +30147,26 @@
               value12 = defaultValue4;
             }
             target5.push(endOfStartTag);
-            if (children != null) {
+            if (children2 != null) {
               {
                 error3("Use the `defaultValue` or `value` props instead of setting children on <textarea>.");
               }
               if (value12 != null) {
                 throw new Error("If you supply `defaultValue` on a <textarea>, do not pass children.");
               }
-              if (isArray(children)) {
-                if (children.length > 1) {
+              if (isArray(children2)) {
+                if (children2.length > 1) {
                   throw new Error("<textarea> can only have at most one child.");
                 }
                 {
-                  checkHtmlStringCoercion(children[0]);
+                  checkHtmlStringCoercion(children2[0]);
                 }
-                value12 = "" + children[0];
+                value12 = "" + children2[0];
               }
               {
-                checkHtmlStringCoercion(children);
+                checkHtmlStringCoercion(children2);
               }
-              value12 = "" + children;
+              value12 = "" + children2;
             }
             if (typeof value12 === "string" && value12[0] === "\n") {
               target5.push(leadingNewline);
@@ -30223,7 +30223,7 @@
           }
           function pushStartTitle(target5, props, responseState) {
             target5.push(startChunkForTag("title"));
-            var children = null;
+            var children2 = null;
             for (var propKey in props) {
               if (hasOwnProperty.call(props, propKey)) {
                 var propValue = props[propKey];
@@ -30232,7 +30232,7 @@
                 }
                 switch (propKey) {
                   case "children":
-                    children = propValue;
+                    children2 = propValue;
                     break;
                   case "dangerouslySetInnerHTML":
                     throw new Error("`dangerouslySetInnerHTML` does not make sense on <title>.");
@@ -30244,8 +30244,8 @@
             }
             target5.push(endOfStartTag);
             {
-              var child = Array.isArray(children) && children.length < 2 ? children[0] || null : children;
-              if (Array.isArray(children) && children.length > 1) {
+              var child = Array.isArray(children2) && children2.length < 2 ? children2[0] || null : children2;
+              if (Array.isArray(children2) && children2.length > 1) {
                 error3("A title element received an array with more than 1 element as children. In browsers title Elements can only have Text Nodes as children. If the children being rendered output more than a single text node in aggregate the browser will display markup and comments as text in the title and hydration will likely fail and fall back to client rendering");
               } else if (child != null && child.$$typeof != null) {
                 error3("A title element received a React element for children. In the browser title Elements can only have Text Nodes as children. If the children being rendered output more than a single text node in aggregate the browser will display markup and comments as text in the title and hydration will likely fail and fall back to client rendering");
@@ -30253,11 +30253,11 @@
                 error3("A title element received a value that was not a string or number for children. In the browser title Elements can only have Text Nodes as children. If the children being rendered output more than a single text node in aggregate the browser will display markup and comments as text in the title and hydration will likely fail and fall back to client rendering");
               }
             }
-            return children;
+            return children2;
           }
           function pushStartGenericElement(target5, props, tag, responseState) {
             target5.push(startChunkForTag(tag));
-            var children = null;
+            var children2 = null;
             var innerHTML = null;
             for (var propKey in props) {
               if (hasOwnProperty.call(props, propKey)) {
@@ -30267,7 +30267,7 @@
                 }
                 switch (propKey) {
                   case "children":
-                    children = propValue;
+                    children2 = propValue;
                     break;
                   case "dangerouslySetInnerHTML":
                     innerHTML = propValue;
@@ -30279,16 +30279,16 @@
               }
             }
             target5.push(endOfStartTag);
-            pushInnerHTML(target5, innerHTML, children);
-            if (typeof children === "string") {
-              target5.push(stringToChunk(encodeHTMLTextNode(children)));
+            pushInnerHTML(target5, innerHTML, children2);
+            if (typeof children2 === "string") {
+              target5.push(stringToChunk(encodeHTMLTextNode(children2)));
               return null;
             }
-            return children;
+            return children2;
           }
           function pushStartCustomElement(target5, props, tag, responseState) {
             target5.push(startChunkForTag(tag));
-            var children = null;
+            var children2 = null;
             var innerHTML = null;
             for (var propKey in props) {
               if (hasOwnProperty.call(props, propKey)) {
@@ -30298,7 +30298,7 @@
                 }
                 switch (propKey) {
                   case "children":
-                    children = propValue;
+                    children2 = propValue;
                     break;
                   case "dangerouslySetInnerHTML":
                     innerHTML = propValue;
@@ -30318,13 +30318,13 @@
               }
             }
             target5.push(endOfStartTag);
-            pushInnerHTML(target5, innerHTML, children);
-            return children;
+            pushInnerHTML(target5, innerHTML, children2);
+            return children2;
           }
           var leadingNewline = stringToPrecomputedChunk("\n");
           function pushStartPreformattedElement(target5, props, tag, responseState) {
             target5.push(startChunkForTag(tag));
-            var children = null;
+            var children2 = null;
             var innerHTML = null;
             for (var propKey in props) {
               if (hasOwnProperty.call(props, propKey)) {
@@ -30334,7 +30334,7 @@
                 }
                 switch (propKey) {
                   case "children":
-                    children = propValue;
+                    children2 = propValue;
                     break;
                   case "dangerouslySetInnerHTML":
                     innerHTML = propValue;
@@ -30347,7 +30347,7 @@
             }
             target5.push(endOfStartTag);
             if (innerHTML != null) {
-              if (children != null) {
+              if (children2 != null) {
                 throw new Error("Can only set one of `children` or `props.dangerouslySetInnerHTML`.");
               }
               if (typeof innerHTML !== "object" || !("__html" in innerHTML)) {
@@ -30365,10 +30365,10 @@
                 }
               }
             }
-            if (typeof children === "string" && children[0] === "\n") {
+            if (typeof children2 === "string" && children2[0] === "\n") {
               target5.push(leadingNewline);
             }
-            return children;
+            return children2;
           }
           var VALID_TAG_REGEX = /^[a-zA-Z][a-zA-Z:_\.\-\d]*$/;
           var validatedTagCache = /* @__PURE__ */ new Map();
@@ -31834,16 +31834,16 @@
             }
             localIdCounter = 0;
           }
-          function finishHooks(Component, props, children, refOrContext) {
+          function finishHooks(Component, props, children2, refOrContext) {
             while (didScheduleRenderPhaseUpdate) {
               didScheduleRenderPhaseUpdate = false;
               localIdCounter = 0;
               numberOfReRenders += 1;
               workInProgressHook = null;
-              children = Component(props, refOrContext);
+              children2 = Component(props, refOrContext);
             }
             resetHooksState();
-            return children;
+            return children2;
           }
           function checkDidRenderIdHook() {
             var didRenderIdHook = localIdCounter !== 0;
@@ -32117,7 +32117,7 @@
           }
           function noop$1() {
           }
-          function createRequest(children, responseState, rootFormatContext, progressiveChunkSize, onError, onAllReady, onShellReady, onShellError, onFatalError) {
+          function createRequest(children2, responseState, rootFormatContext, progressiveChunkSize, onError, onAllReady, onShellReady, onShellError, onFatalError) {
             var pingedTasks = [];
             var abortSet = /* @__PURE__ */ new Set();
             var request = {
@@ -32150,7 +32150,7 @@
               false
             );
             rootSegment.parentFlushed = true;
-            var rootTask = createTask(request, children, null, rootSegment, abortSet, emptyContextObject, rootContextSnapshot, emptyTreeContext);
+            var rootTask = createTask(request, children2, null, rootSegment, abortSet, emptyContextObject, rootContextSnapshot, emptyTreeContext);
             pingedTasks.push(rootTask);
             return request;
           }
@@ -32328,7 +32328,7 @@
             task.blockedBoundary = newBoundary;
             task.blockedSegment = contentRootSegment;
             try {
-              renderNode(request, task, content3);
+              renderNode2(request, task, content3);
               pushSegmentFinale(contentRootSegment.chunks, request.responseState, contentRootSegment.lastPushedText, contentRootSegment.textEmbedded);
               contentRootSegment.status = COMPLETED;
               queueCompletedSegment(newBoundary, contentRootSegment);
@@ -32357,11 +32357,11 @@
           function renderHostElement(request, task, type, props) {
             pushBuiltInComponentStackInDEV(task, type);
             var segment = task.blockedSegment;
-            var children = pushStartInstance(segment.chunks, type, props, request.responseState, segment.formatContext);
+            var children2 = pushStartInstance(segment.chunks, type, props, request.responseState, segment.formatContext);
             segment.lastPushedText = false;
             var prevContext = segment.formatContext;
             segment.formatContext = getChildFormatContext(prevContext, type, props);
-            renderNode(request, task, children);
+            renderNode2(request, task, children2);
             segment.formatContext = prevContext;
             pushEndInstance(segment.chunks, type);
             segment.lastPushedText = false;
@@ -32509,7 +32509,7 @@
           }
           function renderForwardRef(request, task, type, props, ref) {
             pushFunctionComponentStackInDEV(task, type.render);
-            var children = renderWithHooks(request, task, type.render, props, ref);
+            var children2 = renderWithHooks(request, task, type.render, props, ref);
             var hasId = checkDidRenderIdHook();
             if (hasId) {
               var prevTreeContext = task.treeContext;
@@ -32517,12 +32517,12 @@
               var index3 = 0;
               task.treeContext = pushTreeContext(prevTreeContext, totalChildren, index3);
               try {
-                renderNodeDestructive(request, task, children);
+                renderNodeDestructive(request, task, children2);
               } finally {
                 task.treeContext = prevTreeContext;
               }
             } else {
-              renderNodeDestructive(request, task, children);
+              renderNodeDestructive(request, task, children2);
             }
             popComponentStackInDEV(task);
           }
@@ -32557,13 +32557,13 @@
           function renderContextProvider(request, task, type, props) {
             var context = type._context;
             var value12 = props.value;
-            var children = props.children;
+            var children2 = props.children;
             var prevSnapshot;
             {
               prevSnapshot = task.context;
             }
             task.context = pushProvider(context, value12);
-            renderNodeDestructive(request, task, children);
+            renderNodeDestructive(request, task, children2);
             task.context = popProvider(context);
             {
               if (prevSnapshot !== task.context) {
@@ -32727,12 +32727,12 @@
                 if (iterator2) {
                   var step2 = iterator2.next();
                   if (!step2.done) {
-                    var children = [];
+                    var children2 = [];
                     do {
-                      children.push(step2.value);
+                      children2.push(step2.value);
                       step2 = iterator2.next();
                     } while (!step2.done);
-                    renderChildrenArray(request, task, children);
+                    renderChildrenArray(request, task, children2);
                     return;
                   }
                   return;
@@ -32757,13 +32757,13 @@
               }
             }
           }
-          function renderChildrenArray(request, task, children) {
-            var totalChildren = children.length;
+          function renderChildrenArray(request, task, children2) {
+            var totalChildren = children2.length;
             for (var i = 0; i < totalChildren; i++) {
               var prevTreeContext = task.treeContext;
               task.treeContext = pushTreeContext(prevTreeContext, totalChildren, i);
               try {
-                renderNode(request, task, children[i]);
+                renderNode2(request, task, children2[i]);
               } finally {
                 task.treeContext = prevTreeContext;
               }
@@ -32791,7 +32791,7 @@
             var ping = newTask.ping;
             x.then(ping, ping);
           }
-          function renderNode(request, task, node) {
+          function renderNode2(request, task, node) {
             var previousFormatContext = task.blockedSegment.formatContext;
             var previousLegacyContext = task.legacyContext;
             var previousContext = task.context;
@@ -33051,9 +33051,9 @@
                 var r = true;
                 var chunks = segment.chunks;
                 var chunkIdx = 0;
-                var children = segment.children;
-                for (var childIdx = 0; childIdx < children.length; childIdx++) {
-                  var nextChild = children[childIdx];
+                var children2 = segment.children;
+                for (var childIdx = 0; childIdx < children2.length; childIdx++) {
+                  var nextChild = children2[childIdx];
                   for (; chunkIdx < nextChild.index; chunkIdx++) {
                     writeChunk(destination, chunks[chunkIdx]);
                   }
@@ -33264,7 +33264,7 @@
               fatalError(request, error4);
             }
           }
-          function renderToReadableStream(children, options2) {
+          function renderToReadableStream(children2, options2) {
             return new Promise(function(resolve, reject) {
               var onFatalError;
               var onAllReady;
@@ -33295,7 +33295,7 @@
                 });
                 reject(error4);
               }
-              var request = createRequest(children, createResponseState(options2 ? options2.identifierPrefix : void 0, options2 ? options2.nonce : void 0, options2 ? options2.bootstrapScriptContent : void 0, options2 ? options2.bootstrapScripts : void 0, options2 ? options2.bootstrapModules : void 0), createRootFormatContext(options2 ? options2.namespaceURI : void 0), options2 ? options2.progressiveChunkSize : void 0, options2 ? options2.onError : void 0, onAllReady, onShellReady, onShellError, onFatalError);
+              var request = createRequest(children2, createResponseState(options2 ? options2.identifierPrefix : void 0, options2 ? options2.nonce : void 0, options2 ? options2.bootstrapScriptContent : void 0, options2 ? options2.bootstrapScripts : void 0, options2 ? options2.bootstrapModules : void 0), createRootFormatContext(options2 ? options2.namespaceURI : void 0), options2 ? options2.progressiveChunkSize : void 0, options2 ? options2.onError : void 0, onAllReady, onShellReady, onShellError, onFatalError);
               if (options2 && options2.signal) {
                 var signal = options2.signal;
                 var listener = function() {
@@ -33743,8 +33743,8 @@
   }
   function createElement(class_) {
     return function(props) {
-      return function(children) {
-        return import_react.default.createElement.apply(import_react.default, [class_, props].concat(children));
+      return function(children2) {
+        return import_react.default.createElement.apply(import_react.default, [class_, props].concat(children2));
       };
     };
   }
@@ -33755,8 +33755,8 @@
   }
   function createElementDynamic(class_) {
     return function(props) {
-      return function(children) {
-        return import_react.default.createElement(class_, props, children);
+      return function(children2) {
+        return import_react.default.createElement(class_, props, children2);
       };
     };
   }
@@ -33796,7 +33796,17 @@
     return result;
   }
 
+  // output/Effect.Uncurried/foreign.js
+  var mkEffectFn1 = function mkEffectFn12(fn) {
+    return function(x) {
+      return fn(x)();
+    };
+  };
+
   // output/React.DOM.Props/index.js
+  var onClick = function(f) {
+    return unsafeMkProps("onClick")(mkEffectFn1(f));
+  };
   var className = /* @__PURE__ */ unsafeMkProps("className");
 
   // output/React.DOM/index.js
@@ -33854,6 +33864,9 @@
   var bottomNumber = Number.NEGATIVE_INFINITY;
 
   // output/Data.Show/foreign.js
+  var showIntImpl = function(n) {
+    return n.toString();
+  };
   var showStringImpl = function(s) {
     var l = s.length;
     return '"' + s.replace(
@@ -33920,6 +33933,9 @@
       };
     };
   };
+  var showInt = {
+    show: showIntImpl
+  };
   var showBoolean = {
     show: function(v) {
       if (v) {
@@ -33946,14 +33962,14 @@
     return function(dictShowRecordFields) {
       var showRecordFields1 = showRecordFields(dictShowRecordFields);
       return function(dictShow) {
-        var show1 = show(dictShow);
+        var show12 = show(dictShow);
         return {
           showRecordFields: function(v) {
             return function(record) {
               var tail = showRecordFields1($$Proxy.value)(record);
               var key = reflectSymbol2($$Proxy.value);
               var focus2 = unsafeGet(key)(record);
-              return " " + (key + (": " + (show1(focus2) + ("," + tail))));
+              return " " + (key + (": " + (show12(focus2) + ("," + tail))));
             };
           }
         };
@@ -33963,13 +33979,13 @@
   var showRecordFieldsConsNil = function(dictIsSymbol) {
     var reflectSymbol2 = reflectSymbol(dictIsSymbol);
     return function(dictShow) {
-      var show1 = show(dictShow);
+      var show12 = show(dictShow);
       return {
         showRecordFields: function(v) {
           return function(record) {
             var key = reflectSymbol2($$Proxy.value);
             var focus2 = unsafeGet(key)(record);
-            return " " + (key + (": " + (show1(focus2) + " ")));
+            return " " + (key + (": " + (show12(focus2) + " ")));
           };
         }
       };
@@ -34329,10 +34345,10 @@
     }
   };
   var genericShowArgsArgument = function(dictShow) {
-    var show7 = show(dictShow);
+    var show8 = show(dictShow);
     return {
       genericShowArgs: function(v) {
-        return [show7(v)];
+        return [show8(v)];
       }
     };
   };
@@ -34638,7 +34654,7 @@
       };
     }
     return function(apply4) {
-      return function(map9) {
+      return function(map10) {
         return function(pure5) {
           return function(f) {
             return function(array) {
@@ -34647,14 +34663,14 @@
                   case 0:
                     return pure5([]);
                   case 1:
-                    return map9(array1)(f(array[bot]));
+                    return map10(array1)(f(array[bot]));
                   case 2:
-                    return apply4(map9(array2)(f(array[bot])))(f(array[bot + 1]));
+                    return apply4(map10(array2)(f(array[bot])))(f(array[bot + 1]));
                   case 3:
-                    return apply4(apply4(map9(array3)(f(array[bot])))(f(array[bot + 1])))(f(array[bot + 2]));
+                    return apply4(apply4(map10(array3)(f(array[bot])))(f(array[bot + 1])))(f(array[bot + 2]));
                   default:
                     var pivot = bot + Math.floor((top2 - bot) / 4) * 2;
-                    return apply4(map9(concat2)(go2(bot, pivot)))(go2(pivot, top2));
+                    return apply4(map10(concat2)(go2(bot, pivot)))(go2(pivot, top2));
                 }
               }
               return go2(0, array.length);
@@ -34775,7 +34791,7 @@
               return v.lines;
             }
             ;
-            throw new Error("Failed pattern match at Text.PP (line 50, column 11 - line 53, column 39): " + [v2.constructor.name]);
+            throw new Error("Failed pattern match at Text.PP (line 64, column 11 - line 67, column 39): " + [v2.constructor.name]);
           }()
         };
       };
@@ -34794,9 +34810,9 @@
   };
   var pp1 = /* @__PURE__ */ pp(ppString);
   var pprint = function(dictPP) {
-    var $42 = pp(dictPP);
-    return function($43) {
-      return show2($42($43));
+    var $45 = pp(dictPP);
+    return function($46) {
+      return show2($45($46));
     };
   };
   var paren = function(doc) {
@@ -34810,7 +34826,8 @@
       return semigroupDoc;
     }
   };
-  var words = /* @__PURE__ */ intercalate3(monoidDoc)(/* @__PURE__ */ pp1(" "));
+  var intercalate12 = /* @__PURE__ */ intercalate3(monoidDoc);
+  var words = /* @__PURE__ */ intercalate12(/* @__PURE__ */ pp1(" "));
 
   // output/Zypr.Syntax/index.js
   var $runtime_lazy2 = function(name15, moduleName, init2) {
@@ -35082,6 +35099,9 @@
   });
   var ppTerm = /* @__PURE__ */ $lazy_ppTerm(84);
 
+  // output/Zypr.Example.Lambdas/index.js
+  var term = /* @__PURE__ */ foldr(foldableArray)(apply)(/* @__PURE__ */ $$var("a"))([/* @__PURE__ */ lam("a"), /* @__PURE__ */ lam("b"), /* @__PURE__ */ lam("c"), /* @__PURE__ */ lam("d")]);
+
   // output/Zypr.Path/index.js
   var $runtime_lazy3 = function(name15, moduleName, init2) {
     var state3 = 0;
@@ -35290,9 +35310,6 @@
   });
   var ppPath = /* @__PURE__ */ $lazy_ppPath(59);
 
-  // output/Zypr.Example.Lambdas/index.js
-  var term = /* @__PURE__ */ foldr(foldableArray)(apply)(/* @__PURE__ */ $$var("a"))([/* @__PURE__ */ lam("a"), /* @__PURE__ */ lam("b")]);
-
   // output/Effect.Console/foreign.js
   var log = function(s) {
     return function() {
@@ -35415,6 +35432,14 @@
     return function(s) {
       return state1(function(v) {
         return new Tuple(unit, s);
+      });
+    };
+  };
+  var modify_ = function(dictMonadState) {
+    var state1 = state2(dictMonadState);
+    return function(f) {
+      return state1(function(s) {
+        return new Tuple(unit, f(s));
       });
     };
   };
@@ -35670,12 +35695,12 @@
   };
   var lift4 = /* @__PURE__ */ lift(monadTransStateT);
   var functorStateT = function(dictFunctor) {
-    var map9 = map(dictFunctor);
+    var map10 = map(dictFunctor);
     return {
       map: function(f) {
         return function(v) {
           return function(s) {
-            return map9(function(v1) {
+            return map10(function(v1) {
               return new Tuple(f(v1.value0), v1.value1);
             })(v(s));
           };
@@ -35809,10 +35834,10 @@
     };
   };
   var functorWriterT = function(dictFunctor) {
-    var map9 = map(dictFunctor);
+    var map10 = map(dictFunctor);
     return {
       map: function(f) {
-        return mapWriterT(map9(function(v) {
+        return mapWriterT(map10(function(v) {
           return new Tuple(f(v.value0), v.value1);
         }));
       }
@@ -35823,7 +35848,7 @@
     return function(dictApply) {
       var apply4 = apply2(dictApply);
       var Functor0 = dictApply.Functor0();
-      var map9 = map(Functor0);
+      var map10 = map(Functor0);
       var functorWriterT1 = functorWriterT(Functor0);
       return {
         apply: function(v) {
@@ -35833,7 +35858,7 @@
                 return new Tuple(v3.value0(v4.value0), append6(v3.value1)(v4.value1));
               };
             };
-            return apply4(map9(k)(v))(v1);
+            return apply4(map10(k)(v))(v1);
           };
         },
         Functor0: function() {
@@ -35848,14 +35873,14 @@
     return function(dictBind) {
       var bind3 = bind(dictBind);
       var Apply0 = dictBind.Apply0();
-      var map9 = map(Apply0.Functor0());
+      var map10 = map(Apply0.Functor0());
       var applyWriterT2 = applyWriterT1(Apply0);
       return {
         bind: function(v) {
           return function(k) {
             return bind3(v)(function(v1) {
               var v2 = k(v1.value0);
-              return map9(function(v3) {
+              return map10(function(v3) {
                 return new Tuple(v3.value0, append6(v1.value1)(v3.value1));
               })(v2);
             });
@@ -35968,15 +35993,15 @@
       return Nothing.value;
     };
     if (loc.path instanceof Zip) {
-      var $29 = uncons(loc.path.value0.rights);
-      if ($29 instanceof Just) {
+      var $30 = uncons(loc.path.value0.rights);
+      if ($30 instanceof Just) {
         return pure2({
-          term: $29.value0.head,
+          term: $30.value0.head,
           path: new Zip({
             node: loc.path.value0.node,
             lefts: cons(loc.term)(loc.path.value0.lefts),
             up: loc.path.value0.up,
-            rights: $29.value0.tail
+            rights: $30.value0.tail
           })
         });
       }
@@ -35991,13 +36016,13 @@
       return Nothing.value;
     };
     if (loc.path instanceof Zip) {
-      var $39 = uncons(loc.path.value0.lefts);
-      if ($39 instanceof Just) {
+      var $40 = uncons(loc.path.value0.lefts);
+      if ($40 instanceof Just) {
         return pure2({
-          term: $39.value0.head,
+          term: $40.value0.head,
           path: new Zip({
             node: loc.path.value0.node,
-            lefts: $39.value0.tail,
+            lefts: $40.value0.tail,
             up: loc.path.value0.up,
             rights: cons(loc.term)(loc.path.value0.rights)
           })
@@ -36019,21 +36044,21 @@
       return stepUp(loc);
     }
     ;
-    throw new Error("Failed pattern match at Zypr.Location (line 42, column 16 - line 44, column 24): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at Zypr.Location (line 43, column 16 - line 45, column 24): " + [v.constructor.name]);
   };
   var stepDown = function(loc) {
     var v = function(v1) {
       return Nothing.value;
     };
-    var $51 = uncons(loc.term.value0.terms);
-    if ($51 instanceof Just) {
+    var $52 = uncons(loc.term.value0.terms);
+    if ($52 instanceof Just) {
       return pure2({
-        term: $51.value0.head,
+        term: $52.value0.head,
         path: new Zip({
           node: loc.term.value0.node,
           lefts: [],
           up: loc.path,
-          rights: $51.value0.tail
+          rights: $52.value0.tail
         })
       });
     }
@@ -36050,7 +36075,109 @@
       return stepDown(loc);
     }
     ;
-    throw new Error("Failed pattern match at Zypr.Location (line 27, column 16 - line 29, column 26): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at Zypr.Location (line 28, column 16 - line 30, column 26): " + [v.constructor.name]);
+  };
+  var siblings = function(loc) {
+    var goRight = function($copy_rights) {
+      return function($copy_loc1) {
+        var $tco_var_rights = $copy_rights;
+        var $tco_done = false;
+        var $tco_result;
+        function $tco_loop(rights, loc1) {
+          var v = stepRight(loc1);
+          if (v instanceof Nothing) {
+            $tco_done = true;
+            return rights;
+          }
+          ;
+          if (v instanceof Just) {
+            $tco_var_rights = cons(v.value0)(rights);
+            $copy_loc1 = v.value0;
+            return;
+          }
+          ;
+          throw new Error("Failed pattern match at Zypr.Location (line 110, column 24 - line 112, column 46): " + [v.constructor.name]);
+        }
+        ;
+        while (!$tco_done) {
+          $tco_result = $tco_loop($tco_var_rights, $copy_loc1);
+        }
+        ;
+        return $tco_result;
+      };
+    };
+    var goLeft = function($copy_lefts) {
+      return function($copy_loc1) {
+        var $tco_var_lefts = $copy_lefts;
+        var $tco_done1 = false;
+        var $tco_result;
+        function $tco_loop(lefts, loc1) {
+          var v = stepLeft(loc1);
+          if (v instanceof Nothing) {
+            $tco_done1 = true;
+            return lefts;
+          }
+          ;
+          if (v instanceof Just) {
+            $tco_var_lefts = cons(v.value0)(lefts);
+            $copy_loc1 = v.value0;
+            return;
+          }
+          ;
+          throw new Error("Failed pattern match at Zypr.Location (line 106, column 22 - line 108, column 44): " + [v.constructor.name]);
+        }
+        ;
+        while (!$tco_done1) {
+          $tco_result = $tco_loop($tco_var_lefts, $copy_loc1);
+        }
+        ;
+        return $tco_result;
+      };
+    };
+    return {
+      lefts: goLeft([])(loc),
+      rights: goRight([])(loc)
+    };
+  };
+  var children = function(loc) {
+    var go2 = function($copy_locs) {
+      return function($copy_loc1) {
+        var $tco_var_locs = $copy_locs;
+        var $tco_done = false;
+        var $tco_result;
+        function $tco_loop(locs, loc1) {
+          var v2 = stepRight(loc1);
+          if (v2 instanceof Just) {
+            $tco_var_locs = cons(loc1)(locs);
+            $copy_loc1 = v2.value0;
+            return;
+          }
+          ;
+          if (v2 instanceof Nothing) {
+            $tco_done = true;
+            return reverse(cons(loc1)(locs));
+          }
+          ;
+          throw new Error("Failed pattern match at Zypr.Location (line 120, column 17 - line 122, column 36): " + [v2.constructor.name]);
+        }
+        ;
+        while (!$tco_done) {
+          $tco_result = $tco_loop($tco_var_locs, $copy_loc1);
+        }
+        ;
+        return $tco_result;
+      };
+    };
+    var v = stepDown(loc);
+    if (v instanceof Just) {
+      return go2([])(v.value0);
+    }
+    ;
+    if (v instanceof Nothing) {
+      return [];
+    }
+    ;
+    throw new Error("Failed pattern match at Zypr.Location (line 116, column 16 - line 118, column 16): " + [v.constructor.name]);
   };
 
   // output/Zypr.EditorEffect/index.js
@@ -36073,6 +36200,7 @@
       return "term";
     }
   })(showTerm))(showPath)));
+  var modify_2 = /* @__PURE__ */ modify_(monadStateStateT2);
   var compose2 = /* @__PURE__ */ compose(semigroupoidFn);
   var foldr2 = /* @__PURE__ */ foldr(foldableArray);
   var identity3 = /* @__PURE__ */ identity(categoryFn);
@@ -36177,6 +36305,22 @@
     ;
     throw new Error("Failed pattern match at Zypr.EditorEffect (line 64, column 3 - line 68, column 83): " + [v.constructor.name]);
   });
+  var setLocation = function(loc) {
+    return discard2(tell2(["jumped to new location: " + show5(loc)]))(function() {
+      return modify_2(function(v) {
+        var $70 = {};
+        for (var $71 in v) {
+          if ({}.hasOwnProperty.call(v, $71)) {
+            $70[$71] = v[$71];
+          }
+          ;
+        }
+        ;
+        $70.location = loc;
+        return $70;
+      });
+    });
+  };
   var runEditorEffect = function($$this) {
     return function(eff) {
       return function __do2() {
@@ -36306,38 +36450,167 @@
     };
   };
 
-  // output/Zypr.RenderEditor/index.js
+  // output/React.SyntheticEvent/foreign.js
+  function stopPropagation2(event) {
+    return function() {
+      return event.stopPropagation();
+    };
+  }
+
+  // output/Zypr.RenderSyntax/index.js
+  var intercalate5 = /* @__PURE__ */ intercalate3(monoidString);
+  var show7 = /* @__PURE__ */ show(showNode);
+  var show1 = /* @__PURE__ */ show(showInt);
   var map5 = /* @__PURE__ */ map(functorArray);
+  var identity4 = /* @__PURE__ */ identity(categoryFn);
+  var unsafeFromJust = function(v) {
+    if (v instanceof Just) {
+      return v.value0;
+    }
+    ;
+    if (v instanceof Nothing) {
+      return unsafeThrow("unsafeFromJust: Nothing");
+    }
+    ;
+    throw new Error("Failed pattern match at Zypr.RenderSyntax (line 97, column 18 - line 99, column 51): " + [v.constructor.name]);
+  };
+  var renderSelected = function(args) {
+    return function(res) {
+      return [div2([className("selected")])(res)];
+    };
+  };
+  var renderNode = function(args) {
+    return function(v) {
+      return function(ress) {
+        return [div2([className(intercalate5(" ")(concat([["term", function() {
+          if (v.term.value0.node instanceof Var) {
+            return "term-var";
+          }
+          ;
+          if (v.term.value0.node instanceof Lam) {
+            return "term-lam";
+          }
+          ;
+          if (v.term.value0.node instanceof App2) {
+            return "term-app";
+          }
+          ;
+          if (v.term.value0.node instanceof Let) {
+            return "term-let";
+          }
+          ;
+          throw new Error("Failed pattern match at Zypr.RenderSyntax (line 73, column 17 - line 77, column 38): " + [v.term.value0.node.constructor.name]);
+        }()]]))), onClick(function(event) {
+          return function __do2() {
+            stopPropagation2(event)();
+            return runEditorEffect(args["this"])(setLocation(v))();
+          };
+        })])(function() {
+          var v1 = new Tuple(v.term.value0.node, ress);
+          if (v1.value0 instanceof Var && v1.value1.length === 0) {
+            return args["thm"]["term"]["var"]({
+              "var": v1.value0.value0,
+              id: [text(v1.value0.value0.id)]
+            });
+          }
+          ;
+          if (v1.value0 instanceof Lam && v1.value1.length === 2) {
+            return args.thm.term.lam({
+              lam: v1.value0.value0,
+              bnd: v1["value1"][0],
+              bod: v1["value1"][1]
+            });
+          }
+          ;
+          if (v1.value0 instanceof App2 && v1.value1.length === 2) {
+            return args.thm.term.app({
+              app: v1.value0.value0,
+              apl: v1["value1"][0],
+              arg: v1["value1"][1]
+            });
+          }
+          ;
+          if (v1.value0 instanceof Let && v1.value1.length === 3) {
+            return args.thm.term.let_({
+              let_: v1.value0.value0,
+              bnd: v1["value1"][0],
+              imp: v1["value1"][1],
+              bod: v1["value1"][2]
+            });
+          }
+          ;
+          return unsafeThrow("renderNode: malformed term:" + ("\n  node: " + show7(v.term.value0.node) + ("\n  ress: " + ("[" + (show1(length(ress)) + "]")))));
+        }())];
+      };
+    };
+  };
+  var renderLocationTerm = function(args) {
+    return function(loc) {
+      return renderNode(args)(loc)(map5(renderLocationTerm(args))(children(loc)));
+    };
+  };
+  var renderLocationPath = function(args) {
+    return function(loc) {
+      if (loc.path instanceof Top) {
+        return identity4;
+      }
+      ;
+      if (loc.path instanceof Zip) {
+        var sbls = siblings(loc);
+        return function(res) {
+          var loc$prime = unsafeFromJust(stepUp(loc));
+          return renderLocationPath(args)(loc$prime)(renderNode(args)(loc$prime)(concat([map5(renderLocationTerm(args))(sbls.lefts), [res], map5(renderLocationTerm(args))(sbls.rights)])));
+        };
+      }
+      ;
+      throw new Error("Failed pattern match at Zypr.RenderSyntax (line 37, column 31 - line 51, column 24): " + [loc.path.constructor.name]);
+    };
+  };
+  var renderLocation = function(args) {
+    return function(loc) {
+      return renderLocationPath(args)(loc)(renderSelected(args)(renderLocationTerm(args)(loc)));
+    };
+  };
+
+  // output/Zypr.RenderEditor/index.js
+  var map6 = /* @__PURE__ */ map(functorArray);
   var append1 = /* @__PURE__ */ append(semigroupArray);
   var pprint2 = /* @__PURE__ */ pprint(ppPath);
   var pprint1 = /* @__PURE__ */ pprint(ppTerm);
   var map12 = /* @__PURE__ */ map(functorEffect);
-  var renderProgram = function(state3) {
-    return [div2([className("program")])([text("<program>")])];
-  };
-  var renderConsole = function(state3) {
-    var renderConsoleItem = function(v) {
-      return [div2([className("console-item " + function() {
-        if (v.type_ instanceof ConsoleItemError) {
-          return "console-item-error";
-        }
-        ;
-        if (v.type_ instanceof ConsoleItemInfo) {
-          return "console-item-info";
-        }
-        ;
-        if (v.type_ instanceof ConsoleItemLog) {
-          return "console-item-log";
-        }
-        ;
-        throw new Error("Failed pattern match at Zypr.RenderEditor (line 77, column 16 - line 80, column 53): " + [v.type_.constructor.name]);
-      }())])(v.res)];
+  var renderProgram = function($$this) {
+    return function(state3) {
+      return [div2([className("program")])(renderLocation({
+        "this": $$this,
+        thm: state3.syntaxTheme
+      })(state3.location))];
     };
-    return [div2([className("console")])(concat(map5(renderConsoleItem)(append1(state3.console)([stringEditorConsoleInfo("location:" + ("\n  path: " + (pprint2(state3.location.path) + ("\n  term: " + pprint1(state3.location.term)))))]))))];
+  };
+  var renderConsole = function($$this) {
+    return function(state3) {
+      var renderConsoleItem = function(v) {
+        return [div2([className("console-item " + function() {
+          if (v.type_ instanceof ConsoleItemError) {
+            return "console-item-error";
+          }
+          ;
+          if (v.type_ instanceof ConsoleItemInfo) {
+            return "console-item-info";
+          }
+          ;
+          if (v.type_ instanceof ConsoleItemLog) {
+            return "console-item-log";
+          }
+          ;
+          throw new Error("Failed pattern match at Zypr.RenderEditor (line 77, column 16 - line 80, column 53): " + [v.type_.constructor.name]);
+        }())])(v.res)];
+      };
+      return [div2([className("console")])(concat(map6(renderConsoleItem)(append1(state3.console)([stringEditorConsoleInfo("location:" + ("\n  path: " + (pprint2(state3.location.path) + ("\n  term: " + pprint1(state3.location.term)))))]))))];
+    };
   };
   var editorComponent = function($$this) {
     var render2 = function(state3) {
-      return div2([className("editor")])(concat([renderProgram(state3), renderConsole(state3)]));
+      return div2([className("editor")])(concat([renderProgram($$this)(state3), renderConsole($$this)(state3)]));
     };
     var componentDidMount = function __do2() {
       log("componentDidMound")();
@@ -36401,7 +36674,7 @@
   // output/App/index.js
   var createLeafElement3 = /* @__PURE__ */ createLeafElement2();
   var pure4 = /* @__PURE__ */ pure(applicativeEffect);
-  var map6 = /* @__PURE__ */ map(functorEffect);
+  var map7 = /* @__PURE__ */ map(functorEffect);
   var appComponent = function($$this) {
     var state3 = {};
     var render2 = function(v) {
@@ -36418,7 +36691,7 @@
     };
     return pure4({
       state: state3,
-      render: map6(render2)(getState($$this))
+      render: map7(render2)(getState($$this))
     });
   };
   var appClass = /* @__PURE__ */ component()("app")(appComponent);
@@ -36435,10 +36708,10 @@
   var renderToStaticMarkupImpl = import_server.default.renderToStaticMarkup;
 
   // output/ReactDOM/index.js
-  var map7 = /* @__PURE__ */ map(functorEffect);
+  var map8 = /* @__PURE__ */ map(functorEffect);
   var render = function(rEl) {
     return function(el) {
-      return map7(toMaybe)(function() {
+      return map8(toMaybe)(function() {
         return renderImpl(rEl, el);
       });
     };
@@ -36454,9 +36727,9 @@
   }
 
   // output/Web.DOM.NonElementParentNode/index.js
-  var map8 = /* @__PURE__ */ map(functorEffect);
+  var map9 = /* @__PURE__ */ map(functorEffect);
   var getElementById = function(eid) {
-    var $2 = map8(toMaybe);
+    var $2 = map9(toMaybe);
     var $3 = _getElementById(eid);
     return function($4) {
       return $2($3($4));

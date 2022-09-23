@@ -7,6 +7,7 @@ import Zypr.Path
 import Zypr.Syntax
 import Data.Array (null, reverse, uncons, unsnoc, (:))
 import Data.Maybe (Maybe(..))
+import Effect.Exception.Unsafe (unsafeThrow)
 
 type Location
   = { term :: Term -- the Term at this Location
@@ -91,12 +92,24 @@ stepUp loc = case loc.path of
       }
   _ -> Nothing
 
+{-
 -- step up, then get children
 -- includes self
 siblings :: Location -> Array Location
 siblings loc = case stepUp loc of
   Just loc' -> children loc'
   Nothing -> [ loc ]
+-}
+siblings :: Location -> { lefts :: Array Location, rights :: Array Location }
+siblings loc = { lefts: goLeft [] loc, rights: goRight [] loc }
+  where
+  goLeft lefts loc = case stepLeft loc of
+    Nothing -> lefts
+    Just loc' -> goLeft (loc' : lefts) loc'
+
+  goRight rights loc = case stepRight loc of
+    Nothing -> rights
+    Just loc' -> goRight (loc' : rights) loc'
 
 -- step down, then step right until can't
 children :: Location -> Array Location

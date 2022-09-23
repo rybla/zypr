@@ -8,12 +8,13 @@ The pretty pathetic pretty printing library.
 -}
 module Text.PP where
 
-import Data.Array (intercalate, uncons, unsnoc)
-import Data.Tuple.Nested ((/\))
 import Prelude
+
+import Data.Array (intercalate, uncons, unsnoc)
 import Data.Foldable (class Foldable)
 import Data.Foldable as Foldable
 import Data.Maybe (Maybe(..))
+import Data.Tuple.Nested ((/\))
 
 class PP a where
   pp :: a -> Doc
@@ -36,12 +37,25 @@ words = intercalate (pp " ")
 paren :: Doc -> Doc
 paren doc = pp "(" <> doc <> pp ")"
 
--- horizontally concatenate
+braks :: Doc -> Doc 
+braks doc = pp "[" <> doc <> pp "]"
+
+-- combinators
 hcat :: forall f. Foldable f => f Doc -> Doc
 hcat = Foldable.foldr (<>) mempty
 
 vcat :: forall f. Foldable f => f Doc -> Doc
 vcat = Foldable.foldr (</>) mempty
+
+hsep :: Doc -> Array Doc -> Doc 
+hsep sep docs = intercalate sep docs
+
+-- pp utilities
+
+ppArray :: forall a. PP a => Array a -> Doc
+ppArray = braks <<< hsep (pp ", ") <<< map pp   
+
+-- instanes
 
 instance semigroupDoc :: Semigroup Doc where
   append (Doc doc1) (Doc doc2) =

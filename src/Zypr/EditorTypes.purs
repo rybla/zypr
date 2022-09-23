@@ -2,9 +2,12 @@ module Zypr.EditorTypes where
 
 import Prelude
 import Effect (Effect)
-import React (ReactElement)
+import React (ReactElement, ReactThis)
 import Zypr.Location (Location)
 import Zypr.SyntaxTheme (SyntaxTheme, Res)
+
+type EditorThis
+  = ReactThis EditorProps EditorState
 
 type EditorGiven
   = { state :: EditorState, render :: Effect ReactElement, componentDidMount :: Effect Unit }

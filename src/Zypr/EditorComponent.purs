@@ -13,7 +13,7 @@ import Web.Event.EventTarget (addEventListener, eventListener)
 import Web.HTML (window)
 import Web.HTML.Window (toEventTarget)
 import Zypr.EditorConsole (stringEditorConsoleInfo)
-import Zypr.EditorTypes (ConsoleItemType(..), EditorGiven, EditorProps, EditorState)
+import Zypr.EditorTypes (ConsoleItemType(..), EditorGiven, EditorProps, EditorState, EditorThis)
 import Zypr.KeyboardEventHandler (keyboardEventHandler)
 import Zypr.RenderSyntax (renderLocation)
 import Zypr.SyntaxTheme (Res)
@@ -21,7 +21,7 @@ import Zypr.SyntaxTheme (Res)
 editorClass :: ReactClass EditorProps
 editorClass = component "editor" editorComponent
 
-editorComponent :: ReactThis EditorProps EditorState -> Effect EditorGiven
+editorComponent :: EditorThis -> Effect EditorGiven
 editorComponent this = do
   props <- getProps this
   pure
@@ -35,8 +35,8 @@ editorComponent this = do
     DOM.div
       [ Props.className "editor" ]
       $ concat
-          [ renderProgram state
-          , renderConsole state
+          [ renderProgram this state
+          , renderConsole this state
           -- , [ DOM.div [ Props.className "console" ]
           --       [ DOM.div [ Props.className "console-item" ]
           --       ]
@@ -49,15 +49,15 @@ editorComponent this = do
     listener <- eventListener (keyboardEventHandler this)
     addEventListener (EventType "keydown") listener false (toEventTarget win)
 
-renderProgram :: EditorState -> Res
-renderProgram state =
+renderProgram :: EditorThis -> EditorState -> Res
+renderProgram this state =
   [ DOM.div [ Props.className "program" ]
-      -- renderLocation state.syntaxTheme state.location
-      [ DOM.text "<program>" ]
+      $ renderLocation { this, thm: state.syntaxTheme } state.location
+  -- [ DOM.text "<program>" ]
   ]
 
-renderConsole :: EditorState -> Res
-renderConsole state =
+renderConsole :: EditorThis -> EditorState -> Res
+renderConsole this state =
   [ DOM.div [ Props.className "console" ]
       $ concat
           ( map renderConsoleItem $ state.console
