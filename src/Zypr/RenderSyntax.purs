@@ -26,11 +26,19 @@ type RenderArgs
     }
 
 -- renders 
-renderLocation :: RenderArgs -> Location -> Res
-renderLocation args loc =
+renderLocationCursor :: RenderArgs -> Location -> Res
+renderLocationCursor args loc =
   renderLocationPath args loc
-    $ renderSelected args
+    $ renderCursor args
     $ renderLocationTerm args loc
+
+renderLocationSelect :: RenderArgs -> Location -> Location -> Res
+renderLocationSelect args locStart locEnd =
+  renderLocationPath args locStart
+    $ renderSelectStart args
+    $ renderLocationPath args locEnd
+    $ renderSelectEnd args
+    $ renderLocationTerm args locEnd
 
 -- render the surrounding `Path`, and inject a `Res` at the `Top` 
 renderLocationPath :: RenderArgs -> Location -> (Res -> Res)
@@ -56,9 +64,21 @@ renderLocationTerm args loc =
   renderNode args loc
     $ map (renderLocationTerm args) (children loc)
 
-renderSelected :: RenderArgs -> Res -> Res
-renderSelected args res =
-  [ DOM.div [ Props.className "selected" ]
+renderCursor :: RenderArgs -> Res -> Res
+renderCursor args res =
+  [ DOM.div [ Props.className "select" ]
+      res
+  ]
+
+renderSelectStart :: RenderArgs -> Res -> Res
+renderSelectStart args res =
+  [ DOM.div [ Props.className "selectStart" ]
+      res
+  ]
+
+renderSelectEnd :: RenderArgs -> Res -> Res
+renderSelectEnd args res =
+  [ DOM.div [ Props.className "selectEnd" ]
       res
   ]
 

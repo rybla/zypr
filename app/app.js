@@ -666,10 +666,10 @@
                   }
                 }
                 var iterator2 = iteratorFn.call(iterableChildren);
-                var step2;
+                var step3;
                 var ii = 0;
-                while (!(step2 = iterator2.next()).done) {
-                  child = step2.value;
+                while (!(step3 = iterator2.next()).done) {
+                  child = step3.value;
                   nextName = nextNamePrefix + getElementKey(child, ii++);
                   subtreeCount += mapIntoArray(child, array, escapedPrefix, nextName, callback);
                 }
@@ -1439,10 +1439,10 @@
               if (typeof iteratorFn === "function") {
                 if (iteratorFn !== node.entries) {
                   var iterator2 = iteratorFn.call(node);
-                  var step2;
-                  while (!(step2 = iterator2.next()).done) {
-                    if (isValidElement(step2.value)) {
-                      validateExplicitKey(step2.value, parentType);
+                  var step3;
+                  while (!(step3 = iterator2.next()).done) {
+                    if (isValidElement(step3.value)) {
+                      validateExplicitKey(step3.value, parentType);
                     }
                   }
                 }
@@ -13086,15 +13086,15 @@
               var lastPlacedIndex = 0;
               var newIdx = 0;
               var nextOldFiber = null;
-              var step2 = newChildren.next();
-              for (; oldFiber !== null && !step2.done; newIdx++, step2 = newChildren.next()) {
+              var step3 = newChildren.next();
+              for (; oldFiber !== null && !step3.done; newIdx++, step3 = newChildren.next()) {
                 if (oldFiber.index > newIdx) {
                   nextOldFiber = oldFiber;
                   oldFiber = null;
                 } else {
                   nextOldFiber = oldFiber.sibling;
                 }
-                var newFiber = updateSlot(returnFiber, oldFiber, step2.value, lanes);
+                var newFiber = updateSlot(returnFiber, oldFiber, step3.value, lanes);
                 if (newFiber === null) {
                   if (oldFiber === null) {
                     oldFiber = nextOldFiber;
@@ -13115,7 +13115,7 @@
                 previousNewFiber = newFiber;
                 oldFiber = nextOldFiber;
               }
-              if (step2.done) {
+              if (step3.done) {
                 deleteRemainingChildren(returnFiber, oldFiber);
                 if (getIsHydrating()) {
                   var numberOfForks = newIdx;
@@ -13124,8 +13124,8 @@
                 return resultingFirstChild;
               }
               if (oldFiber === null) {
-                for (; !step2.done; newIdx++, step2 = newChildren.next()) {
-                  var _newFiber3 = createChild(returnFiber, step2.value, lanes);
+                for (; !step3.done; newIdx++, step3 = newChildren.next()) {
+                  var _newFiber3 = createChild(returnFiber, step3.value, lanes);
                   if (_newFiber3 === null) {
                     continue;
                   }
@@ -13144,8 +13144,8 @@
                 return resultingFirstChild;
               }
               var existingChildren = mapRemainingChildren(returnFiber, oldFiber);
-              for (; !step2.done; newIdx++, step2 = newChildren.next()) {
-                var _newFiber4 = updateFromMap(existingChildren, returnFiber, newIdx, step2.value, lanes);
+              for (; !step3.done; newIdx++, step3 = newChildren.next()) {
+                var _newFiber4 = updateFromMap(existingChildren, returnFiber, newIdx, step3.value, lanes);
                 if (_newFiber4 !== null) {
                   if (shouldTrackSideEffects) {
                     if (_newFiber4.alternate !== null) {
@@ -16852,10 +16852,10 @@
                   if (typeof iteratorFn === "function") {
                     var childrenIterator = iteratorFn.call(children2);
                     if (childrenIterator) {
-                      var step2 = childrenIterator.next();
+                      var step3 = childrenIterator.next();
                       var _i = 0;
-                      for (; !step2.done; step2 = childrenIterator.next()) {
-                        if (!validateSuspenseListNestedChild(step2.value, _i)) {
+                      for (; !step3.done; step3 = childrenIterator.next()) {
+                        if (!validateSuspenseListNestedChild(step3.value, _i)) {
                           return;
                         }
                         _i++;
@@ -27506,13 +27506,13 @@
                 }
                 var iterator2 = iteratorFn.call(node);
                 if (iterator2) {
-                  var step2 = iterator2.next();
-                  if (!step2.done) {
+                  var step3 = iterator2.next();
+                  if (!step3.done) {
                     var children2 = [];
                     do {
-                      children2.push(step2.value);
-                      step2 = iterator2.next();
-                    } while (!step2.done);
+                      children2.push(step3.value);
+                      step3 = iterator2.next();
+                    } while (!step3.done);
                     renderChildrenArray(request, task, children2);
                     return;
                   }
@@ -32725,13 +32725,13 @@
                 }
                 var iterator2 = iteratorFn.call(node);
                 if (iterator2) {
-                  var step2 = iterator2.next();
-                  if (!step2.done) {
+                  var step3 = iterator2.next();
+                  if (!step3.done) {
                     var children2 = [];
                     do {
-                      children2.push(step2.value);
-                      step2 = iterator2.next();
-                    } while (!step2.done);
+                      children2.push(step3.value);
+                      step3 = iterator2.next();
+                    } while (!step3.done);
                     renderChildrenArray(request, task, children2);
                     return;
                   }
@@ -33414,8 +33414,18 @@
   };
 
   // output/Control.Apply/index.js
+  var identity2 = /* @__PURE__ */ identity(categoryFn);
   var apply2 = function(dict) {
     return dict.apply;
+  };
+  var applySecond = function(dictApply) {
+    var apply1 = apply2(dictApply);
+    var map10 = map(dictApply.Functor0());
+    return function(a) {
+      return function(b) {
+        return apply1(map10($$const(identity2))(a))(b);
+      };
+    };
   };
 
   // output/Control.Applicative/index.js
@@ -33478,12 +33488,12 @@
   // output/Control.Monad/index.js
   var ap = function(dictMonad) {
     var bind3 = bind(dictMonad.Bind1());
-    var pure5 = pure(dictMonad.Applicative0());
+    var pure6 = pure(dictMonad.Applicative0());
     return function(f) {
       return function(a) {
         return bind3(f)(function(f$prime) {
           return bind3(a)(function(a$prime) {
-            return pure5(f$prime(a$prime));
+            return pure6(f$prime(a$prime));
           });
         });
       };
@@ -33830,6 +33840,49 @@
     };
   };
   var div2 = /* @__PURE__ */ mkDOM(false)("div");
+
+  // output/Zypr.EditorTypes/index.js
+  var CursorMode = /* @__PURE__ */ function() {
+    function CursorMode2(value0) {
+      this.value0 = value0;
+    }
+    ;
+    CursorMode2.create = function(value0) {
+      return new CursorMode2(value0);
+    };
+    return CursorMode2;
+  }();
+  var SelectMode = /* @__PURE__ */ function() {
+    function SelectMode2(value0) {
+      this.value0 = value0;
+    }
+    ;
+    SelectMode2.create = function(value0) {
+      return new SelectMode2(value0);
+    };
+    return SelectMode2;
+  }();
+  var ConsoleItemError = /* @__PURE__ */ function() {
+    function ConsoleItemError2() {
+    }
+    ;
+    ConsoleItemError2.value = new ConsoleItemError2();
+    return ConsoleItemError2;
+  }();
+  var ConsoleItemInfo = /* @__PURE__ */ function() {
+    function ConsoleItemInfo2() {
+    }
+    ;
+    ConsoleItemInfo2.value = new ConsoleItemInfo2();
+    return ConsoleItemInfo2;
+  }();
+  var ConsoleItemLog = /* @__PURE__ */ function() {
+    function ConsoleItemLog2() {
+    }
+    ;
+    ConsoleItemLog2.value = new ConsoleItemLog2();
+    return ConsoleItemLog2;
+  }();
 
   // output/Data.Foldable/foreign.js
   var foldrArray = function(f) {
@@ -34255,10 +34308,28 @@
   };
 
   // output/Data.Foldable/index.js
-  var identity2 = /* @__PURE__ */ identity(categoryFn);
+  var identity3 = /* @__PURE__ */ identity(categoryFn);
   var alaF2 = /* @__PURE__ */ alaF()()()();
   var foldr = function(dict) {
     return dict.foldr;
+  };
+  var traverse_ = function(dictApplicative) {
+    var applySecond2 = applySecond(dictApplicative.Apply0());
+    var pure6 = pure(dictApplicative);
+    return function(dictFoldable) {
+      var foldr22 = foldr(dictFoldable);
+      return function(f) {
+        return foldr22(function($449) {
+          return applySecond2(f($449));
+        })(pure6(unit));
+      };
+    };
+  };
+  var sequence_ = function(dictApplicative) {
+    var traverse_1 = traverse_(dictApplicative);
+    return function(dictFoldable) {
+      return traverse_1(dictFoldable)(identity3);
+    };
   };
   var foldl = function(dict) {
     return dict.foldl;
@@ -34326,7 +34397,7 @@
   var or = function(dictFoldable) {
     var any1 = any(dictFoldable);
     return function(dictHeytingAlgebra) {
-      return any1(dictHeytingAlgebra)(identity2);
+      return any1(dictHeytingAlgebra)(identity3);
     };
   };
 
@@ -34655,13 +34726,13 @@
     }
     return function(apply4) {
       return function(map10) {
-        return function(pure5) {
+        return function(pure6) {
           return function(f) {
             return function(array) {
               function go2(bot, top2) {
                 switch (top2 - bot) {
                   case 0:
-                    return pure5([]);
+                    return pure6([]);
                   case 1:
                     return map10(array1)(f(array[bot]));
                   case 2:
@@ -35365,29 +35436,6 @@
   // output/Web.HTML.Window/index.js
   var toEventTarget = unsafeCoerce2;
 
-  // output/Zypr.EditorTypes/index.js
-  var ConsoleItemError = /* @__PURE__ */ function() {
-    function ConsoleItemError2() {
-    }
-    ;
-    ConsoleItemError2.value = new ConsoleItemError2();
-    return ConsoleItemError2;
-  }();
-  var ConsoleItemInfo = /* @__PURE__ */ function() {
-    function ConsoleItemInfo2() {
-    }
-    ;
-    ConsoleItemInfo2.value = new ConsoleItemInfo2();
-    return ConsoleItemInfo2;
-  }();
-  var ConsoleItemLog = /* @__PURE__ */ function() {
-    function ConsoleItemLog2() {
-    }
-    ;
-    ConsoleItemLog2.value = new ConsoleItemLog2();
-    return ConsoleItemLog2;
-  }();
-
   // output/Zypr.EditorConsole/index.js
   var stringEditorConsoleLog = function(log2) {
     return {
@@ -35411,7 +35459,7 @@
   var logEditorConsole = function(item) {
     return function(state3) {
       return {
-        location: state3.location,
+        mode: state3.mode,
         syntaxTheme: state3.syntaxTheme,
         console: cons(item)(take(maxConsoleItems)(state3.console))
       };
@@ -35492,12 +35540,12 @@
   };
   var bindExceptT = function(dictMonad) {
     var bind3 = bind(dictMonad.Bind1());
-    var pure5 = pure(dictMonad.Applicative0());
+    var pure6 = pure(dictMonad.Applicative0());
     return {
       bind: function(v) {
         return function(k) {
           return bind3(v)(either(function($187) {
-            return pure5(Left.create($187));
+            return pure6(Left.create($187));
           })(function(a) {
             var v1 = k(a);
             return v1;
@@ -35683,11 +35731,11 @@
   var monadTransStateT = {
     lift: function(dictMonad) {
       var bind3 = bind(dictMonad.Bind1());
-      var pure5 = pure(dictMonad.Applicative0());
+      var pure6 = pure(dictMonad.Applicative0());
       return function(m) {
         return function(s) {
           return bind3(m)(function(x) {
-            return pure5(new Tuple(x, s));
+            return pure6(new Tuple(x, s));
           });
         };
       };
@@ -35746,11 +35794,11 @@
     };
   };
   var applicativeStateT = function(dictMonad) {
-    var pure5 = pure(dictMonad.Applicative0());
+    var pure6 = pure(dictMonad.Applicative0());
     return {
       pure: function(a) {
         return function(s) {
-          return pure5(new Tuple(a, s));
+          return pure6(new Tuple(a, s));
         };
       },
       Apply0: function() {
@@ -35759,12 +35807,12 @@
     };
   };
   var monadStateStateT = function(dictMonad) {
-    var pure5 = pure(dictMonad.Applicative0());
+    var pure6 = pure(dictMonad.Applicative0());
     var monadStateT1 = monadStateT(dictMonad);
     return {
       state: function(f) {
         return function($200) {
-          return pure5(f($200));
+          return pure6(f($200));
         };
       },
       Monad0: function() {
@@ -35819,10 +35867,10 @@
     return {
       lift: function(dictMonad) {
         var bind3 = bind(dictMonad.Bind1());
-        var pure5 = pure(dictMonad.Applicative0());
+        var pure6 = pure(dictMonad.Applicative0());
         return function(m) {
           return bind3(m)(function(a) {
-            return pure5(new Tuple(a, mempty2));
+            return pure6(new Tuple(a, mempty2));
           });
         };
       }
@@ -35896,11 +35944,11 @@
     var mempty2 = mempty(dictMonoid);
     var applyWriterT1 = applyWriterT(dictMonoid.Semigroup0());
     return function(dictApplicative) {
-      var pure5 = pure(dictApplicative);
+      var pure6 = pure(dictApplicative);
       var applyWriterT2 = applyWriterT1(dictApplicative.Apply0());
       return {
         pure: function(a) {
-          return pure5(new Tuple(a, mempty2));
+          return pure6(new Tuple(a, mempty2));
         },
         Apply0: function() {
           return applyWriterT2;
@@ -36187,9 +36235,10 @@
   var bind2 = /* @__PURE__ */ bind(bindStateT2);
   var monadStateStateT2 = /* @__PURE__ */ monadStateStateT(monadReaderT2);
   var get2 = /* @__PURE__ */ get(monadStateStateT2);
+  var put2 = /* @__PURE__ */ put(monadStateStateT2);
   var discard2 = /* @__PURE__ */ discard(discardUnit)(bindStateT2);
   var tell2 = /* @__PURE__ */ tell(/* @__PURE__ */ monadTellStateT(/* @__PURE__ */ monadTellReaderT(/* @__PURE__ */ monadTellWriterT(monoidArray)(monadExceptT2))));
-  var put2 = /* @__PURE__ */ put(monadStateStateT2);
+  var pure3 = /* @__PURE__ */ pure(/* @__PURE__ */ applicativeStateT(monadReaderT2));
   var throwError2 = /* @__PURE__ */ throwError(/* @__PURE__ */ monadThrowStateT(/* @__PURE__ */ monadThrowReaderT(/* @__PURE__ */ monadThrowWriterT(monoidArray)(/* @__PURE__ */ monadThrowExceptT(monadEffect)))));
   var show5 = /* @__PURE__ */ show(/* @__PURE__ */ showRecord()()(/* @__PURE__ */ showRecordFieldsCons({
     reflectSymbol: function() {
@@ -36203,121 +36252,123 @@
   var modify_2 = /* @__PURE__ */ modify_(monadStateStateT2);
   var compose2 = /* @__PURE__ */ compose(semigroupoidFn);
   var foldr2 = /* @__PURE__ */ foldr(foldableArray);
-  var identity3 = /* @__PURE__ */ identity(categoryFn);
+  var identity4 = /* @__PURE__ */ identity(categoryFn);
   var map4 = /* @__PURE__ */ map(functorArray);
-  var stepUp2 = /* @__PURE__ */ bind2(get2)(function(state3) {
-    var v = stepUp(state3.location);
-    if (v instanceof Just) {
-      return discard2(tell2(["stepped up "]))(function() {
-        return put2(function() {
-          var $51 = {};
-          for (var $52 in state3) {
-            if ({}.hasOwnProperty.call(state3, $52)) {
-              $51[$52] = state3[$52];
+  var step2 = function(f) {
+    return bind2(get2)(function(state3) {
+      if (state3.mode instanceof CursorMode) {
+        return bind2(f(state3.mode.value0.location))(function(location2) {
+          return put2(function() {
+            var $55 = {};
+            for (var $56 in state3) {
+              if ({}.hasOwnProperty.call(state3, $56)) {
+                $55[$56] = state3[$56];
+              }
+              ;
             }
             ;
-          }
-          ;
-          $51.location = v.value0;
-          return $51;
-        }());
-      });
-    }
-    ;
-    if (v instanceof Nothing) {
-      return throwError2("can't step up at location: " + show5(state3.location));
-    }
-    ;
-    throw new Error("Failed pattern match at Zypr.EditorEffect (line 73, column 3 - line 77, column 81): " + [v.constructor.name]);
-  });
-  var stepPrev2 = /* @__PURE__ */ bind2(get2)(function(state3) {
-    var v = stepPrev(state3.location);
-    if (v instanceof Just) {
-      return discard2(tell2(["stepped previous"]))(function() {
-        return put2(function() {
-          var $56 = {};
-          for (var $57 in state3) {
-            if ({}.hasOwnProperty.call(state3, $57)) {
-              $56[$57] = state3[$57];
+            $55.mode = new CursorMode({
+              location: location2
+            });
+            return $55;
+          }());
+        });
+      }
+      ;
+      if (state3.mode instanceof SelectMode) {
+        return bind2(f(state3.mode.value0.locationEnd))(function(locationEnd) {
+          return put2(function() {
+            var $59 = {};
+            for (var $60 in state3) {
+              if ({}.hasOwnProperty.call(state3, $60)) {
+                $59[$60] = state3[$60];
+              }
+              ;
             }
             ;
-          }
-          ;
-          $56.location = v.value0;
-          return $56;
-        }());
-      });
-    }
-    ;
-    if (v instanceof Nothing) {
-      return throwError2("can't step left at location: " + show5(state3.location));
-    }
-    ;
-    throw new Error("Failed pattern match at Zypr.EditorEffect (line 46, column 3 - line 50, column 83): " + [v.constructor.name]);
-  });
-  var stepNext2 = /* @__PURE__ */ bind2(get2)(function(state3) {
-    var v = stepNext(state3.location);
-    if (v instanceof Just) {
-      return discard2(tell2(["stepped next"]))(function() {
-        return put2(function() {
-          var $61 = {};
-          for (var $62 in state3) {
-            if ({}.hasOwnProperty.call(state3, $62)) {
-              $61[$62] = state3[$62];
-            }
-            ;
-          }
-          ;
-          $61.location = v.value0;
-          return $61;
-        }());
-      });
-    }
-    ;
-    if (v instanceof Nothing) {
-      return throwError2("can't step right at location: " + show5(state3.location));
-    }
-    ;
-    throw new Error("Failed pattern match at Zypr.EditorEffect (line 55, column 3 - line 59, column 84): " + [v.constructor.name]);
-  });
-  var stepDown2 = /* @__PURE__ */ bind2(get2)(function(state3) {
-    var v = stepDown(state3.location);
+            $59.mode = new SelectMode({
+              locationStart: state3.mode.value0.locationStart,
+              locationEnd
+            });
+            return $59;
+          }());
+        });
+      }
+      ;
+      throw new Error("Failed pattern match at Zypr.EditorEffect (line 80, column 3 - line 86, column 75): " + [state3.mode.constructor.name]);
+    });
+  };
+  var stepDown2 = /* @__PURE__ */ step2(function(loc) {
+    var v = stepDown(loc);
     if (v instanceof Just) {
       return discard2(tell2(["stepped down"]))(function() {
-        return put2(function() {
-          var $66 = {};
-          for (var $67 in state3) {
-            if ({}.hasOwnProperty.call(state3, $67)) {
-              $66[$67] = state3[$67];
-            }
-            ;
-          }
-          ;
-          $66.location = v.value0;
-          return $66;
-        }());
+        return pure3(v.value0);
       });
     }
     ;
     if (v instanceof Nothing) {
-      return throwError2("can't step down at location: " + show5(state3.location));
+      return throwError2("can't step down at location: " + show5(loc));
     }
     ;
-    throw new Error("Failed pattern match at Zypr.EditorEffect (line 64, column 3 - line 68, column 83): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at Zypr.EditorEffect (line 63, column 16 - line 67, column 72): " + [v.constructor.name]);
+  });
+  var stepNext2 = /* @__PURE__ */ step2(function(loc) {
+    var v = stepNext(loc);
+    if (v instanceof Just) {
+      return discard2(tell2(["stepped next"]))(function() {
+        return pure3(v.value0);
+      });
+    }
+    ;
+    if (v instanceof Nothing) {
+      return throwError2("can't step right at location: " + show5(loc));
+    }
+    ;
+    throw new Error("Failed pattern match at Zypr.EditorEffect (line 55, column 16 - line 59, column 73): " + [v.constructor.name]);
+  });
+  var stepPrev2 = /* @__PURE__ */ step2(function(loc) {
+    var v = stepPrev(loc);
+    if (v instanceof Just) {
+      return discard2(tell2(["stepped previous"]))(function() {
+        return pure3(v.value0);
+      });
+    }
+    ;
+    if (v instanceof Nothing) {
+      return throwError2("can't step left at location: " + show5(loc));
+    }
+    ;
+    throw new Error("Failed pattern match at Zypr.EditorEffect (line 47, column 16 - line 51, column 72): " + [v.constructor.name]);
+  });
+  var stepUp2 = /* @__PURE__ */ step2(function(loc) {
+    var v = stepUp(loc);
+    if (v instanceof Just) {
+      return discard2(tell2(["stepped up "]))(function() {
+        return pure3(v.value0);
+      });
+    }
+    ;
+    if (v instanceof Nothing) {
+      return throwError2("can't step up at location: " + show5(loc));
+    }
+    ;
+    throw new Error("Failed pattern match at Zypr.EditorEffect (line 71, column 16 - line 75, column 70): " + [v.constructor.name]);
   });
   var setLocation = function(loc) {
     return discard2(tell2(["jumped to new location: " + show5(loc)]))(function() {
       return modify_2(function(v) {
-        var $70 = {};
-        for (var $71 in v) {
-          if ({}.hasOwnProperty.call(v, $71)) {
-            $70[$71] = v[$71];
+        var $71 = {};
+        for (var $72 in v) {
+          if ({}.hasOwnProperty.call(v, $72)) {
+            $71[$72] = v[$72];
           }
           ;
         }
         ;
-        $70.location = loc;
-        return $70;
+        $71.mode = new CursorMode({
+          location: loc
+        });
+        return $71;
       });
     });
   };
@@ -36333,21 +36384,77 @@
         ;
         if (res instanceof Right) {
           return modifyState($$this)(function() {
-            var $80 = foldr2(compose2)(identity3)(map4(function($82) {
-              return logEditorConsole(stringEditorConsoleLog($82));
+            var $93 = foldr2(compose2)(identity4)(map4(function($95) {
+              return logEditorConsole(stringEditorConsoleLog($95));
             })(res.value0.value1));
-            return function($81) {
-              return $80(function(v) {
+            return function($94) {
+              return $93(function(v) {
                 return res.value0.value0.value1;
-              }($81));
+              }($94));
             };
           }())();
         }
         ;
-        throw new Error("Failed pattern match at Zypr.EditorEffect (line 30, column 3 - line 36, column 25): " + [res.constructor.name]);
+        throw new Error("Failed pattern match at Zypr.EditorEffect (line 32, column 3 - line 38, column 25): " + [res.constructor.name]);
       };
     };
   };
+  var exitSelect = /* @__PURE__ */ bind2(get2)(function(state3) {
+    if (state3.mode instanceof CursorMode) {
+      return pure3(unit);
+    }
+    ;
+    if (state3.mode instanceof SelectMode) {
+      return discard2(tell2(["exit select"]))(function() {
+        return put2(function() {
+          var $83 = {};
+          for (var $84 in state3) {
+            if ({}.hasOwnProperty.call(state3, $84)) {
+              $83[$84] = state3[$84];
+            }
+            ;
+          }
+          ;
+          $83.mode = new CursorMode({
+            location: state3.mode.value0.locationStart
+          });
+          return $83;
+        }());
+      });
+    }
+    ;
+    throw new Error("Failed pattern match at Zypr.EditorEffect (line 91, column 3 - line 95, column 73): " + [state3.mode.constructor.name]);
+  });
+  var enterSelect = /* @__PURE__ */ bind2(get2)(function(state3) {
+    if (state3.mode instanceof CursorMode) {
+      return discard2(tell2(["enter select"]))(function() {
+        return put2(function() {
+          var $88 = {};
+          for (var $89 in state3) {
+            if ({}.hasOwnProperty.call(state3, $89)) {
+              $88[$89] = state3[$89];
+            }
+            ;
+          }
+          ;
+          $88.mode = new SelectMode({
+            locationStart: state3.mode.value0.location,
+            locationEnd: {
+              term: state3.mode.value0.location.term,
+              path: Top.value
+            }
+          });
+          return $88;
+        }());
+      });
+    }
+    ;
+    if (state3.mode instanceof SelectMode) {
+      return pure3(unit);
+    }
+    ;
+    throw new Error("Failed pattern match at Zypr.EditorEffect (line 100, column 3 - line 111, column 30): " + [state3.mode.constructor.name]);
+  });
 
   // output/Zypr.Key/foreign.js
   var eventKey = (event) => event.key;
@@ -36376,9 +36483,47 @@
     };
   };
   var key_ArrowDown = /* @__PURE__ */ defaultKey("ArrowDown");
+  var key_ShiftArrowDown = /* @__PURE__ */ function() {
+    return {
+      label: key_ArrowDown.label,
+      shift: true,
+      meta: key_ArrowDown.meta,
+      ctrl: key_ArrowDown.ctrl,
+      alt: key_ArrowDown.alt
+    };
+  }();
   var key_ArrowLeft = /* @__PURE__ */ defaultKey("ArrowLeft");
+  var key_ShiftArrowLeft = /* @__PURE__ */ function() {
+    return {
+      label: key_ArrowLeft.label,
+      shift: true,
+      meta: key_ArrowLeft.meta,
+      ctrl: key_ArrowLeft.ctrl,
+      alt: key_ArrowLeft.alt
+    };
+  }();
   var key_ArrowRight = /* @__PURE__ */ defaultKey("ArrowRight");
+  var key_ShiftArrowRight = /* @__PURE__ */ function() {
+    return {
+      label: key_ArrowRight.label,
+      shift: true,
+      meta: key_ArrowRight.meta,
+      ctrl: key_ArrowRight.ctrl,
+      alt: key_ArrowRight.alt
+    };
+  }();
   var key_ArrowUp = /* @__PURE__ */ defaultKey("ArrowUp");
+  var key_ShiftArrowUp = /* @__PURE__ */ function() {
+    return {
+      label: key_ArrowUp.label,
+      shift: true,
+      meta: key_ArrowUp.meta,
+      ctrl: key_ArrowUp.ctrl,
+      alt: key_ArrowUp.alt
+    };
+  }();
+  var key_Escape = /* @__PURE__ */ defaultKey("Escape");
+  var key_Period = /* @__PURE__ */ defaultKey(".");
 
   // output/Zypr.KeyboardEventHandler/index.js
   var or2 = /* @__PURE__ */ or(foldableArray)(heytingAlgebraBoolean);
@@ -36410,7 +36555,9 @@
   var eqRec2 = /* @__PURE__ */ eqRec()(/* @__PURE__ */ eqRowCons(/* @__PURE__ */ eqRowCons(/* @__PURE__ */ eqRowCons(/* @__PURE__ */ eqRowCons(/* @__PURE__ */ eqRowCons(eqRowNil)()(shiftIsSymbol)(eqBoolean))()(metaIsSymbol)(eqBoolean))()(labelIsSymbol)(eqString))()(ctrlIsSymbol)(eqBoolean))()(altIsSymbol)(eqBoolean));
   var elem3 = /* @__PURE__ */ elem2(eqRec2);
   var eq2 = /* @__PURE__ */ eq(eqRec2);
-  var pure3 = /* @__PURE__ */ pure(/* @__PURE__ */ applicativeStateT(/* @__PURE__ */ monadReaderT(/* @__PURE__ */ monadWriterT(monoidArray)(/* @__PURE__ */ monadExceptT(monadEffect)))));
+  var applicativeStateT2 = /* @__PURE__ */ applicativeStateT(/* @__PURE__ */ monadReaderT(/* @__PURE__ */ monadWriterT(monoidArray)(/* @__PURE__ */ monadExceptT(monadEffect))));
+  var sequence_2 = /* @__PURE__ */ sequence_(applicativeStateT2)(foldableArray);
+  var pure4 = /* @__PURE__ */ pure(applicativeStateT2);
   var when2 = /* @__PURE__ */ when(applicativeEffect);
   var show6 = /* @__PURE__ */ show(/* @__PURE__ */ showRecord()()(/* @__PURE__ */ showRecordFieldsCons(altIsSymbol)(/* @__PURE__ */ showRecordFieldsCons(ctrlIsSymbol)(/* @__PURE__ */ showRecordFieldsCons(labelIsSymbol)(/* @__PURE__ */ showRecordFieldsCons(metaIsSymbol)(/* @__PURE__ */ showRecordFieldsConsNil(shiftIsSymbol)(showBoolean))(showBoolean))(showString))(showBoolean))(showBoolean)));
   var shouldPreventDefault = function(key) {
@@ -36418,26 +36565,50 @@
   };
   var handleKey = function(key) {
     if (eq2(key)(key_ArrowLeft)) {
-      return stepPrev2;
+      return sequence_2([exitSelect, stepPrev2]);
     }
     ;
     if (eq2(key)(key_ArrowRight)) {
-      return stepNext2;
+      return sequence_2([exitSelect, stepNext2]);
     }
     ;
     if (eq2(key)(key_ArrowDown)) {
-      return stepDown2;
+      return sequence_2([exitSelect, stepDown2]);
     }
     ;
     if (eq2(key)(key_ArrowUp)) {
-      return stepUp2;
+      return sequence_2([exitSelect, stepUp2]);
+    }
+    ;
+    if (eq2(key)(key_ShiftArrowLeft)) {
+      return sequence_2([enterSelect, stepPrev2]);
+    }
+    ;
+    if (eq2(key)(key_ShiftArrowRight)) {
+      return sequence_2([enterSelect, stepNext2]);
+    }
+    ;
+    if (eq2(key)(key_ShiftArrowDown)) {
+      return sequence_2([enterSelect, stepDown2]);
+    }
+    ;
+    if (eq2(key)(key_ShiftArrowUp)) {
+      return sequence_2([enterSelect, stepUp2]);
+    }
+    ;
+    if (eq2(key)(key_Period)) {
+      return enterSelect;
+    }
+    ;
+    if (eq2(key)(key_Escape)) {
+      return exitSelect;
     }
     ;
     if (otherwise) {
-      return pure3(unit);
+      return pure4(unit);
     }
     ;
-    throw new Error("Failed pattern match at Zypr.KeyboardEventHandler (line 31, column 1 - line 31, column 42): " + [key.constructor.name]);
+    throw new Error("Failed pattern match at Zypr.KeyboardEventHandler (line 32, column 1 - line 32, column 42): " + [key.constructor.name]);
   };
   var keyboardEventHandler = function($$this) {
     return function(event) {
@@ -36462,7 +36633,7 @@
   var show7 = /* @__PURE__ */ show(showNode);
   var show1 = /* @__PURE__ */ show(showInt);
   var map5 = /* @__PURE__ */ map(functorArray);
-  var identity4 = /* @__PURE__ */ identity(categoryFn);
+  var identity5 = /* @__PURE__ */ identity(categoryFn);
   var unsafeFromJust = function(v) {
     if (v instanceof Just) {
       return v.value0;
@@ -36472,11 +36643,16 @@
       return unsafeThrow("unsafeFromJust: Nothing");
     }
     ;
-    throw new Error("Failed pattern match at Zypr.RenderSyntax (line 97, column 18 - line 99, column 51): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at Zypr.RenderSyntax (line 117, column 18 - line 119, column 51): " + [v.constructor.name]);
   };
-  var renderSelected = function(args) {
+  var renderSelectStart = function(args) {
     return function(res) {
-      return [div2([className("selected")])(res)];
+      return [div2([className("selectStart")])(res)];
+    };
+  };
+  var renderSelectEnd = function(args) {
+    return function(res) {
+      return [div2([className("selectEnd")])(res)];
     };
   };
   var renderNode = function(args) {
@@ -36499,7 +36675,7 @@
             return "term-let";
           }
           ;
-          throw new Error("Failed pattern match at Zypr.RenderSyntax (line 73, column 17 - line 77, column 38): " + [v.term.value0.node.constructor.name]);
+          throw new Error("Failed pattern match at Zypr.RenderSyntax (line 93, column 17 - line 97, column 38): " + [v.term.value0.node.constructor.name]);
         }()]]))), onClick(function(event) {
           return function __do2() {
             stopPropagation2(event)();
@@ -36552,7 +36728,7 @@
   var renderLocationPath = function(args) {
     return function(loc) {
       if (loc.path instanceof Top) {
-        return identity4;
+        return identity5;
       }
       ;
       if (loc.path instanceof Zip) {
@@ -36563,12 +36739,24 @@
         };
       }
       ;
-      throw new Error("Failed pattern match at Zypr.RenderSyntax (line 37, column 31 - line 51, column 24): " + [loc.path.constructor.name]);
+      throw new Error("Failed pattern match at Zypr.RenderSyntax (line 45, column 31 - line 59, column 24): " + [loc.path.constructor.name]);
     };
   };
-  var renderLocation = function(args) {
+  var renderLocationSelect = function(args) {
+    return function(locStart) {
+      return function(locEnd) {
+        return renderLocationPath(args)(locStart)(renderSelectStart(args)(renderLocationPath(args)(locEnd)(renderSelectEnd(args)(renderLocationTerm(args)(locEnd)))));
+      };
+    };
+  };
+  var renderCursor = function(args) {
+    return function(res) {
+      return [div2([className("select")])(res)];
+    };
+  };
+  var renderLocationCursor = function(args) {
     return function(loc) {
-      return renderLocationPath(args)(loc)(renderSelected(args)(renderLocationTerm(args)(loc)));
+      return renderLocationPath(args)(loc)(renderCursor(args)(renderLocationTerm(args)(loc)));
     };
   };
 
@@ -36580,10 +36768,23 @@
   var map12 = /* @__PURE__ */ map(functorEffect);
   var renderProgram = function($$this) {
     return function(state3) {
-      return [div2([className("program")])(renderLocation({
-        "this": $$this,
-        thm: state3.syntaxTheme
-      })(state3.location))];
+      return [div2([className("program")])(function() {
+        if (state3.mode instanceof CursorMode) {
+          return renderLocationCursor({
+            "this": $$this,
+            thm: state3.syntaxTheme
+          })(state3.mode.value0.location);
+        }
+        ;
+        if (state3.mode instanceof SelectMode) {
+          return renderLocationSelect({
+            "this": $$this,
+            thm: state3.syntaxTheme
+          })(state3.mode.value0.locationStart)(state3.mode.value0.locationEnd);
+        }
+        ;
+        throw new Error("Failed pattern match at Zypr.RenderEditor (line 54, column 43 - line 63, column 29): " + [state3.mode.constructor.name]);
+      }())];
     };
   };
   var renderConsole = function($$this) {
@@ -36602,10 +36803,20 @@
             return "console-item-log";
           }
           ;
-          throw new Error("Failed pattern match at Zypr.RenderEditor (line 77, column 16 - line 80, column 53): " + [v.type_.constructor.name]);
+          throw new Error("Failed pattern match at Zypr.RenderEditor (line 102, column 16 - line 105, column 53): " + [v.type_.constructor.name]);
         }())])(v.res)];
       };
-      return [div2([className("console")])(concat(map6(renderConsoleItem)(append1(state3.console)([stringEditorConsoleInfo("location:" + ("\n  path: " + (pprint2(state3.location.path) + ("\n  term: " + pprint1(state3.location.term)))))]))))];
+      return [div2([className("console")])(function() {
+        if (state3.mode instanceof CursorMode) {
+          return concat(map6(renderConsoleItem)(append1(state3.console)([stringEditorConsoleInfo("cursor location:" + ("\n  path: " + (pprint2(state3.mode.value0.location.path) + ("\n  term: " + pprint1(state3.mode.value0.location.term)))))])));
+        }
+        ;
+        if (state3.mode instanceof SelectMode) {
+          return concat(map6(renderConsoleItem)(append1(state3.console)([stringEditorConsoleInfo("selection start location:" + ("\n  path: " + (pprint2(state3.mode.value0.locationStart.path) + ("\n  term: " + pprint1(state3.mode.value0.locationStart.term))))), stringEditorConsoleInfo("selection end location:" + ("\n  path: " + (pprint2(state3.mode.value0.locationEnd.path) + ("\n  term: " + pprint1(state3.mode.value0.locationEnd.term)))))])));
+        }
+        ;
+        throw new Error("Failed pattern match at Zypr.RenderEditor (line 68, column 43 - line 96, column 12): " + [state3.mode.constructor.name]);
+      }())];
     };
   };
   var editorComponent = function($$this) {
@@ -36673,23 +36884,25 @@
 
   // output/App/index.js
   var createLeafElement3 = /* @__PURE__ */ createLeafElement2();
-  var pure4 = /* @__PURE__ */ pure(applicativeEffect);
+  var pure5 = /* @__PURE__ */ pure(applicativeEffect);
   var map7 = /* @__PURE__ */ map(functorEffect);
   var appComponent = function($$this) {
     var state3 = {};
     var render2 = function(v) {
       return div2([className("app")])([createLeafElement3(editorClass)({
         stateInit: {
-          location: {
-            term,
-            path: Top.value
-          },
+          mode: new CursorMode({
+            location: {
+              term,
+              path: Top.value
+            }
+          }),
           syntaxTheme: basicSyntaxTheme,
           console: []
         }
       })]);
     };
-    return pure4({
+    return pure5({
       state: state3,
       render: map7(render2)(getState($$this))
     });

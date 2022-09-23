@@ -62,15 +62,37 @@ body {
 
 .term.let {}
 
-/* selected */
+/* select */
 
-.selected {
+
+.select {
   display: inline-block;
 }
 
-.selected>.term {
-  box-shadow: 0 0 0 2px blue;
+.selectStart {
+  display: inline-block;
 }
+
+
+.selectEnd {
+  display: inline-block;
+}
+
+.select>.term {
+  box-shadow: 0 0 0 2px blue;
+  background-color: rgb(216, 216, 255);
+}
+
+.selectStart>.term {
+  box-shadow: 0 0 0 2px blue;
+  background-color: rgb(216, 216, 255);
+}
+
+.selectEnd>.term {
+  box-shadow: 0 0 0 2px blue;
+  background-color: white;
+}
+
 
 /* token */
 

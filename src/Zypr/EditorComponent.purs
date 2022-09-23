@@ -13,9 +13,9 @@ import Web.Event.EventTarget (addEventListener, eventListener)
 import Web.HTML (window)
 import Web.HTML.Window (toEventTarget)
 import Zypr.EditorConsole (stringEditorConsoleInfo)
-import Zypr.EditorTypes (ConsoleItemType(..), EditorGiven, EditorProps, EditorState, EditorThis)
+import Zypr.EditorTypes (ConsoleItemType(..), EditorGiven, EditorMode(..), EditorProps, EditorState, EditorThis)
 import Zypr.KeyboardEventHandler (keyboardEventHandler)
-import Zypr.RenderSyntax (renderLocation)
+import Zypr.RenderSyntax (renderLocationCursor, renderLocationSelect)
 import Zypr.SyntaxTheme (Res)
 
 editorClass :: ReactClass EditorProps
@@ -51,22 +51,47 @@ editorComponent this = do
 
 renderProgram :: EditorThis -> EditorState -> Res
 renderProgram this state =
-  [ DOM.div [ Props.className "program" ]
-      $ renderLocation { this, thm: state.syntaxTheme } state.location
-  -- [ DOM.text "<program>" ]
+  [ DOM.div [ Props.className "program" ] case state.mode of
+      CursorMode cursor ->
+        renderLocationCursor
+          { this, thm: state.syntaxTheme }
+          cursor.location
+      SelectMode select ->
+        renderLocationSelect
+          { this, thm: state.syntaxTheme }
+          select.locationStart
+          select.locationEnd
   ]
 
 renderConsole :: EditorThis -> EditorState -> Res
 renderConsole this state =
-  [ DOM.div [ Props.className "console" ]
-      $ concat
+  [ DOM.div [ Props.className "console" ] case state.mode of
+      CursorMode cursor ->
+        concat
           ( map renderConsoleItem $ state.console
               <> [ stringEditorConsoleInfo
-                    $ "location:"
+                    $ "cursor location:"
                     <> "\n  path: "
-                    <> pprint state.location.path
+                    <> pprint cursor.location.path
                     <> "\n  term: "
-                    <> pprint state.location.term
+                    <> pprint cursor.location.term
+                ]
+          )
+      SelectMode select ->
+        concat
+          ( map renderConsoleItem $ state.console
+              <> [ stringEditorConsoleInfo
+                    $ "selection start location:"
+                    <> "\n  path: "
+                    <> pprint select.locationStart.path
+                    <> "\n  term: "
+                    <> pprint select.locationStart.term
+                , stringEditorConsoleInfo
+                    $ "selection end location:"
+                    <> "\n  path: "
+                    <> pprint select.locationEnd.path
+                    <> "\n  term: "
+                    <> pprint select.locationEnd.term
                 ]
           )
   ]

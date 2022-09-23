@@ -12,11 +12,13 @@ import Data.Identity (Identity)
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Effect.Console as Console
+import Effect.Exception.Unsafe (unsafeThrow)
 import React (ReactThis, getProps, getState, modifyState)
 import Zypr.EditorConsole (logEditorConsole, stringEditorConsoleError, stringEditorConsoleInfo, stringEditorConsoleLog)
-import Zypr.EditorTypes (EditorState, EditorProps)
+import Zypr.EditorTypes (EditorMode(..), EditorProps, EditorState)
 import Zypr.Location (Location)
 import Zypr.Location as Location
+import Zypr.Path (Path(..))
 import Zypr.SyntaxTheme (Res)
 
 type EditorEffect a
@@ -38,40 +40,72 @@ runEditorEffect this eff = do
 setLocation :: Location -> EditorEffect Unit
 setLocation loc = do
   tell [ "jumped to new location: " <> show loc ]
-  modify_ _ { location = loc }
+  modify_ _ { mode = CursorMode { location: loc } }
 
 stepPrev :: EditorEffect Unit
-stepPrev = do
-  state <- get
-  case Location.stepPrev state.location of
-    Just location' -> do
+stepPrev =
+  step \loc -> case Location.stepPrev loc of
+    Just loc' -> do
       tell [ "stepped previous" ]
-      put state { location = location' }
-    Nothing -> throwError $ "can't step left at location: " <> show state.location
+      pure loc'
+    Nothing -> throwError $ "can't step left at location: " <> show loc
 
 stepNext :: EditorEffect Unit
-stepNext = do
-  state <- get
-  case Location.stepNext state.location of
-    Just location' -> do
+stepNext =
+  step \loc -> case Location.stepNext loc of
+    Just loc' -> do
       tell [ "stepped next" ]
-      put state { location = location' }
-    Nothing -> throwError $ "can't step right at location: " <> show state.location
+      pure loc'
+    Nothing -> throwError $ "can't step right at location: " <> show loc
 
 stepDown :: EditorEffect Unit
-stepDown = do
-  state <- get
-  case Location.stepDown state.location of
-    Just location' -> do
+stepDown =
+  step \loc -> case Location.stepDown loc of
+    Just loc' -> do
       tell [ "stepped down" ]
-      put state { location = location' }
-    Nothing -> throwError $ "can't step down at location: " <> show state.location
+      pure loc'
+    Nothing -> throwError $ "can't step down at location: " <> show loc
 
 stepUp :: EditorEffect Unit
-stepUp = do
-  state <- get
-  case Location.stepUp state.location of
-    Just location' -> do
+stepUp =
+  step \loc -> case Location.stepUp loc of
+    Just loc' -> do
       tell [ "stepped up " ]
-      put state { location = location' }
-    Nothing -> throwError $ "can't step up at location: " <> show state.location
+      pure loc'
+    Nothing -> throwError $ "can't step up at location: " <> show loc
+
+step :: (Location -> EditorEffect Location) -> EditorEffect Unit
+step f = do
+  state <- get
+  case state.mode of
+    CursorMode cursor -> do
+      location <- f cursor.location
+      put state { mode = CursorMode cursor { location = location } }
+    SelectMode select -> do
+      locationEnd <- f select.locationEnd
+      put state { mode = SelectMode select { locationEnd = locationEnd } }
+
+exitSelect :: EditorEffect Unit
+exitSelect = do
+  state <- get
+  case state.mode of
+    CursorMode _ -> pure unit
+    SelectMode select -> do
+      tell [ "exit select" ]
+      put state { mode = CursorMode { location: select.locationStart } }
+
+enterSelect :: EditorEffect Unit
+enterSelect = do
+  state <- get
+  case state.mode of
+    CursorMode cursor -> do
+      tell [ "enter select" ]
+      put
+        state
+          { mode =
+            SelectMode
+              { locationStart: cursor.location
+              , locationEnd: { term: cursor.location.term, path: Top }
+              }
+          }
+    SelectMode _ -> pure unit

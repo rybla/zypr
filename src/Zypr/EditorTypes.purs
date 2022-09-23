@@ -16,10 +16,14 @@ type EditorProps
   = { stateInit :: EditorState }
 
 type EditorState
-  = { location :: Location
+  = { mode :: EditorMode
     , syntaxTheme :: SyntaxTheme
     , console :: Array ConsoleItem
     }
+
+data EditorMode
+  = CursorMode { location :: Location }
+  | SelectMode { locationStart :: Location, locationEnd :: Location }
 
 type ConsoleItem
   = { type_ :: ConsoleItemType, res :: Res }

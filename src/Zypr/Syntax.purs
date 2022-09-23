@@ -70,8 +70,8 @@ app apl arg = mkApp { app: { md: { indent_arg: false } }, apl, arg }
 mkLet :: { let_ :: Let, bnd :: Term, imp :: Term, bod :: Term } -> Term
 mkLet { let_, bnd, imp } = Term { node: Let let_, terms: [ bnd, imp ] }
 
-let_ :: Term -> Term -> Term -> Term
-let_ bnd imp bod = mkLet { let_: { md: { indent_imp: false, indent_bod: false } }, bnd, imp, bod }
+let_ :: Id -> Term -> Term -> Term
+let_ id imp bod = mkLet { let_: { md: { indent_imp: false, indent_bod: false } }, bnd: var id, imp, bod }
 
 -- instances
 derive instance genericTerm :: Generic Term _

@@ -7,6 +7,7 @@ import Effect (Effect)
 import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getState)
 import React.DOM as DOM
 import React.DOM.Props as Props
+import Zypr.EditorTypes (EditorMode(..))
 import Zypr.Example.Lambdas as Lambdas
 import Zypr.Path (Path(..))
 import Zypr.RenderEditor (editorClass)
@@ -39,10 +40,13 @@ appComponent this =
       [ Props.className "app" ]
       [ createLeafElement editorClass
           { stateInit:
-              { location:
-                  { term: Lambdas.term
-                  , path: Top
-                  }
+              { mode:
+                  CursorMode
+                    { location:
+                        { term: Lambdas.term
+                        , path: Top
+                        }
+                    }
               , syntaxTheme: basicSyntaxTheme
               , console: []
               }

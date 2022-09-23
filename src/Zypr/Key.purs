@@ -50,3 +50,21 @@ key_ArrowDown = defaultKey "ArrowDown"
 
 key_ArrowUp :: Key
 key_ArrowUp = defaultKey "ArrowUp"
+
+key_ShiftArrowRight :: Key
+key_ShiftArrowRight = key_ArrowRight { shift = true }
+
+key_ShiftArrowLeft :: Key
+key_ShiftArrowLeft = key_ArrowLeft { shift = true }
+
+key_ShiftArrowDown :: Key
+key_ShiftArrowDown = key_ArrowDown { shift = true }
+
+key_ShiftArrowUp :: Key
+key_ShiftArrowUp = key_ArrowUp { shift = true }
+
+key_Escape :: Key
+key_Escape = defaultKey "Escape"
+
+key_Period :: Key
+key_Period = defaultKey "."
