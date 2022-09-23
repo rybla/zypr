@@ -15,7 +15,7 @@ import Web.HTML.Window (toEventTarget)
 import Zypr.EditorConsole (stringEditorConsoleInfo)
 import Zypr.EditorTypes (ConsoleItemType(..), EditorGiven, EditorMode(..), EditorProps, EditorState, EditorThis)
 import Zypr.KeyboardEventHandler (keyboardEventHandler)
-import Zypr.RenderSyntax (renderLocationCursor, renderLocationSelect)
+import Zypr.RenderSyntax (renderCursorMode, renderSelectMode, renderTopMode)
 import Zypr.SyntaxTheme (Res)
 
 editorClass :: ReactClass EditorProps
@@ -48,48 +48,54 @@ editorComponent this = do
 renderProgram :: EditorThis -> EditorState -> Res
 renderProgram this state =
   [ DOM.div [ Props.className "program" ] case state.mode of
+      TopMode top ->
+        renderTopMode
+          { this, thm: state.syntaxTheme }
+          top
       CursorMode cursor ->
-        renderLocationCursor
+        renderCursorMode
           { this, thm: state.syntaxTheme }
-          cursor.location
+          cursor
       SelectMode select ->
-        renderLocationSelect
+        renderSelectMode
           { this, thm: state.syntaxTheme }
-          select.locationStart
-          select.locationEnd
+          select
   ]
 
 renderConsole :: EditorThis -> EditorState -> Res
 renderConsole this state =
-  [ DOM.div [ Props.className "console" ] case state.mode of
-      CursorMode cursor ->
-        concat
-          ( map renderConsoleItem $ state.console
-              <> [ stringEditorConsoleInfo
-                    $ "cursor location:"
-                    <> "\n  path: "
-                    <> pprint cursor.location.path
-                    <> "\n  term: "
-                    <> pprint cursor.location.term
-                ]
-          )
-      SelectMode select ->
-        concat
-          ( map renderConsoleItem $ state.console
-              <> [ stringEditorConsoleInfo
-                    $ "selection start location:"
-                    <> "\n  path: "
-                    <> pprint select.locationStart.path
-                    <> "\n  term: "
-                    <> pprint select.locationStart.term
-                , stringEditorConsoleInfo
-                    $ "selection end location:"
-                    <> "\n  path: "
-                    <> pprint select.locationEnd.path
-                    <> "\n  term: "
-                    <> pprint select.locationEnd.term
-                ]
-          )
+  [ DOM.div [ Props.className "console" ]
+      $ concat
+      $ map renderConsoleItem
+      $ state.console
+      <> case state.mode of
+          TopMode top ->
+            [ stringEditorConsoleInfo
+                $ "term: "
+                <> pprint top.term
+            ]
+          CursorMode cursor ->
+            [ stringEditorConsoleInfo
+                $ "cursor location:"
+                <> "\n  path: "
+                <> pprint cursor.location.path
+                <> "\n  term: "
+                <> pprint cursor.location.term
+            ]
+          SelectMode select ->
+            [ stringEditorConsoleInfo
+                $ "selection start location:"
+                <> "\n  path: "
+                <> pprint select.locationStart.path
+                <> "\n  term: "
+                <> pprint select.locationStart.term
+            , stringEditorConsoleInfo
+                $ "selection end location:"
+                <> "\n  path: "
+                <> pprint select.locationEnd.path
+                <> "\n  term: "
+                <> pprint select.locationEnd.term
+            ]
   ]
   where
   renderConsoleItem { type_, res } =

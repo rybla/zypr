@@ -56,6 +56,7 @@ body {
 
 .term-var {
   padding: 0 2px;
+  color: rgb(0, 82, 0);
 }
 
 .term-lam {}
@@ -102,6 +103,18 @@ body {
   display: inline-block;
   white-space: pre;
 }
+
+.token.keyword {
+  font-weight: bold;
+}
+
+.token.punc {
+  /* font-weight: lighter; */
+  color: gray;
+}
+
+
+/* console */
 
 .console {
   margin: 0;

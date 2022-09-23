@@ -8,12 +8,27 @@ import Zypr.Syntax
 import Data.Array (null, reverse, uncons, unsnoc, (:))
 import Data.Maybe (Maybe(..))
 import Effect.Exception.Unsafe (unsafeThrow)
+import Text.PP as PP
 
 type Location
   = { term :: Term -- the Term at this Location
     , path :: Path -- the Path to the Term at this Location
     }
 
+-- ppLocation
+ppLocation :: Location -> PP.Doc
+ppLocation loc =
+  PP.words
+    [ PP.pp "{"
+    , PP.pp "term:"
+    , PP.pp loc.term
+    , PP.pp ","
+    , PP.pp "path:"
+    , PP.pp loc.path
+    , PP.pp "}"
+    ]
+
+-- step
 stepRight :: Location -> Maybe Location
 stepRight loc = case loc.path of
   Zip { dat, lefts, up, rights }

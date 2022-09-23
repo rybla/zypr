@@ -40,13 +40,7 @@ appComponent this =
       [ Props.className "app" ]
       [ createLeafElement editorClass
           { stateInit:
-              { mode:
-                  CursorMode
-                    { location:
-                        { term: Lambdas.term
-                        , path: Top
-                        }
-                    }
+              { mode: TopMode { term: Lambdas.term }
               , syntaxTheme: basicSyntaxTheme
               , console: []
               }

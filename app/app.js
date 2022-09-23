@@ -3587,11 +3587,11 @@
             if (node.hasOwnProperty(valueField) || typeof descriptor === "undefined" || typeof descriptor.get !== "function" || typeof descriptor.set !== "function") {
               return;
             }
-            var get4 = descriptor.get, set2 = descriptor.set;
+            var get5 = descriptor.get, set2 = descriptor.set;
             Object.defineProperty(node, valueField, {
               configurable: true,
               get: function() {
-                return get4.call(this);
+                return get5.call(this);
               },
               set: function(value12) {
                 {
@@ -5483,7 +5483,7 @@
               throw new Error("clearCaughtError was called but no error was captured. This error is likely caused by a bug in React. Please file an issue.");
             }
           }
-          function get3(key) {
+          function get4(key) {
             return key._reactInternals;
           }
           function has(key) {
@@ -5579,7 +5579,7 @@
                 instance._warnedAboutRefsInRender = true;
               }
             }
-            var fiber = get3(component2);
+            var fiber = get4(component2);
             if (!fiber) {
               return false;
             }
@@ -12052,7 +12052,7 @@
           var classComponentUpdater = {
             isMounted,
             enqueueSetState: function(inst, payload, callback) {
-              var fiber = get3(inst);
+              var fiber = get4(inst);
               var eventTime = requestEventTime();
               var lane = requestUpdateLane(fiber);
               var update = createUpdate(eventTime, lane);
@@ -12073,7 +12073,7 @@
               }
             },
             enqueueReplaceState: function(inst, payload, callback) {
-              var fiber = get3(inst);
+              var fiber = get4(inst);
               var eventTime = requestEventTime();
               var lane = requestUpdateLane(fiber);
               var update = createUpdate(eventTime, lane);
@@ -12095,7 +12095,7 @@
               }
             },
             enqueueForceUpdate: function(inst, callback) {
-              var fiber = get3(inst);
+              var fiber = get4(inst);
               var eventTime = requestEventTime();
               var lane = requestUpdateLane(fiber);
               var update = createUpdate(eventTime, lane);
@@ -21981,7 +21981,7 @@
             if (!parentComponent) {
               return emptyContextObject;
             }
-            var fiber = get3(parentComponent);
+            var fiber = get4(parentComponent);
             var parentContext = findCurrentUnmaskedContext(fiber);
             if (fiber.tag === ClassComponent) {
               var Component = fiber.type;
@@ -21993,7 +21993,7 @@
           }
           function findHostInstanceWithWarning(component2, methodName) {
             {
-              var fiber = get3(component2);
+              var fiber = get4(component2);
               if (fiber === void 0) {
                 if (typeof component2.render === "function") {
                   throw new Error("Unable to find node on an unmounted component.");
@@ -26126,7 +26126,7 @@
             var value12 = context._currentValue2;
             return value12;
           }
-          function get3(key) {
+          function get4(key) {
             return key._reactInternals;
           }
           function set(key, value12) {
@@ -26189,7 +26189,7 @@
               return false;
             },
             enqueueSetState: function(inst, payload, callback) {
-              var internals = get3(inst);
+              var internals = get4(inst);
               if (internals.queue === null) {
                 warnNoop(inst, "setState");
               } else {
@@ -26202,7 +26202,7 @@
               }
             },
             enqueueReplaceState: function(inst, payload, callback) {
-              var internals = get3(inst);
+              var internals = get4(inst);
               internals.replace = true;
               internals.queue = [payload];
               {
@@ -26212,7 +26212,7 @@
               }
             },
             enqueueForceUpdate: function(inst, callback) {
-              var internals = get3(inst);
+              var internals = get4(inst);
               if (internals.queue === null) {
                 warnNoop(inst, "forceUpdate");
               } else {
@@ -27109,7 +27109,7 @@
             task.blockedBoundary = newBoundary;
             task.blockedSegment = contentRootSegment;
             try {
-              renderNode2(request, task, content3);
+              renderNode(request, task, content3);
               pushSegmentFinale$1(contentRootSegment.chunks, request.responseState, contentRootSegment.lastPushedText, contentRootSegment.textEmbedded);
               contentRootSegment.status = COMPLETED;
               queueCompletedSegment(newBoundary, contentRootSegment);
@@ -27142,7 +27142,7 @@
             segment.lastPushedText = false;
             var prevContext = segment.formatContext;
             segment.formatContext = getChildFormatContext(prevContext, type, props);
-            renderNode2(request, task, children2);
+            renderNode(request, task, children2);
             segment.formatContext = prevContext;
             pushEndInstance(segment.chunks, type);
             segment.lastPushedText = false;
@@ -27544,7 +27544,7 @@
               var prevTreeContext = task.treeContext;
               task.treeContext = pushTreeContext(prevTreeContext, totalChildren, i);
               try {
-                renderNode2(request, task, children2[i]);
+                renderNode(request, task, children2[i]);
               } finally {
                 task.treeContext = prevTreeContext;
               }
@@ -27572,7 +27572,7 @@
             var ping = newTask.ping;
             x.then(ping, ping);
           }
-          function renderNode2(request, task, node) {
+          function renderNode(request, task, node) {
             var previousFormatContext = task.blockedSegment.formatContext;
             var previousLegacyContext = task.legacyContext;
             var previousContext = task.context;
@@ -31345,7 +31345,7 @@
             var value12 = context._currentValue;
             return value12;
           }
-          function get3(key) {
+          function get4(key) {
             return key._reactInternals;
           }
           function set(key, value12) {
@@ -31408,7 +31408,7 @@
               return false;
             },
             enqueueSetState: function(inst, payload, callback) {
-              var internals = get3(inst);
+              var internals = get4(inst);
               if (internals.queue === null) {
                 warnNoop(inst, "setState");
               } else {
@@ -31421,7 +31421,7 @@
               }
             },
             enqueueReplaceState: function(inst, payload, callback) {
-              var internals = get3(inst);
+              var internals = get4(inst);
               internals.replace = true;
               internals.queue = [payload];
               {
@@ -31431,7 +31431,7 @@
               }
             },
             enqueueForceUpdate: function(inst, callback) {
-              var internals = get3(inst);
+              var internals = get4(inst);
               if (internals.queue === null) {
                 warnNoop(inst, "forceUpdate");
               } else {
@@ -32328,7 +32328,7 @@
             task.blockedBoundary = newBoundary;
             task.blockedSegment = contentRootSegment;
             try {
-              renderNode2(request, task, content3);
+              renderNode(request, task, content3);
               pushSegmentFinale(contentRootSegment.chunks, request.responseState, contentRootSegment.lastPushedText, contentRootSegment.textEmbedded);
               contentRootSegment.status = COMPLETED;
               queueCompletedSegment(newBoundary, contentRootSegment);
@@ -32361,7 +32361,7 @@
             segment.lastPushedText = false;
             var prevContext = segment.formatContext;
             segment.formatContext = getChildFormatContext(prevContext, type, props);
-            renderNode2(request, task, children2);
+            renderNode(request, task, children2);
             segment.formatContext = prevContext;
             pushEndInstance(segment.chunks, type);
             segment.lastPushedText = false;
@@ -32763,7 +32763,7 @@
               var prevTreeContext = task.treeContext;
               task.treeContext = pushTreeContext(prevTreeContext, totalChildren, i);
               try {
-                renderNode2(request, task, children2[i]);
+                renderNode(request, task, children2[i]);
               } finally {
                 task.treeContext = prevTreeContext;
               }
@@ -32791,7 +32791,7 @@
             var ping = newTask.ping;
             x.then(ping, ping);
           }
-          function renderNode2(request, task, node) {
+          function renderNode(request, task, node) {
             var previousFormatContext = task.blockedSegment.formatContext;
             var previousLegacyContext = task.legacyContext;
             var previousContext = task.context;
@@ -33487,12 +33487,12 @@
 
   // output/Control.Monad/index.js
   var ap = function(dictMonad) {
-    var bind3 = bind(dictMonad.Bind1());
+    var bind4 = bind(dictMonad.Bind1());
     var pure6 = pure(dictMonad.Applicative0());
     return function(f) {
       return function(a) {
-        return bind3(f)(function(f$prime) {
-          return bind3(a)(function(a$prime) {
+        return bind4(f)(function(f$prime) {
+          return bind4(a)(function(a$prime) {
             return pure6(f$prime(a$prime));
           });
         });
@@ -33563,8 +33563,8 @@
                 return function(rb) {
                   var tail = eqRecord1($$Proxy.value)(ra)(rb);
                   var key = reflectSymbol2($$Proxy.value);
-                  var get3 = unsafeGet(key);
-                  return eq3(get3(ra))(get3(rb)) && tail;
+                  var get4 = unsafeGet(key);
+                  return eq3(get4(ra))(get4(rb)) && tail;
                 };
               };
             }
@@ -33842,6 +33842,16 @@
   var div2 = /* @__PURE__ */ mkDOM(false)("div");
 
   // output/Zypr.EditorTypes/index.js
+  var TopMode = /* @__PURE__ */ function() {
+    function TopMode2(value0) {
+      this.value0 = value0;
+    }
+    ;
+    TopMode2.create = function(value0) {
+      return new TopMode2(value0);
+    };
+    return TopMode2;
+  }();
   var CursorMode = /* @__PURE__ */ function() {
     function CursorMode2(value0) {
       this.value0 = value0;
@@ -34900,48 +34910,94 @@
   var intercalate12 = /* @__PURE__ */ intercalate3(monoidDoc);
   var words = /* @__PURE__ */ intercalate12(/* @__PURE__ */ pp1(" "));
 
-  // output/Zypr.Syntax/index.js
-  var $runtime_lazy2 = function(name15, moduleName, init2) {
-    var state3 = 0;
-    var val;
-    return function(lineNumber) {
-      if (state3 === 2)
-        return val;
-      if (state3 === 1)
-        throw new ReferenceError(name15 + " was needed before it finished initializing (module " + moduleName + ", line " + lineNumber + ")", moduleName, lineNumber);
-      state3 = 1;
-      val = init2();
-      state3 = 2;
-      return val;
-    };
+  // output/Zypr.Metadata/index.js
+  var defaultVarMetadata = {};
+  var defaultLamMetadata = {
+    indent_bod: false
   };
+
+  // output/Zypr.Syntax/index.js
+  var pp2 = /* @__PURE__ */ pp(ppString);
   var showRecord2 = /* @__PURE__ */ showRecord()();
   var showRecordFieldsConsNil2 = /* @__PURE__ */ showRecordFieldsConsNil({
     reflectSymbol: function() {
       return "md";
     }
   });
+  var showRecord1 = /* @__PURE__ */ showRecord2(/* @__PURE__ */ showRecordFieldsCons({
+    reflectSymbol: function() {
+      return "id";
+    }
+  })(/* @__PURE__ */ showRecordFieldsConsNil2(/* @__PURE__ */ showRecord2(showRecordFieldsNil)))(showString));
   var indent_bodIsSymbol = {
     reflectSymbol: function() {
       return "indent_bod";
     }
   };
-  var showRecordFieldsCons2 = /* @__PURE__ */ showRecordFieldsCons({
+  var showRecord22 = /* @__PURE__ */ showRecord2(/* @__PURE__ */ showRecordFieldsConsNil2(/* @__PURE__ */ showRecord2(/* @__PURE__ */ showRecordFieldsConsNil(indent_bodIsSymbol)(showBoolean))));
+  var showRecord3 = /* @__PURE__ */ showRecord2(/* @__PURE__ */ showRecordFieldsConsNil2(/* @__PURE__ */ showRecord2(/* @__PURE__ */ showRecordFieldsConsNil({
     reflectSymbol: function() {
-      return "node";
+      return "indent_arg";
     }
-  });
-  var showRecordFieldsConsNil1 = /* @__PURE__ */ showRecordFieldsConsNil({
+  })(showBoolean))));
+  var showRecord4 = /* @__PURE__ */ showRecord2(/* @__PURE__ */ showRecordFieldsConsNil2(/* @__PURE__ */ showRecord2(/* @__PURE__ */ showRecordFieldsCons(indent_bodIsSymbol)(/* @__PURE__ */ showRecordFieldsConsNil({
     reflectSymbol: function() {
-      return "terms";
+      return "indent_imp";
     }
-  });
-  var TermIsSymbol = {
+  })(showBoolean))(showBoolean))));
+  var datIsSymbol = {
     reflectSymbol: function() {
-      return "Term";
+      return "dat";
     }
   };
-  var pp2 = /* @__PURE__ */ pp(ppString);
+  var showRecordFieldsConsNil1 = /* @__PURE__ */ showRecordFieldsConsNil(datIsSymbol);
+  var genericShowSum2 = /* @__PURE__ */ genericShowSum(/* @__PURE__ */ genericShowConstructor(/* @__PURE__ */ genericShowArgsArgument(/* @__PURE__ */ showRecord2(/* @__PURE__ */ showRecordFieldsConsNil1(showRecord1))))({
+    reflectSymbol: function() {
+      return "Var";
+    }
+  }));
+  var showRecordFieldsCons2 = /* @__PURE__ */ showRecordFieldsCons({
+    reflectSymbol: function() {
+      return "bnd";
+    }
+  });
+  var showRecordFieldsCons1 = /* @__PURE__ */ showRecordFieldsCons({
+    reflectSymbol: function() {
+      return "bod";
+    }
+  });
+  var showRecordFieldsCons22 = /* @__PURE__ */ showRecordFieldsCons1(/* @__PURE__ */ showRecordFieldsConsNil1(showRecord22));
+  var LamIsSymbol = {
+    reflectSymbol: function() {
+      return "Lam";
+    }
+  };
+  var showRecordFieldsCons3 = /* @__PURE__ */ showRecordFieldsCons({
+    reflectSymbol: function() {
+      return "apl";
+    }
+  });
+  var showRecordFieldsCons4 = /* @__PURE__ */ showRecordFieldsCons({
+    reflectSymbol: function() {
+      return "arg";
+    }
+  })(/* @__PURE__ */ showRecordFieldsConsNil1(showRecord3));
+  var AppIsSymbol = {
+    reflectSymbol: function() {
+      return "App";
+    }
+  };
+  var showRecordFieldsCons5 = /* @__PURE__ */ showRecordFieldsCons(datIsSymbol);
+  var showRecordFieldsConsNil22 = /* @__PURE__ */ showRecordFieldsConsNil({
+    reflectSymbol: function() {
+      return "imp";
+    }
+  });
+  var LetIsSymbol = {
+    reflectSymbol: function() {
+      return "Let";
+    }
+  };
   var Var = /* @__PURE__ */ function() {
     function Var2(value0) {
       this.value0 = value0;
@@ -34982,59 +35038,180 @@
     };
     return Let2;
   }();
-  var Term = /* @__PURE__ */ function() {
-    function Term2(value0) {
+  var VarData = /* @__PURE__ */ function() {
+    function VarData2(value0) {
       this.value0 = value0;
     }
     ;
-    Term2.create = function(value0) {
-      return new Term2(value0);
+    VarData2.create = function(value0) {
+      return new VarData2(value0);
     };
-    return Term2;
+    return VarData2;
   }();
-  var mkVar = function(v) {
-    return new Term({
-      node: new Var(v["var"]),
-      terms: []
-    });
-  };
+  var LamData = /* @__PURE__ */ function() {
+    function LamData2(value0) {
+      this.value0 = value0;
+    }
+    ;
+    LamData2.create = function(value0) {
+      return new LamData2(value0);
+    };
+    return LamData2;
+  }();
+  var AppData = /* @__PURE__ */ function() {
+    function AppData2(value0) {
+      this.value0 = value0;
+    }
+    ;
+    AppData2.create = function(value0) {
+      return new AppData2(value0);
+    };
+    return AppData2;
+  }();
+  var LetData = /* @__PURE__ */ function() {
+    function LetData2(value0) {
+      this.value0 = value0;
+    }
+    ;
+    LetData2.create = function(value0) {
+      return new LetData2(value0);
+    };
+    return LetData2;
+  }();
   var $$var = function(id) {
-    return mkVar({
-      "var": {
+    return new Var({
+      dat: {
         id,
-        md: {}
+        md: defaultVarMetadata
       }
     });
   };
-  var mkLam = function(v) {
-    return new Term({
-      node: new Lam(v.lam),
-      terms: [v.bnd, v.bod]
-    });
+  var toGenTerm = function(v) {
+    if (v instanceof Var) {
+      return {
+        dat: new VarData(v.value0.dat),
+        terms: []
+      };
+    }
+    ;
+    if (v instanceof Lam) {
+      return {
+        dat: new LamData(v.value0.dat),
+        terms: [v.value0.bnd, v.value0.bod]
+      };
+    }
+    ;
+    if (v instanceof App2) {
+      return {
+        dat: new AppData(v.value0.dat),
+        terms: [v.value0.apl, v.value0.arg]
+      };
+    }
+    ;
+    if (v instanceof Let) {
+      return {
+        dat: new LetData(v.value0.dat),
+        terms: [v.value0.bnd, v.value0.imp, v.value0.bod]
+      };
+    }
+    ;
+    throw new Error("Failed pattern match at Zypr.Syntax (line 55, column 13 - line 59, column 81): " + [v.constructor.name]);
+  };
+  var ppTerm = {
+    pp: function(v) {
+      if (v instanceof Var) {
+        return pp2(v.value0.dat.id);
+      }
+      ;
+      if (v instanceof Lam) {
+        return paren(words([pp2("fun"), pp(ppTerm)(v.value0.bnd), pp2("=>"), pp(ppTerm)(v.value0.bod)]));
+      }
+      ;
+      if (v instanceof App2) {
+        return paren(words([pp(ppTerm)(v.value0.apl), pp(ppTerm)(v.value0.arg)]));
+      }
+      ;
+      if (v instanceof Let) {
+        return paren(words([pp2("let"), pp(ppTerm)(v.value0.bnd), pp2("="), pp(ppTerm)(v.value0.imp), pp2("in"), pp(ppTerm)(v.value0.bod)]));
+      }
+      ;
+      throw new Error("Failed pattern match at Zypr.Syntax (line 78, column 8 - line 82, column 127): " + [v.constructor.name]);
+    }
   };
   var lam = function(id) {
     return function(bod) {
-      return mkLam({
-        lam: {
-          md: {
-            indent_bod: false
-          }
+      return new Lam({
+        dat: {
+          md: defaultLamMetadata
         },
         bnd: $$var(id),
         bod
       });
     };
   };
-  var genericTerm = {
+  var genericTermData = {
     to: function(x) {
-      return new Term(x);
+      if (x instanceof Inl) {
+        return new VarData(x.value0);
+      }
+      ;
+      if (x instanceof Inr && x.value0 instanceof Inl) {
+        return new LamData(x.value0.value0);
+      }
+      ;
+      if (x instanceof Inr && (x.value0 instanceof Inr && x.value0.value0 instanceof Inl)) {
+        return new AppData(x.value0.value0.value0);
+      }
+      ;
+      if (x instanceof Inr && (x.value0 instanceof Inr && x.value0.value0 instanceof Inr)) {
+        return new LetData(x.value0.value0.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Zypr.Syntax (line 84, column 1 - line 84, column 54): " + [x.constructor.name]);
     },
     from: function(x) {
-      return x.value0;
+      if (x instanceof VarData) {
+        return new Inl(x.value0);
+      }
+      ;
+      if (x instanceof LamData) {
+        return new Inr(new Inl(x.value0));
+      }
+      ;
+      if (x instanceof AppData) {
+        return new Inr(new Inr(new Inl(x.value0)));
+      }
+      ;
+      if (x instanceof LetData) {
+        return new Inr(new Inr(new Inr(x.value0)));
+      }
+      ;
+      throw new Error("Failed pattern match at Zypr.Syntax (line 84, column 1 - line 84, column 54): " + [x.constructor.name]);
     }
   };
-  var genericShow2 = /* @__PURE__ */ genericShow(genericTerm);
-  var genericNode = {
+  var genericShow2 = /* @__PURE__ */ genericShow(genericTermData)(/* @__PURE__ */ genericShowSum(/* @__PURE__ */ genericShowConstructor(/* @__PURE__ */ genericShowArgsArgument(showRecord1))({
+    reflectSymbol: function() {
+      return "VarData";
+    }
+  }))(/* @__PURE__ */ genericShowSum(/* @__PURE__ */ genericShowConstructor(/* @__PURE__ */ genericShowArgsArgument(showRecord22))({
+    reflectSymbol: function() {
+      return "LamData";
+    }
+  }))(/* @__PURE__ */ genericShowSum(/* @__PURE__ */ genericShowConstructor(/* @__PURE__ */ genericShowArgsArgument(showRecord3))({
+    reflectSymbol: function() {
+      return "AppData";
+    }
+  }))(/* @__PURE__ */ genericShowConstructor(/* @__PURE__ */ genericShowArgsArgument(showRecord4))({
+    reflectSymbol: function() {
+      return "LetData";
+    }
+  })))));
+  var showTermData = {
+    show: function(x) {
+      return genericShow2(x);
+    }
+  };
+  var genericTerm = {
     to: function(x) {
       if (x instanceof Inl) {
         return new Var(x.value0);
@@ -35052,7 +35229,7 @@
         return new Let(x.value0.value0.value0);
       }
       ;
-      throw new Error("Failed pattern match at Zypr.Syntax (line 93, column 1 - line 93, column 46): " + [x.constructor.name]);
+      throw new Error("Failed pattern match at Zypr.Syntax (line 70, column 1 - line 70, column 46): " + [x.constructor.name]);
     },
     from: function(x) {
       if (x instanceof Var) {
@@ -35071,315 +35248,57 @@
         return new Inr(new Inr(new Inr(x.value0)));
       }
       ;
-      throw new Error("Failed pattern match at Zypr.Syntax (line 93, column 1 - line 93, column 46): " + [x.constructor.name]);
+      throw new Error("Failed pattern match at Zypr.Syntax (line 70, column 1 - line 70, column 46): " + [x.constructor.name]);
     }
   };
-  var genericShow1 = /* @__PURE__ */ genericShow(genericNode)(/* @__PURE__ */ genericShowSum(/* @__PURE__ */ genericShowConstructor(/* @__PURE__ */ genericShowArgsArgument(/* @__PURE__ */ showRecord2(/* @__PURE__ */ showRecordFieldsCons({
-    reflectSymbol: function() {
-      return "id";
-    }
-  })(/* @__PURE__ */ showRecordFieldsConsNil2(/* @__PURE__ */ showRecord2(showRecordFieldsNil)))(showString))))({
-    reflectSymbol: function() {
-      return "Var";
-    }
-  }))(/* @__PURE__ */ genericShowSum(/* @__PURE__ */ genericShowConstructor(/* @__PURE__ */ genericShowArgsArgument(/* @__PURE__ */ showRecord2(/* @__PURE__ */ showRecordFieldsConsNil2(/* @__PURE__ */ showRecord2(/* @__PURE__ */ showRecordFieldsConsNil(indent_bodIsSymbol)(showBoolean))))))({
-    reflectSymbol: function() {
-      return "Lam";
-    }
-  }))(/* @__PURE__ */ genericShowSum(/* @__PURE__ */ genericShowConstructor(/* @__PURE__ */ genericShowArgsArgument(/* @__PURE__ */ showRecord2(/* @__PURE__ */ showRecordFieldsConsNil2(/* @__PURE__ */ showRecord2(/* @__PURE__ */ showRecordFieldsConsNil({
-    reflectSymbol: function() {
-      return "indent_arg";
-    }
-  })(showBoolean))))))({
-    reflectSymbol: function() {
-      return "App";
-    }
-  }))(/* @__PURE__ */ genericShowConstructor(/* @__PURE__ */ genericShowArgsArgument(/* @__PURE__ */ showRecord2(/* @__PURE__ */ showRecordFieldsConsNil2(/* @__PURE__ */ showRecord2(/* @__PURE__ */ showRecordFieldsCons(indent_bodIsSymbol)(/* @__PURE__ */ showRecordFieldsConsNil({
-    reflectSymbol: function() {
-      return "indent_imp";
-    }
-  })(showBoolean))(showBoolean))))))({
-    reflectSymbol: function() {
-      return "Let";
-    }
-  })))));
-  var showNode = {
-    show: function(x) {
-      return genericShow1(x);
-    }
-  };
+  var genericShow1 = /* @__PURE__ */ genericShow(genericTerm);
   var showTerm = {
     show: function(x) {
-      return genericShow2(genericShowConstructor(genericShowArgsArgument(showRecord2(showRecordFieldsCons2(showRecordFieldsConsNil1(showArray(showTerm)))(showNode))))(TermIsSymbol))(x);
+      return genericShow1(genericShowSum2(genericShowSum(genericShowConstructor(genericShowArgsArgument(showRecord2(showRecordFieldsCons2(showRecordFieldsCons22(showTerm))(showTerm))))(LamIsSymbol))(genericShowSum(genericShowConstructor(genericShowArgsArgument(showRecord2(showRecordFieldsCons3(showRecordFieldsCons4(showTerm))(showTerm))))(AppIsSymbol))(genericShowConstructor(genericShowArgsArgument(showRecord2(showRecordFieldsCons2(showRecordFieldsCons1(showRecordFieldsCons5(showRecordFieldsConsNil22(showTerm))(showRecord4))(showTerm))(showTerm))))(LetIsSymbol)))))(x);
     }
   };
-  var show3 = /* @__PURE__ */ show(showTerm);
-  var caseTerm = function(hdl) {
-    return function(v) {
-      if (v.value0.node instanceof Var && v.value0.terms.length === 0) {
-        return hdl["var"]({
-          "var": v.value0.node.value0
-        });
-      }
-      ;
-      if (v.value0.node instanceof Lam && v.value0.terms.length === 2) {
-        return hdl.lam({
-          lam: v.value0.node.value0,
-          bnd: v["value0"]["terms"][0],
-          bod: v["value0"]["terms"][1]
-        });
-      }
-      ;
-      if (v.value0.node instanceof App2 && v.value0.terms.length === 2) {
-        return hdl.app({
-          app: v.value0.node.value0,
-          apl: v["value0"]["terms"][0],
-          arg: v["value0"]["terms"][1]
-        });
-      }
-      ;
-      if (v.value0.node instanceof Let && v.value0.terms.length === 3) {
-        return hdl.let_({
-          let_: v.value0.node.value0,
-          bnd: v["value0"]["terms"][0],
-          imp: v["value0"]["terms"][1],
-          bod: v["value0"]["terms"][2]
-        });
-      }
-      ;
-      return unsafeThrow("malformed term: " + show3(v));
-    };
+  var show3 = /* @__PURE__ */ show(/* @__PURE__ */ showRecord2(/* @__PURE__ */ showRecordFieldsCons5(/* @__PURE__ */ showRecordFieldsConsNil({
+    reflectSymbol: function() {
+      return "terms";
+    }
+  })(/* @__PURE__ */ showArray(showTerm)))(showTermData)));
+  var fromGenTerm = function(v) {
+    if (v.dat instanceof VarData && v.terms.length === 0) {
+      return new Var({
+        dat: v.dat.value0
+      });
+    }
+    ;
+    if (v.dat instanceof LamData && v.terms.length === 2) {
+      return new Lam({
+        dat: v.dat.value0,
+        bnd: v["terms"][0],
+        bod: v["terms"][1]
+      });
+    }
+    ;
+    if (v.dat instanceof AppData && v.terms.length === 2) {
+      return new App2({
+        dat: v.dat.value0,
+        apl: v["terms"][0],
+        arg: v["terms"][1]
+      });
+    }
+    ;
+    if (v.dat instanceof LetData && v.terms.length === 3) {
+      return new Let({
+        dat: v.dat.value0,
+        bnd: v["terms"][0],
+        imp: v["terms"][1],
+        bod: v["terms"][2]
+      });
+    }
+    ;
+    return unsafeThrow("malformed GenTerm: " + show3(v));
   };
-  var $lazy_ppTerm = /* @__PURE__ */ $runtime_lazy2("ppTerm", "Zypr.Syntax", function() {
-    return {
-      pp: caseTerm({
-        "var": function(var1) {
-          return pp2(var1["var"].id);
-        },
-        lam: function(lam1) {
-          return paren(words([pp2("fun"), pp($lazy_ppTerm(0))(lam1.bnd), pp2("=>"), pp($lazy_ppTerm(0))(lam1.bod)]));
-        },
-        app: function(app1) {
-          return paren(words([pp($lazy_ppTerm(0))(app1.apl), pp($lazy_ppTerm(0))(app1.arg)]));
-        },
-        let_: function(let_1) {
-          return paren(words([pp2("let"), pp($lazy_ppTerm(0))(let_1.bnd), pp2("="), pp($lazy_ppTerm(0))(let_1.imp), pp2("in"), pp($lazy_ppTerm(0))(let_1.bod)]));
-        }
-      })
-    };
-  });
-  var ppTerm = /* @__PURE__ */ $lazy_ppTerm(84);
 
   // output/Zypr.Example.Lambdas/index.js
   var term = /* @__PURE__ */ foldr(foldableArray)(apply)(/* @__PURE__ */ $$var("a"))([/* @__PURE__ */ lam("a"), /* @__PURE__ */ lam("b"), /* @__PURE__ */ lam("c"), /* @__PURE__ */ lam("d")]);
-
-  // output/Zypr.Path/index.js
-  var $runtime_lazy3 = function(name15, moduleName, init2) {
-    var state3 = 0;
-    var val;
-    return function(lineNumber) {
-      if (state3 === 2)
-        return val;
-      if (state3 === 1)
-        throw new ReferenceError(name15 + " was needed before it finished initializing (module " + moduleName + ", line " + lineNumber + ")", moduleName, lineNumber);
-      state3 = 1;
-      val = init2();
-      state3 = 2;
-      return val;
-    };
-  };
-  var genericShowSum2 = /* @__PURE__ */ genericShowSum(/* @__PURE__ */ genericShowConstructor(genericShowArgsNoArguments)({
-    reflectSymbol: function() {
-      return "Top";
-    }
-  }));
-  var showRecord3 = /* @__PURE__ */ showRecord()();
-  var showRecordFieldsCons3 = /* @__PURE__ */ showRecordFieldsCons({
-    reflectSymbol: function() {
-      return "lefts";
-    }
-  });
-  var showRecordFieldsCons1 = /* @__PURE__ */ showRecordFieldsCons({
-    reflectSymbol: function() {
-      return "node";
-    }
-  });
-  var showRecordFieldsCons22 = /* @__PURE__ */ showRecordFieldsCons({
-    reflectSymbol: function() {
-      return "rights";
-    }
-  });
-  var showRecordFieldsConsNil3 = /* @__PURE__ */ showRecordFieldsConsNil({
-    reflectSymbol: function() {
-      return "up";
-    }
-  });
-  var showArray2 = /* @__PURE__ */ showArray(showTerm);
-  var ZipIsSymbol = {
-    reflectSymbol: function() {
-      return "Zip";
-    }
-  };
-  var pp3 = /* @__PURE__ */ pp(ppString);
-  var pp12 = /* @__PURE__ */ pp(ppTerm);
-  var Top = /* @__PURE__ */ function() {
-    function Top2() {
-    }
-    ;
-    Top2.value = new Top2();
-    return Top2;
-  }();
-  var Zip = /* @__PURE__ */ function() {
-    function Zip2(value0) {
-      this.value0 = value0;
-    }
-    ;
-    Zip2.create = function(value0) {
-      return new Zip2(value0);
-    };
-    return Zip2;
-  }();
-  var genericPath = {
-    to: function(x) {
-      if (x instanceof Inl) {
-        return Top.value;
-      }
-      ;
-      if (x instanceof Inr) {
-        return new Zip(x.value0);
-      }
-      ;
-      throw new Error("Failed pattern match at Zypr.Path (line 52, column 1 - line 52, column 46): " + [x.constructor.name]);
-    },
-    from: function(x) {
-      if (x instanceof Top) {
-        return new Inl(NoArguments.value);
-      }
-      ;
-      if (x instanceof Zip) {
-        return new Inr(x.value0);
-      }
-      ;
-      throw new Error("Failed pattern match at Zypr.Path (line 52, column 1 - line 52, column 46): " + [x.constructor.name]);
-    }
-  };
-  var genericShow3 = /* @__PURE__ */ genericShow(genericPath);
-  var showPath = {
-    show: function(x) {
-      return genericShow3(genericShowSum2(genericShowConstructor(genericShowArgsArgument(showRecord3(showRecordFieldsCons3(showRecordFieldsCons1(showRecordFieldsCons22(showRecordFieldsConsNil3(showPath))(showArray2))(showNode))(showArray2))))(ZipIsSymbol)))(x);
-    }
-  };
-  var show4 = /* @__PURE__ */ show(showPath);
-  var casePath = function(hdl) {
-    return function(v) {
-      if (v instanceof Top) {
-        return hdl.top(unit);
-      }
-      ;
-      if (v instanceof Zip && (v.value0.node instanceof Lam && (v.value0.lefts.length === 0 && v.value0.rights.length === 1))) {
-        return hdl.lam.bnd({
-          lam: v.value0.node.value0,
-          bnd: v.value0.up,
-          bod: v["value0"]["rights"][0]
-        });
-      }
-      ;
-      if (v instanceof Zip && (v.value0.node instanceof Lam && (v.value0.lefts.length === 1 && v.value0.rights.length === 0))) {
-        return hdl.lam.bod({
-          lam: v.value0.node.value0,
-          bnd: v["value0"]["lefts"][0],
-          bod: v.value0.up
-        });
-      }
-      ;
-      if (v instanceof Zip && (v.value0.node instanceof App2 && (v.value0.lefts.length === 0 && v.value0.rights.length === 1))) {
-        return hdl.app.apl({
-          app: v.value0.node.value0,
-          apl: v.value0.up,
-          arg: v["value0"]["rights"][0]
-        });
-      }
-      ;
-      if (v instanceof Zip && (v.value0.node instanceof App2 && (v.value0.lefts.length === 1 && v.value0.rights.length === 0))) {
-        return hdl.app.arg({
-          app: v.value0.node.value0,
-          apl: v["value0"]["lefts"][0],
-          arg: v.value0.up
-        });
-      }
-      ;
-      if (v instanceof Zip && (v.value0.node instanceof Let && (v.value0.lefts.length === 0 && v.value0.rights.length === 2))) {
-        return hdl.let_.bnd({
-          let_: v.value0.node.value0,
-          bnd: v.value0.up,
-          imp: v["value0"]["rights"][0],
-          bod: v["value0"]["rights"][1]
-        });
-      }
-      ;
-      if (v instanceof Zip && (v.value0.node instanceof Let && (v.value0.lefts.length === 1 && v.value0.rights.length === 1))) {
-        return hdl.let_.imp({
-          let_: v.value0.node.value0,
-          bnd: v["value0"]["lefts"][0],
-          imp: v.value0.up,
-          bod: v["value0"]["rights"][0]
-        });
-      }
-      ;
-      if (v instanceof Zip && (v.value0.node instanceof Let && (v.value0.lefts.length === 2 && v.value0.rights.length === 0))) {
-        return hdl.let_.bod({
-          let_: v.value0.node.value0,
-          bnd: v["value0"]["lefts"][1],
-          imp: v["value0"]["lefts"][0],
-          bod: v.value0.up
-        });
-      }
-      ;
-      return unsafeThrow("malformed path: " + show4(v));
-    };
-  };
-  var $lazy_ppPath = /* @__PURE__ */ $runtime_lazy3("ppPath", "Zypr.Path", function() {
-    return {
-      pp: function() {
-        var go2 = function(doc) {
-          return casePath({
-            top: function(v) {
-              return doc;
-            },
-            lam: {
-              bnd: function(lam2) {
-                return go2(paren(words([pp3("fun"), doc, pp3("=>"), pp12(lam2.bod)])))(lam2.bnd);
-              },
-              bod: function(lam2) {
-                return go2(paren(words([pp3("fun"), pp12(lam2.bnd), pp3("=>"), doc])))(lam2.bod);
-              }
-            },
-            app: {
-              apl: function(app) {
-                return go2(paren(words([doc, pp12(app.arg)])))(app.apl);
-              },
-              arg: function(app) {
-                return go2(paren(words([doc, pp($lazy_ppPath(0))(app.arg)])))(app.arg);
-              }
-            },
-            let_: {
-              bnd: function(let_) {
-                return go2(paren(words([pp3("let"), doc, pp3("="), pp12(let_.imp), pp3("in"), pp12(let_.bod)])))(let_.bnd);
-              },
-              imp: function(let_) {
-                return go2(paren(words([pp3("let"), pp12(let_.bnd), pp3("="), doc, pp3("in"), pp12(let_.bod)])))(let_.imp);
-              },
-              bod: function(let_) {
-                return go2(paren(words([pp3("let"), pp12(let_.bnd), pp3("="), pp12(let_.imp), pp3("in"), pp($lazy_ppPath(0))(let_.bod)])))(let_.bod);
-              }
-            }
-          });
-        };
-        return go2(pp3("@"));
-      }()
-    };
-  });
-  var ppPath = /* @__PURE__ */ $lazy_ppPath(59);
 
   // output/Effect.Console/foreign.js
   var log = function(s) {
@@ -35475,14 +35394,6 @@
   var state2 = function(dict) {
     return dict.state;
   };
-  var put = function(dictMonadState) {
-    var state1 = state2(dictMonadState);
-    return function(s) {
-      return state1(function(v) {
-        return new Tuple(unit, s);
-      });
-    };
-  };
   var modify_ = function(dictMonadState) {
     var state1 = state2(dictMonadState);
     return function(f) {
@@ -35539,12 +35450,12 @@
     };
   };
   var bindExceptT = function(dictMonad) {
-    var bind3 = bind(dictMonad.Bind1());
+    var bind4 = bind(dictMonad.Bind1());
     var pure6 = pure(dictMonad.Applicative0());
     return {
       bind: function(v) {
         return function(k) {
-          return bind3(v)(either(function($187) {
+          return bind4(v)(either(function($187) {
             return pure6(Left.create($187));
           })(function(a) {
             var v1 = k(a);
@@ -35643,13 +35554,13 @@
     };
   };
   var bindReaderT = function(dictBind) {
-    var bind3 = bind(dictBind);
+    var bind4 = bind(dictBind);
     var applyReaderT1 = applyReaderT(dictBind.Apply0());
     return {
       bind: function(v) {
         return function(k) {
           return function(r) {
-            return bind3(v(r))(function(a) {
+            return bind4(v(r))(function(a) {
               var v1 = k(a);
               return v1(r);
             });
@@ -35730,11 +35641,11 @@
   };
   var monadTransStateT = {
     lift: function(dictMonad) {
-      var bind3 = bind(dictMonad.Bind1());
+      var bind4 = bind(dictMonad.Bind1());
       var pure6 = pure(dictMonad.Applicative0());
       return function(m) {
         return function(s) {
-          return bind3(m)(function(x) {
+          return bind4(m)(function(x) {
             return pure6(new Tuple(x, s));
           });
         };
@@ -35767,12 +35678,12 @@
     };
   };
   var bindStateT = function(dictMonad) {
-    var bind3 = bind(dictMonad.Bind1());
+    var bind4 = bind(dictMonad.Bind1());
     return {
       bind: function(v) {
         return function(f) {
           return function(s) {
-            return bind3(v(s))(function(v1) {
+            return bind4(v(s))(function(v1) {
               var v3 = f(v1.value0);
               return v3(v1.value1);
             });
@@ -35866,10 +35777,10 @@
     var mempty2 = mempty(dictMonoid);
     return {
       lift: function(dictMonad) {
-        var bind3 = bind(dictMonad.Bind1());
+        var bind4 = bind(dictMonad.Bind1());
         var pure6 = pure(dictMonad.Applicative0());
         return function(m) {
-          return bind3(m)(function(a) {
+          return bind4(m)(function(a) {
             return pure6(new Tuple(a, mempty2));
           });
         };
@@ -35919,14 +35830,14 @@
     var append6 = append(dictSemigroup);
     var applyWriterT1 = applyWriterT(dictSemigroup);
     return function(dictBind) {
-      var bind3 = bind(dictBind);
+      var bind4 = bind(dictBind);
       var Apply0 = dictBind.Apply0();
       var map10 = map(Apply0.Functor0());
       var applyWriterT2 = applyWriterT1(Apply0);
       return {
         bind: function(v) {
           return function(k) {
-            return bind3(v)(function(v1) {
+            return bind4(v)(function(v1) {
               var v2 = k(v1.value0);
               return map10(function(v3) {
                 return new Tuple(v3.value0, append6(v1.value1)(v3.value1));
@@ -36020,14 +35931,225 @@
     };
   }
 
+  // output/Zypr.Path/index.js
+  var $runtime_lazy2 = function(name15, moduleName, init2) {
+    var state3 = 0;
+    var val;
+    return function(lineNumber) {
+      if (state3 === 2)
+        return val;
+      if (state3 === 1)
+        throw new ReferenceError(name15 + " was needed before it finished initializing (module " + moduleName + ", line " + lineNumber + ")", moduleName, lineNumber);
+      state3 = 1;
+      val = init2();
+      state3 = 2;
+      return val;
+    };
+  };
+  var genericShowSum3 = /* @__PURE__ */ genericShowSum(/* @__PURE__ */ genericShowConstructor(genericShowArgsNoArguments)({
+    reflectSymbol: function() {
+      return "Top";
+    }
+  }));
+  var showRecord5 = /* @__PURE__ */ showRecord()();
+  var showRecordFieldsCons6 = /* @__PURE__ */ showRecordFieldsCons({
+    reflectSymbol: function() {
+      return "dat";
+    }
+  });
+  var showRecordFieldsCons12 = /* @__PURE__ */ showRecordFieldsCons({
+    reflectSymbol: function() {
+      return "lefts";
+    }
+  });
+  var showRecordFieldsCons23 = /* @__PURE__ */ showRecordFieldsCons({
+    reflectSymbol: function() {
+      return "rights";
+    }
+  });
+  var showRecordFieldsConsNil3 = /* @__PURE__ */ showRecordFieldsConsNil({
+    reflectSymbol: function() {
+      return "up";
+    }
+  });
+  var showArray2 = /* @__PURE__ */ showArray(showTerm);
+  var ZipIsSymbol = {
+    reflectSymbol: function() {
+      return "Zip";
+    }
+  };
+  var pp3 = /* @__PURE__ */ pp(ppString);
+  var pp12 = /* @__PURE__ */ pp(ppTerm);
+  var Top = /* @__PURE__ */ function() {
+    function Top2() {
+    }
+    ;
+    Top2.value = new Top2();
+    return Top2;
+  }();
+  var Zip = /* @__PURE__ */ function() {
+    function Zip2(value0) {
+      this.value0 = value0;
+    }
+    ;
+    Zip2.create = function(value0) {
+      return new Zip2(value0);
+    };
+    return Zip2;
+  }();
+  var genericPath = {
+    to: function(x) {
+      if (x instanceof Inl) {
+        return Top.value;
+      }
+      ;
+      if (x instanceof Inr) {
+        return new Zip(x.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Zypr.Path (line 51, column 1 - line 51, column 46): " + [x.constructor.name]);
+    },
+    from: function(x) {
+      if (x instanceof Top) {
+        return new Inl(NoArguments.value);
+      }
+      ;
+      if (x instanceof Zip) {
+        return new Inr(x.value0);
+      }
+      ;
+      throw new Error("Failed pattern match at Zypr.Path (line 51, column 1 - line 51, column 46): " + [x.constructor.name]);
+    }
+  };
+  var genericShow3 = /* @__PURE__ */ genericShow(genericPath);
+  var showPath = {
+    show: function(x) {
+      return genericShow3(genericShowSum3(genericShowConstructor(genericShowArgsArgument(showRecord5(showRecordFieldsCons6(showRecordFieldsCons12(showRecordFieldsCons23(showRecordFieldsConsNil3(showPath))(showArray2))(showArray2))(showTermData))))(ZipIsSymbol)))(x);
+    }
+  };
+  var show4 = /* @__PURE__ */ show(showPath);
+  var casePath = function(hdl) {
+    return function(v) {
+      if (v instanceof Top) {
+        return hdl.top(unit);
+      }
+      ;
+      if (v instanceof Zip && (v.value0.dat instanceof LamData && (v.value0.lefts.length === 0 && v.value0.rights.length === 1))) {
+        return hdl.lam.bnd({
+          dat: v.value0.dat.value0,
+          bnd: v.value0.up,
+          bod: v["value0"]["rights"][0]
+        });
+      }
+      ;
+      if (v instanceof Zip && (v.value0.dat instanceof LamData && (v.value0.lefts.length === 1 && v.value0.rights.length === 0))) {
+        return hdl.lam.bod({
+          dat: v.value0.dat.value0,
+          bnd: v["value0"]["lefts"][0],
+          bod: v.value0.up
+        });
+      }
+      ;
+      if (v instanceof Zip && (v.value0.dat instanceof AppData && (v.value0.lefts.length === 0 && v.value0.rights.length === 1))) {
+        return hdl.app.apl({
+          dat: v.value0.dat.value0,
+          apl: v.value0.up,
+          arg: v["value0"]["rights"][0]
+        });
+      }
+      ;
+      if (v instanceof Zip && (v.value0.dat instanceof AppData && (v.value0.lefts.length === 1 && v.value0.rights.length === 0))) {
+        return hdl.app.arg({
+          dat: v.value0.dat.value0,
+          apl: v["value0"]["lefts"][0],
+          arg: v.value0.up
+        });
+      }
+      ;
+      if (v instanceof Zip && (v.value0.dat instanceof LetData && (v.value0.lefts.length === 0 && v.value0.rights.length === 2))) {
+        return hdl.let_.bnd({
+          dat: v.value0.dat.value0,
+          bnd: v.value0.up,
+          imp: v["value0"]["rights"][0],
+          bod: v["value0"]["rights"][1]
+        });
+      }
+      ;
+      if (v instanceof Zip && (v.value0.dat instanceof LetData && (v.value0.lefts.length === 1 && v.value0.rights.length === 1))) {
+        return hdl.let_.imp({
+          dat: v.value0.dat.value0,
+          bnd: v["value0"]["lefts"][0],
+          imp: v.value0.up,
+          bod: v["value0"]["rights"][0]
+        });
+      }
+      ;
+      if (v instanceof Zip && (v.value0.dat instanceof LetData && (v.value0.lefts.length === 2 && v.value0.rights.length === 0))) {
+        return hdl.let_.bod({
+          dat: v.value0.dat.value0,
+          bnd: v["value0"]["lefts"][1],
+          imp: v["value0"]["lefts"][0],
+          bod: v.value0.up
+        });
+      }
+      ;
+      return unsafeThrow("malformed path: " + show4(v));
+    };
+  };
+  var $lazy_ppPath = /* @__PURE__ */ $runtime_lazy2("ppPath", "Zypr.Path", function() {
+    return {
+      pp: function() {
+        var go2 = function(doc) {
+          return casePath({
+            top: function(v) {
+              return doc;
+            },
+            lam: {
+              bnd: function(lam2) {
+                return go2(paren(words([pp3("fun"), doc, pp3("=>"), pp12(lam2.bod)])))(lam2.bnd);
+              },
+              bod: function(lam2) {
+                return go2(paren(words([pp3("fun"), pp12(lam2.bnd), pp3("=>"), doc])))(lam2.bod);
+              }
+            },
+            app: {
+              apl: function(app) {
+                return go2(paren(words([doc, pp12(app.arg)])))(app.apl);
+              },
+              arg: function(app) {
+                return go2(paren(words([doc, pp($lazy_ppPath(0))(app.arg)])))(app.arg);
+              }
+            },
+            let_: {
+              bnd: function(let_) {
+                return go2(paren(words([pp3("let"), doc, pp3("="), pp12(let_.imp), pp3("in"), pp12(let_.bod)])))(let_.bnd);
+              },
+              imp: function(let_) {
+                return go2(paren(words([pp3("let"), pp12(let_.bnd), pp3("="), doc, pp3("in"), pp12(let_.bod)])))(let_.imp);
+              },
+              bod: function(let_) {
+                return go2(paren(words([pp3("let"), pp12(let_.bnd), pp3("="), pp12(let_.imp), pp3("in"), pp($lazy_ppPath(0))(let_.bod)])))(let_.bod);
+              }
+            }
+          });
+        };
+        return go2(pp3("@"));
+      }()
+    };
+  });
+  var ppPath = /* @__PURE__ */ $lazy_ppPath(58);
+
   // output/Zypr.Location/index.js
   var pure2 = /* @__PURE__ */ pure(applicativeMaybe);
   var append5 = /* @__PURE__ */ append(semigroupArray);
+  var pp4 = /* @__PURE__ */ pp(ppString);
+  var pp13 = /* @__PURE__ */ pp(ppTerm);
+  var pp22 = /* @__PURE__ */ pp(ppPath);
   var stepUp = function(loc) {
     if (loc.path instanceof Zip) {
       return pure2({
-        term: new Term({
-          node: loc.path.value0.node,
+        term: fromGenTerm({
+          dat: loc.path.value0.dat,
           terms: append5(reverse(loc.path.value0.lefts))(append5([loc.term])(loc.path.value0.rights))
         }),
         path: loc.path.value0.up
@@ -36041,15 +36163,15 @@
       return Nothing.value;
     };
     if (loc.path instanceof Zip) {
-      var $30 = uncons(loc.path.value0.rights);
-      if ($30 instanceof Just) {
+      var $35 = uncons(loc.path.value0.rights);
+      if ($35 instanceof Just) {
         return pure2({
-          term: $30.value0.head,
+          term: $35.value0.head,
           path: new Zip({
-            node: loc.path.value0.node,
+            dat: loc.path.value0.dat,
             lefts: cons(loc.term)(loc.path.value0.lefts),
             up: loc.path.value0.up,
-            rights: $30.value0.tail
+            rights: $35.value0.tail
           })
         });
       }
@@ -36064,13 +36186,13 @@
       return Nothing.value;
     };
     if (loc.path instanceof Zip) {
-      var $40 = uncons(loc.path.value0.lefts);
-      if ($40 instanceof Just) {
+      var $45 = uncons(loc.path.value0.lefts);
+      if ($45 instanceof Just) {
         return pure2({
-          term: $40.value0.head,
+          term: $45.value0.head,
           path: new Zip({
-            node: loc.path.value0.node,
-            lefts: $40.value0.tail,
+            dat: loc.path.value0.dat,
+            lefts: $45.value0.tail,
             up: loc.path.value0.up,
             rights: cons(loc.term)(loc.path.value0.rights)
           })
@@ -36092,26 +36214,27 @@
       return stepUp(loc);
     }
     ;
-    throw new Error("Failed pattern match at Zypr.Location (line 43, column 16 - line 45, column 24): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at Zypr.Location (line 58, column 16 - line 60, column 24): " + [v.constructor.name]);
   };
   var stepDown = function(loc) {
-    var v = function(v1) {
+    var v = toGenTerm(loc.term);
+    var v1 = function(v2) {
       return Nothing.value;
     };
-    var $52 = uncons(loc.term.value0.terms);
-    if ($52 instanceof Just) {
+    var $57 = uncons(v.terms);
+    if ($57 instanceof Just) {
       return pure2({
-        term: $52.value0.head,
+        term: $57.value0.head,
         path: new Zip({
-          node: loc.term.value0.node,
+          dat: v.dat,
           lefts: [],
           up: loc.path,
-          rights: $52.value0.tail
+          rights: $57.value0.tail
         })
       });
     }
     ;
-    return v(true);
+    return v1(true);
   };
   var stepNext = function(loc) {
     var v = stepRight(loc);
@@ -36123,7 +36246,7 @@
       return stepDown(loc);
     }
     ;
-    throw new Error("Failed pattern match at Zypr.Location (line 28, column 16 - line 30, column 26): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at Zypr.Location (line 43, column 16 - line 45, column 26): " + [v.constructor.name]);
   };
   var siblings = function(loc) {
     var goRight = function($copy_rights) {
@@ -36144,7 +36267,7 @@
             return;
           }
           ;
-          throw new Error("Failed pattern match at Zypr.Location (line 110, column 24 - line 112, column 46): " + [v.constructor.name]);
+          throw new Error("Failed pattern match at Zypr.Location (line 117, column 24 - line 119, column 46): " + [v.constructor.name]);
         }
         ;
         while (!$tco_done) {
@@ -36172,7 +36295,7 @@
             return;
           }
           ;
-          throw new Error("Failed pattern match at Zypr.Location (line 106, column 22 - line 108, column 44): " + [v.constructor.name]);
+          throw new Error("Failed pattern match at Zypr.Location (line 113, column 22 - line 115, column 44): " + [v.constructor.name]);
         }
         ;
         while (!$tco_done1) {
@@ -36186,6 +36309,9 @@
       lefts: goLeft([])(loc),
       rights: goRight([])(loc)
     };
+  };
+  var ppLocation = function(loc) {
+    return words([pp4("{"), pp4("term:"), pp13(loc.term), pp4(","), pp4("path:"), pp22(loc.path), pp4("}")]);
   };
   var children = function(loc) {
     var go2 = function($copy_locs) {
@@ -36206,7 +36332,7 @@
             return reverse(cons(loc1)(locs));
           }
           ;
-          throw new Error("Failed pattern match at Zypr.Location (line 120, column 17 - line 122, column 36): " + [v2.constructor.name]);
+          throw new Error("Failed pattern match at Zypr.Location (line 127, column 17 - line 129, column 36): " + [v2.constructor.name]);
         }
         ;
         while (!$tco_done) {
@@ -36225,77 +36351,84 @@
       return [];
     }
     ;
-    throw new Error("Failed pattern match at Zypr.Location (line 116, column 16 - line 118, column 16): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at Zypr.Location (line 123, column 16 - line 125, column 16): " + [v.constructor.name]);
   };
 
   // output/Zypr.EditorEffect/index.js
+  var $runtime_lazy3 = function(name15, moduleName, init2) {
+    var state3 = 0;
+    var val;
+    return function(lineNumber) {
+      if (state3 === 2)
+        return val;
+      if (state3 === 1)
+        throw new ReferenceError(name15 + " was needed before it finished initializing (module " + moduleName + ", line " + lineNumber + ")", moduleName, lineNumber);
+      state3 = 1;
+      val = init2();
+      state3 = 2;
+      return val;
+    };
+  };
   var monadExceptT2 = /* @__PURE__ */ monadExceptT(monadEffect);
   var monadReaderT2 = /* @__PURE__ */ monadReaderT(/* @__PURE__ */ monadWriterT(monoidArray)(monadExceptT2));
+  var monadStateStateT2 = /* @__PURE__ */ monadStateStateT(monadReaderT2);
+  var modify_2 = /* @__PURE__ */ modify_(monadStateStateT2);
   var bindStateT2 = /* @__PURE__ */ bindStateT(monadReaderT2);
   var bind2 = /* @__PURE__ */ bind(bindStateT2);
-  var monadStateStateT2 = /* @__PURE__ */ monadStateStateT(monadReaderT2);
   var get2 = /* @__PURE__ */ get(monadStateStateT2);
-  var put2 = /* @__PURE__ */ put(monadStateStateT2);
   var discard2 = /* @__PURE__ */ discard(discardUnit)(bindStateT2);
   var tell2 = /* @__PURE__ */ tell(/* @__PURE__ */ monadTellStateT(/* @__PURE__ */ monadTellReaderT(/* @__PURE__ */ monadTellWriterT(monoidArray)(monadExceptT2))));
   var pure3 = /* @__PURE__ */ pure(/* @__PURE__ */ applicativeStateT(monadReaderT2));
   var throwError2 = /* @__PURE__ */ throwError(/* @__PURE__ */ monadThrowStateT(/* @__PURE__ */ monadThrowReaderT(/* @__PURE__ */ monadThrowWriterT(monoidArray)(/* @__PURE__ */ monadThrowExceptT(monadEffect)))));
-  var show5 = /* @__PURE__ */ show(/* @__PURE__ */ showRecord()()(/* @__PURE__ */ showRecordFieldsCons({
-    reflectSymbol: function() {
-      return "path";
-    }
-  })(/* @__PURE__ */ showRecordFieldsConsNil({
-    reflectSymbol: function() {
-      return "term";
-    }
-  })(showTerm))(showPath)));
-  var modify_2 = /* @__PURE__ */ modify_(monadStateStateT2);
+  var show5 = /* @__PURE__ */ show(showDoc);
   var compose2 = /* @__PURE__ */ compose(semigroupoidFn);
   var foldr2 = /* @__PURE__ */ foldr(foldableArray);
   var identity4 = /* @__PURE__ */ identity(categoryFn);
   var map4 = /* @__PURE__ */ map(functorArray);
+  var pprint2 = /* @__PURE__ */ pprint(ppPath);
+  var setMode = function(mode) {
+    return modify_2(function(v) {
+      var $45 = {};
+      for (var $46 in v) {
+        if ({}.hasOwnProperty.call(v, $46)) {
+          $45[$46] = v[$46];
+        }
+        ;
+      }
+      ;
+      $45.mode = mode;
+      return $45;
+    });
+  };
   var step2 = function(f) {
     return bind2(get2)(function(state3) {
+      if (state3.mode instanceof TopMode) {
+        return setMode(new CursorMode({
+          location: {
+            term: state3.mode.value0.term,
+            path: Top.value
+          }
+        }));
+      }
+      ;
       if (state3.mode instanceof CursorMode) {
         return bind2(f(state3.mode.value0.location))(function(location2) {
-          return put2(function() {
-            var $55 = {};
-            for (var $56 in state3) {
-              if ({}.hasOwnProperty.call(state3, $56)) {
-                $55[$56] = state3[$56];
-              }
-              ;
-            }
-            ;
-            $55.mode = new CursorMode({
-              location: location2
-            });
-            return $55;
-          }());
+          return setMode(new CursorMode({
+            location: location2
+          }));
         });
       }
       ;
       if (state3.mode instanceof SelectMode) {
         return bind2(f(state3.mode.value0.locationEnd))(function(locationEnd) {
-          return put2(function() {
-            var $59 = {};
-            for (var $60 in state3) {
-              if ({}.hasOwnProperty.call(state3, $60)) {
-                $59[$60] = state3[$60];
-              }
-              ;
-            }
-            ;
-            $59.mode = new SelectMode({
-              locationStart: state3.mode.value0.locationStart,
-              locationEnd
-            });
-            return $59;
-          }());
+          return setMode(new SelectMode({
+            locationStart: state3.mode.value0.locationStart,
+            locationEnd
+          }));
         });
       }
       ;
-      throw new Error("Failed pattern match at Zypr.EditorEffect (line 80, column 3 - line 86, column 75): " + [state3.mode.constructor.name]);
+      throw new Error("Failed pattern match at Zypr.EditorEffect (line 95, column 3 - line 103, column 64): " + [state3.mode.constructor.name]);
     });
   };
   var stepDown2 = /* @__PURE__ */ step2(function(loc) {
@@ -36307,10 +36440,10 @@
     }
     ;
     if (v instanceof Nothing) {
-      return throwError2("can't step down at location: " + show5(loc));
+      return throwError2("can't step down at location: " + show5(ppLocation(loc)));
     }
     ;
-    throw new Error("Failed pattern match at Zypr.EditorEffect (line 63, column 16 - line 67, column 72): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at Zypr.EditorEffect (line 64, column 16 - line 68, column 85): " + [v.constructor.name]);
   });
   var stepNext2 = /* @__PURE__ */ step2(function(loc) {
     var v = stepNext(loc);
@@ -36321,10 +36454,10 @@
     }
     ;
     if (v instanceof Nothing) {
-      return throwError2("can't step right at location: " + show5(loc));
+      return throwError2("can't step right at location: " + show5(ppLocation(loc)));
     }
     ;
-    throw new Error("Failed pattern match at Zypr.EditorEffect (line 55, column 16 - line 59, column 73): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at Zypr.EditorEffect (line 56, column 16 - line 60, column 86): " + [v.constructor.name]);
   });
   var stepPrev2 = /* @__PURE__ */ step2(function(loc) {
     var v = stepPrev(loc);
@@ -36335,10 +36468,10 @@
     }
     ;
     if (v instanceof Nothing) {
-      return throwError2("can't step left at location: " + show5(loc));
+      return throwError2("can't step left at location: " + show5(ppLocation(loc)));
     }
     ;
-    throw new Error("Failed pattern match at Zypr.EditorEffect (line 47, column 16 - line 51, column 72): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at Zypr.EditorEffect (line 48, column 16 - line 52, column 85): " + [v.constructor.name]);
   });
   var stepUp2 = /* @__PURE__ */ step2(function(loc) {
     var v = stepUp(loc);
@@ -36349,26 +36482,52 @@
     }
     ;
     if (v instanceof Nothing) {
-      return throwError2("can't step up at location: " + show5(loc));
+      return throwError2("can't step up at location: " + show5(ppLocation(loc)));
     }
     ;
-    throw new Error("Failed pattern match at Zypr.EditorEffect (line 71, column 16 - line 75, column 70): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at Zypr.EditorEffect (line 72, column 16 - line 76, column 83): " + [v.constructor.name]);
   });
+  var stepRoot = /* @__PURE__ */ function() {
+    var $lazy_go = $runtime_lazy3("go", "Zypr.EditorEffect", function() {
+      return bind2(get2)(function(state3) {
+        var v = function(v1) {
+          if (state3.mode instanceof CursorMode && otherwise) {
+            return discard2(stepUp2)(function() {
+              return $lazy_go(88);
+            });
+          }
+          ;
+          return pure3(unit);
+        };
+        if (state3.mode instanceof CursorMode) {
+          if (state3.mode.value0.location.path instanceof Top) {
+            return pure3(unit);
+          }
+          ;
+          return v(true);
+        }
+        ;
+        return v(true);
+      });
+    });
+    var go2 = $lazy_go(81);
+    return go2;
+  }();
   var setLocation = function(loc) {
-    return discard2(tell2(["jumped to new location: " + show5(loc)]))(function() {
+    return discard2(tell2(["jumped to new location: " + show5(ppLocation(loc))]))(function() {
       return modify_2(function(v) {
-        var $71 = {};
-        for (var $72 in v) {
-          if ({}.hasOwnProperty.call(v, $72)) {
-            $71[$72] = v[$72];
+        var $65 = {};
+        for (var $66 in v) {
+          if ({}.hasOwnProperty.call(v, $66)) {
+            $65[$66] = v[$66];
           }
           ;
         }
         ;
-        $71.mode = new CursorMode({
+        $65.mode = new CursorMode({
           location: loc
         });
-        return $71;
+        return $65;
       });
     });
   };
@@ -36384,68 +36543,81 @@
         ;
         if (res instanceof Right) {
           return modifyState($$this)(function() {
-            var $93 = foldr2(compose2)(identity4)(map4(function($95) {
-              return logEditorConsole(stringEditorConsoleLog($95));
+            var $88 = foldr2(compose2)(identity4)(map4(function($90) {
+              return logEditorConsole(stringEditorConsoleLog($90));
             })(res.value0.value1));
-            return function($94) {
-              return $93(function(v) {
+            return function($89) {
+              return $88(function(v) {
                 return res.value0.value0.value1;
-              }($94));
+              }($89));
             };
           }())();
         }
         ;
-        throw new Error("Failed pattern match at Zypr.EditorEffect (line 32, column 3 - line 38, column 25): " + [res.constructor.name]);
+        throw new Error("Failed pattern match at Zypr.EditorEffect (line 33, column 3 - line 39, column 25): " + [res.constructor.name]);
       };
     };
   };
-  var exitSelect = /* @__PURE__ */ bind2(get2)(function(state3) {
-    if (state3.mode instanceof CursorMode) {
-      return pure3(unit);
-    }
-    ;
+  var escapeSelect = /* @__PURE__ */ bind2(get2)(function(state3) {
     if (state3.mode instanceof SelectMode) {
-      return discard2(tell2(["exit select"]))(function() {
-        return put2(function() {
-          var $83 = {};
-          for (var $84 in state3) {
-            if ({}.hasOwnProperty.call(state3, $84)) {
-              $83[$84] = state3[$84];
-            }
-            ;
-          }
-          ;
-          $83.mode = new CursorMode({
-            location: state3.mode.value0.locationStart
-          });
-          return $83;
-        }());
+      return discard2(tell2(["escape select"]))(function() {
+        return setMode(new CursorMode({
+          location: state3.mode.value0.locationStart
+        }));
       });
     }
     ;
-    throw new Error("Failed pattern match at Zypr.EditorEffect (line 91, column 3 - line 95, column 73): " + [state3.mode.constructor.name]);
+    return pure3(unit);
+  });
+  var escapeCursor = /* @__PURE__ */ bind2(get2)(function(state3) {
+    if (state3.mode instanceof CursorMode) {
+      return discard2(stepRoot)(function() {
+        return bind2(get2)(function(state1) {
+          var v = function(v1) {
+            if (state1.mode instanceof CursorMode && otherwise) {
+              return throwError2("escapeCursor: stepRoot ended at non-Top Path: " + pprint2(state1.mode.value0.location.path));
+            }
+            ;
+            return pure3(unit);
+          };
+          if (state1.mode instanceof CursorMode) {
+            if (state1.mode.value0.location.path instanceof Top) {
+              return discard2(tell2(["escape cursor"]))(function() {
+                return setMode(new TopMode({
+                  term: state1.mode.value0.location.term
+                }));
+              });
+            }
+            ;
+            return v(true);
+          }
+          ;
+          return v(true);
+        });
+      });
+    }
+    ;
+    return pure3(unit);
   });
   var enterSelect = /* @__PURE__ */ bind2(get2)(function(state3) {
+    if (state3.mode instanceof TopMode) {
+      return setMode(new CursorMode({
+        location: {
+          term: state3.mode.value0.term,
+          path: Top.value
+        }
+      }));
+    }
+    ;
     if (state3.mode instanceof CursorMode) {
       return discard2(tell2(["enter select"]))(function() {
-        return put2(function() {
-          var $88 = {};
-          for (var $89 in state3) {
-            if ({}.hasOwnProperty.call(state3, $89)) {
-              $88[$89] = state3[$89];
-            }
-            ;
+        return setMode(new SelectMode({
+          locationStart: state3.mode.value0.location,
+          locationEnd: {
+            term: state3.mode.value0.location.term,
+            path: Top.value
           }
-          ;
-          $88.mode = new SelectMode({
-            locationStart: state3.mode.value0.location,
-            locationEnd: {
-              term: state3.mode.value0.location.term,
-              path: Top.value
-            }
-          });
-          return $88;
-        }());
+        }));
       });
     }
     ;
@@ -36453,7 +36625,7 @@
       return pure3(unit);
     }
     ;
-    throw new Error("Failed pattern match at Zypr.EditorEffect (line 100, column 3 - line 111, column 30): " + [state3.mode.constructor.name]);
+    throw new Error("Failed pattern match at Zypr.EditorEffect (line 140, column 3 - line 151, column 30): " + [state3.mode.constructor.name]);
   });
 
   // output/Zypr.Key/foreign.js
@@ -36555,8 +36727,11 @@
   var eqRec2 = /* @__PURE__ */ eqRec()(/* @__PURE__ */ eqRowCons(/* @__PURE__ */ eqRowCons(/* @__PURE__ */ eqRowCons(/* @__PURE__ */ eqRowCons(/* @__PURE__ */ eqRowCons(eqRowNil)()(shiftIsSymbol)(eqBoolean))()(metaIsSymbol)(eqBoolean))()(labelIsSymbol)(eqString))()(ctrlIsSymbol)(eqBoolean))()(altIsSymbol)(eqBoolean));
   var elem3 = /* @__PURE__ */ elem2(eqRec2);
   var eq2 = /* @__PURE__ */ eq(eqRec2);
-  var applicativeStateT2 = /* @__PURE__ */ applicativeStateT(/* @__PURE__ */ monadReaderT(/* @__PURE__ */ monadWriterT(monoidArray)(/* @__PURE__ */ monadExceptT(monadEffect))));
+  var monadReaderT3 = /* @__PURE__ */ monadReaderT(/* @__PURE__ */ monadWriterT(monoidArray)(/* @__PURE__ */ monadExceptT(monadEffect)));
+  var applicativeStateT2 = /* @__PURE__ */ applicativeStateT(monadReaderT3);
   var sequence_2 = /* @__PURE__ */ sequence_(applicativeStateT2)(foldableArray);
+  var bind3 = /* @__PURE__ */ bind(/* @__PURE__ */ bindStateT(monadReaderT3));
+  var get3 = /* @__PURE__ */ get(/* @__PURE__ */ monadStateStateT(monadReaderT3));
   var pure4 = /* @__PURE__ */ pure(applicativeStateT2);
   var when2 = /* @__PURE__ */ when(applicativeEffect);
   var show6 = /* @__PURE__ */ show(/* @__PURE__ */ showRecord()()(/* @__PURE__ */ showRecordFieldsCons(altIsSymbol)(/* @__PURE__ */ showRecordFieldsCons(ctrlIsSymbol)(/* @__PURE__ */ showRecordFieldsCons(labelIsSymbol)(/* @__PURE__ */ showRecordFieldsCons(metaIsSymbol)(/* @__PURE__ */ showRecordFieldsConsNil(shiftIsSymbol)(showBoolean))(showBoolean))(showString))(showBoolean))(showBoolean)));
@@ -36565,19 +36740,19 @@
   };
   var handleKey = function(key) {
     if (eq2(key)(key_ArrowLeft)) {
-      return sequence_2([exitSelect, stepPrev2]);
+      return sequence_2([escapeSelect, stepPrev2]);
     }
     ;
     if (eq2(key)(key_ArrowRight)) {
-      return sequence_2([exitSelect, stepNext2]);
+      return sequence_2([escapeSelect, stepNext2]);
     }
     ;
     if (eq2(key)(key_ArrowDown)) {
-      return sequence_2([exitSelect, stepDown2]);
+      return sequence_2([escapeSelect, stepDown2]);
     }
     ;
     if (eq2(key)(key_ArrowUp)) {
-      return sequence_2([exitSelect, stepUp2]);
+      return sequence_2([escapeSelect, stepUp2]);
     }
     ;
     if (eq2(key)(key_ShiftArrowLeft)) {
@@ -36601,14 +36776,24 @@
     }
     ;
     if (eq2(key)(key_Escape)) {
-      return exitSelect;
+      return bind3(get3)(function(state3) {
+        if (state3.mode instanceof CursorMode) {
+          return escapeCursor;
+        }
+        ;
+        if (state3.mode instanceof SelectMode) {
+          return escapeSelect;
+        }
+        ;
+        return pure4(unit);
+      });
     }
     ;
     if (otherwise) {
       return pure4(unit);
     }
     ;
-    throw new Error("Failed pattern match at Zypr.KeyboardEventHandler (line 32, column 1 - line 32, column 42): " + [key.constructor.name]);
+    throw new Error("Failed pattern match at Zypr.KeyboardEventHandler (line 33, column 1 - line 33, column 42): " + [key.constructor.name]);
   };
   var keyboardEventHandler = function($$this) {
     return function(event) {
@@ -36630,7 +36815,7 @@
 
   // output/Zypr.RenderSyntax/index.js
   var intercalate5 = /* @__PURE__ */ intercalate3(monoidString);
-  var show7 = /* @__PURE__ */ show(showNode);
+  var show7 = /* @__PURE__ */ show(showTermData);
   var show1 = /* @__PURE__ */ show(showInt);
   var map5 = /* @__PURE__ */ map(functorArray);
   var identity5 = /* @__PURE__ */ identity(categoryFn);
@@ -36643,7 +36828,73 @@
       return unsafeThrow("unsafeFromJust: Nothing");
     }
     ;
-    throw new Error("Failed pattern match at Zypr.RenderSyntax (line 117, column 18 - line 119, column 51): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at Zypr.RenderSyntax (line 128, column 18 - line 130, column 51): " + [v.constructor.name]);
+  };
+  var renderTermData = function(args) {
+    return function(v) {
+      return function(ress) {
+        var v1 = toGenTerm(v.term);
+        return [div2([className(intercalate5(" ")(concat([["term", function() {
+          if (v1.dat instanceof VarData) {
+            return "term-var";
+          }
+          ;
+          if (v1.dat instanceof LamData) {
+            return "term-lam";
+          }
+          ;
+          if (v1.dat instanceof AppData) {
+            return "term-app";
+          }
+          ;
+          if (v1.dat instanceof LetData) {
+            return "term-let";
+          }
+          ;
+          throw new Error("Failed pattern match at Zypr.RenderSyntax (line 104, column 19 - line 108, column 44): " + [v1.dat.constructor.name]);
+        }()]]))), onClick(function(event) {
+          return function __do2() {
+            stopPropagation2(event)();
+            return runEditorEffect(args["this"])(setLocation(v))();
+          };
+        })])(function() {
+          var v2 = new Tuple(v1.dat, ress);
+          if (v2.value0 instanceof VarData && v2.value1.length === 0) {
+            return args["thm"]["term"]["var"]({
+              dat: v2.value0.value0,
+              id: [text(v2.value0.value0.id)]
+            });
+          }
+          ;
+          if (v2.value0 instanceof LamData && v2.value1.length === 2) {
+            return args.thm.term.lam({
+              dat: v2.value0.value0,
+              bnd: v2["value1"][0],
+              bod: v2["value1"][1]
+            });
+          }
+          ;
+          if (v2.value0 instanceof AppData && v2.value1.length === 2) {
+            return args.thm.term.app({
+              dat: v2.value0.value0,
+              apl: v2["value1"][0],
+              arg: v2["value1"][1]
+            });
+          }
+          ;
+          if (v2.value0 instanceof LetData && v2.value1.length === 3) {
+            return args.thm.term.let_({
+              dat: v2.value0.value0,
+              bnd: v2["value1"][0],
+              imp: v2["value1"][1],
+              bod: v2["value1"][2]
+            });
+          }
+          ;
+          return unsafeThrow("renderTermData: malformed term:" + ("\n  dat: " + show7(v1.dat) + ("\n  ress: " + ("[" + (show1(length(ress)) + "]")))));
+        }())];
+      };
+    };
   };
   var renderSelectStart = function(args) {
     return function(res) {
@@ -36655,74 +36906,9 @@
       return [div2([className("selectEnd")])(res)];
     };
   };
-  var renderNode = function(args) {
-    return function(v) {
-      return function(ress) {
-        return [div2([className(intercalate5(" ")(concat([["term", function() {
-          if (v.term.value0.node instanceof Var) {
-            return "term-var";
-          }
-          ;
-          if (v.term.value0.node instanceof Lam) {
-            return "term-lam";
-          }
-          ;
-          if (v.term.value0.node instanceof App2) {
-            return "term-app";
-          }
-          ;
-          if (v.term.value0.node instanceof Let) {
-            return "term-let";
-          }
-          ;
-          throw new Error("Failed pattern match at Zypr.RenderSyntax (line 93, column 17 - line 97, column 38): " + [v.term.value0.node.constructor.name]);
-        }()]]))), onClick(function(event) {
-          return function __do2() {
-            stopPropagation2(event)();
-            return runEditorEffect(args["this"])(setLocation(v))();
-          };
-        })])(function() {
-          var v1 = new Tuple(v.term.value0.node, ress);
-          if (v1.value0 instanceof Var && v1.value1.length === 0) {
-            return args["thm"]["term"]["var"]({
-              "var": v1.value0.value0,
-              id: [text(v1.value0.value0.id)]
-            });
-          }
-          ;
-          if (v1.value0 instanceof Lam && v1.value1.length === 2) {
-            return args.thm.term.lam({
-              lam: v1.value0.value0,
-              bnd: v1["value1"][0],
-              bod: v1["value1"][1]
-            });
-          }
-          ;
-          if (v1.value0 instanceof App2 && v1.value1.length === 2) {
-            return args.thm.term.app({
-              app: v1.value0.value0,
-              apl: v1["value1"][0],
-              arg: v1["value1"][1]
-            });
-          }
-          ;
-          if (v1.value0 instanceof Let && v1.value1.length === 3) {
-            return args.thm.term.let_({
-              let_: v1.value0.value0,
-              bnd: v1["value1"][0],
-              imp: v1["value1"][1],
-              bod: v1["value1"][2]
-            });
-          }
-          ;
-          return unsafeThrow("renderNode: malformed term:" + ("\n  node: " + show7(v.term.value0.node) + ("\n  ress: " + ("[" + (show1(length(ress)) + "]")))));
-        }())];
-      };
-    };
-  };
   var renderLocationTerm = function(args) {
     return function(loc) {
-      return renderNode(args)(loc)(map5(renderLocationTerm(args))(children(loc)));
+      return renderTermData(args)(loc)(map5(renderLocationTerm(args))(children(loc)));
     };
   };
   var renderLocationPath = function(args) {
@@ -36735,18 +36921,25 @@
         var sbls = siblings(loc);
         return function(res) {
           var loc$prime = unsafeFromJust(stepUp(loc));
-          return renderLocationPath(args)(loc$prime)(renderNode(args)(loc$prime)(concat([map5(renderLocationTerm(args))(sbls.lefts), [res], map5(renderLocationTerm(args))(sbls.rights)])));
+          return renderLocationPath(args)(loc$prime)(renderTermData(args)(loc$prime)(concat([map5(renderLocationTerm(args))(sbls.lefts), [res], map5(renderLocationTerm(args))(sbls.rights)])));
         };
       }
       ;
-      throw new Error("Failed pattern match at Zypr.RenderSyntax (line 45, column 31 - line 59, column 24): " + [loc.path.constructor.name]);
+      throw new Error("Failed pattern match at Zypr.RenderSyntax (line 53, column 31 - line 67, column 24): " + [loc.path.constructor.name]);
     };
   };
-  var renderLocationSelect = function(args) {
-    return function(locStart) {
-      return function(locEnd) {
-        return renderLocationPath(args)(locStart)(renderSelectStart(args)(renderLocationPath(args)(locEnd)(renderSelectEnd(args)(renderLocationTerm(args)(locEnd)))));
+  var renderSelectMode = function(args) {
+    return function(select3) {
+      return renderLocationPath(args)(select3.locationStart)(renderSelectStart(args)(renderLocationPath(args)(select3.locationEnd)(renderSelectEnd(args)(renderLocationTerm(args)(select3.locationEnd)))));
+    };
+  };
+  var renderTopMode = function(args) {
+    return function(top2) {
+      var loc = {
+        term: top2.term,
+        path: Top.value
       };
+      return renderLocationPath(args)(loc)(renderLocationTerm(args)(loc));
     };
   };
   var renderCursor = function(args) {
@@ -36754,36 +36947,43 @@
       return [div2([className("select")])(res)];
     };
   };
-  var renderLocationCursor = function(args) {
-    return function(loc) {
-      return renderLocationPath(args)(loc)(renderCursor(args)(renderLocationTerm(args)(loc)));
+  var renderCursorMode = function(args) {
+    return function(cursor) {
+      return renderLocationPath(args)(cursor.location)(renderCursor(args)(renderLocationTerm(args)(cursor.location)));
     };
   };
 
   // output/Zypr.RenderEditor/index.js
   var map6 = /* @__PURE__ */ map(functorArray);
   var append1 = /* @__PURE__ */ append(semigroupArray);
-  var pprint2 = /* @__PURE__ */ pprint(ppPath);
-  var pprint1 = /* @__PURE__ */ pprint(ppTerm);
+  var pprint3 = /* @__PURE__ */ pprint(ppTerm);
+  var pprint1 = /* @__PURE__ */ pprint(ppPath);
   var map12 = /* @__PURE__ */ map(functorEffect);
   var renderProgram = function($$this) {
     return function(state3) {
       return [div2([className("program")])(function() {
-        if (state3.mode instanceof CursorMode) {
-          return renderLocationCursor({
+        if (state3.mode instanceof TopMode) {
+          return renderTopMode({
             "this": $$this,
             thm: state3.syntaxTheme
-          })(state3.mode.value0.location);
+          })(state3.mode.value0);
+        }
+        ;
+        if (state3.mode instanceof CursorMode) {
+          return renderCursorMode({
+            "this": $$this,
+            thm: state3.syntaxTheme
+          })(state3.mode.value0);
         }
         ;
         if (state3.mode instanceof SelectMode) {
-          return renderLocationSelect({
+          return renderSelectMode({
             "this": $$this,
             thm: state3.syntaxTheme
-          })(state3.mode.value0.locationStart)(state3.mode.value0.locationEnd);
+          })(state3.mode.value0);
         }
         ;
-        throw new Error("Failed pattern match at Zypr.RenderEditor (line 54, column 43 - line 63, column 29): " + [state3.mode.constructor.name]);
+        throw new Error("Failed pattern match at Zypr.RenderEditor (line 50, column 43 - line 62, column 17): " + [state3.mode.constructor.name]);
       }())];
     };
   };
@@ -36803,20 +37003,24 @@
             return "console-item-log";
           }
           ;
-          throw new Error("Failed pattern match at Zypr.RenderEditor (line 102, column 16 - line 105, column 53): " + [v.type_.constructor.name]);
+          throw new Error("Failed pattern match at Zypr.RenderEditor (line 104, column 16 - line 107, column 53): " + [v.type_.constructor.name]);
         }())])(v.res)];
       };
-      return [div2([className("console")])(function() {
+      return [div2([className("console")])(concat(map6(renderConsoleItem)(append1(state3.console)(function() {
+        if (state3.mode instanceof TopMode) {
+          return [stringEditorConsoleInfo("term: " + pprint3(state3.mode.value0.term))];
+        }
+        ;
         if (state3.mode instanceof CursorMode) {
-          return concat(map6(renderConsoleItem)(append1(state3.console)([stringEditorConsoleInfo("cursor location:" + ("\n  path: " + (pprint2(state3.mode.value0.location.path) + ("\n  term: " + pprint1(state3.mode.value0.location.term)))))])));
+          return [stringEditorConsoleInfo("cursor location:" + ("\n  path: " + (pprint1(state3.mode.value0.location.path) + ("\n  term: " + pprint3(state3.mode.value0.location.term)))))];
         }
         ;
         if (state3.mode instanceof SelectMode) {
-          return concat(map6(renderConsoleItem)(append1(state3.console)([stringEditorConsoleInfo("selection start location:" + ("\n  path: " + (pprint2(state3.mode.value0.locationStart.path) + ("\n  term: " + pprint1(state3.mode.value0.locationStart.term))))), stringEditorConsoleInfo("selection end location:" + ("\n  path: " + (pprint2(state3.mode.value0.locationEnd.path) + ("\n  term: " + pprint1(state3.mode.value0.locationEnd.term)))))])));
+          return [stringEditorConsoleInfo("selection start location:" + ("\n  path: " + (pprint1(state3.mode.value0.locationStart.path) + ("\n  term: " + pprint3(state3.mode.value0.locationStart.term))))), stringEditorConsoleInfo("selection end location:" + ("\n  path: " + (pprint1(state3.mode.value0.locationEnd.path) + ("\n  term: " + pprint3(state3.mode.value0.locationEnd.term)))))];
         }
         ;
-        throw new Error("Failed pattern match at Zypr.RenderEditor (line 68, column 43 - line 96, column 12): " + [state3.mode.constructor.name]);
-      }())];
+        throw new Error("Failed pattern match at Zypr.RenderEditor (line 71, column 10 - line 98, column 14): " + [state3.mode.constructor.name]);
+      }()))))];
     };
   };
   var editorComponent = function($$this) {
@@ -36891,11 +37095,8 @@
     var render2 = function(v) {
       return div2([className("app")])([createLeafElement3(editorClass)({
         stateInit: {
-          mode: new CursorMode({
-            location: {
-              term,
-              path: Top.value
-            }
+          mode: new TopMode({
+            term
           }),
           syntaxTheme: basicSyntaxTheme,
           console: []

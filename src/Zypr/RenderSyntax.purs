@@ -18,27 +18,35 @@ import React.DOM.Props as Props
 import React.SyntheticEvent (stopPropagation)
 import Text.PP as PP
 import Zypr.EditorEffect (runEditorEffect, setLocation)
-import Zypr.EditorTypes (EditorProps, EditorState)
+import Zypr.EditorTypes (CursorMode, EditorMode(..), EditorProps, EditorState, SelectMode, TopMode)
 
 type RenderArgs
   = { this :: ReactThis EditorProps EditorState
     , thm :: SyntaxTheme
     }
 
--- renders 
-renderLocationCursor :: RenderArgs -> Location -> Res
-renderLocationCursor args loc =
+-- render modes
+renderTopMode :: RenderArgs -> TopMode -> Res
+renderTopMode args top =
   renderLocationPath args loc
-    $ renderCursor args
     $ renderLocationTerm args loc
+  where
+  loc :: Location
+  loc = { term: top.term, path: Top }
 
-renderLocationSelect :: RenderArgs -> Location -> Location -> Res
-renderLocationSelect args locStart locEnd =
-  renderLocationPath args locStart
+renderCursorMode :: RenderArgs -> CursorMode -> Res
+renderCursorMode args cursor =
+  renderLocationPath args cursor.location
+    $ renderCursor args
+    $ renderLocationTerm args cursor.location
+
+renderSelectMode :: RenderArgs -> SelectMode -> Res
+renderSelectMode args select =
+  renderLocationPath args select.locationStart
     $ renderSelectStart args
-    $ renderLocationPath args locEnd
+    $ renderLocationPath args select.locationEnd
     $ renderSelectEnd args
-    $ renderLocationTerm args locEnd
+    $ renderLocationTerm args select.locationEnd
 
 -- render the surrounding `Path`, and inject a `Res` at the `Top` 
 renderLocationPath :: RenderArgs -> Location -> (Res -> Res)

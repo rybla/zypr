@@ -4,6 +4,8 @@ import Prelude
 import Effect (Effect)
 import React (ReactElement, ReactThis)
 import Zypr.Location (Location)
+import Zypr.Path (Path)
+import Zypr.Syntax (Term)
 import Zypr.SyntaxTheme (SyntaxTheme, Res)
 
 type EditorThis
@@ -22,8 +24,18 @@ type EditorState
     }
 
 data EditorMode
-  = CursorMode { location :: Location }
-  | SelectMode { locationStart :: Location, locationEnd :: Location }
+  = TopMode TopMode
+  | CursorMode CursorMode
+  | SelectMode SelectMode
+
+type TopMode
+  = { term :: Term }
+
+type CursorMode
+  = { location :: Location }
+
+type SelectMode
+  = { locationStart :: Location, locationEnd :: Location }
 
 type ConsoleItem
   = { type_ :: ConsoleItemType, res :: Res }

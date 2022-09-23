@@ -14,9 +14,10 @@ import Effect (Effect)
 import Effect.Console as Console
 import Effect.Exception.Unsafe (unsafeThrow)
 import React (ReactThis, getProps, getState, modifyState)
+import Text.PP as PP
 import Zypr.EditorConsole (logEditorConsole, stringEditorConsoleError, stringEditorConsoleInfo, stringEditorConsoleLog)
 import Zypr.EditorTypes (EditorMode(..), EditorProps, EditorState)
-import Zypr.Location (Location)
+import Zypr.Location (Location, ppLocation)
 import Zypr.Location as Location
 import Zypr.Path (Path(..))
 import Zypr.SyntaxTheme (Res)
@@ -39,7 +40,7 @@ runEditorEffect this eff = do
 
 setLocation :: Location -> EditorEffect Unit
 setLocation loc = do
-  tell [ "jumped to new location: " <> show loc ]
+  tell [ "jumped to new location: " <> show (ppLocation loc) ]
   modify_ _ { mode = CursorMode { location: loc } }
 
 stepPrev :: EditorEffect Unit
@@ -48,7 +49,7 @@ stepPrev =
     Just loc' -> do
       tell [ "stepped previous" ]
       pure loc'
-    Nothing -> throwError $ "can't step left at location: " <> show loc
+    Nothing -> throwError $ "can't step left at location: " <> show (ppLocation loc)
 
 stepNext :: EditorEffect Unit
 stepNext =
@@ -56,7 +57,7 @@ stepNext =
     Just loc' -> do
       tell [ "stepped next" ]
       pure loc'
-    Nothing -> throwError $ "can't step right at location: " <> show loc
+    Nothing -> throwError $ "can't step right at location: " <> show (ppLocation loc)
 
 stepDown :: EditorEffect Unit
 stepDown =
@@ -64,7 +65,7 @@ stepDown =
     Just loc' -> do
       tell [ "stepped down" ]
       pure loc'
-    Nothing -> throwError $ "can't step down at location: " <> show loc
+    Nothing -> throwError $ "can't step down at location: " <> show (ppLocation loc)
 
 stepUp :: EditorEffect Unit
 stepUp =
@@ -72,40 +73,79 @@ stepUp =
     Just loc' -> do
       tell [ "stepped up " ]
       pure loc'
-    Nothing -> throwError $ "can't step up at location: " <> show loc
+    Nothing -> throwError $ "can't step up at location: " <> show (ppLocation loc)
+
+stepRoot :: EditorEffect Unit
+stepRoot = do
+  let
+    go = do
+      state <- get
+      case state.mode of
+        CursorMode cursor
+          | Top <- cursor.location.path -> pure unit
+          | otherwise -> do
+            stepUp
+            go
+        _ -> pure unit
+  go
 
 step :: (Location -> EditorEffect Location) -> EditorEffect Unit
 step f = do
   state <- get
   case state.mode of
+    TopMode top -> do
+      setMode $ CursorMode { location: { term: top.term, path: Top } }
     CursorMode cursor -> do
       location <- f cursor.location
-      put state { mode = CursorMode cursor { location = location } }
+      setMode $ CursorMode cursor { location = location }
     SelectMode select -> do
       locationEnd <- f select.locationEnd
-      put state { mode = SelectMode select { locationEnd = locationEnd } }
+      setMode $ SelectMode select { locationEnd = locationEnd }
 
-exitSelect :: EditorEffect Unit
-exitSelect = do
+setMode :: EditorMode -> EditorEffect Unit
+setMode mode = do
+  modify_ _ { mode = mode }
+
+escapeCursor :: EditorEffect Unit
+escapeCursor = do
   state <- get
   case state.mode of
-    CursorMode _ -> pure unit
+    CursorMode cursor -> do
+      stepRoot
+      state <- get
+      case state.mode of
+        CursorMode cursor'
+          | Top <- cursor'.location.path -> do
+            tell [ "escape cursor" ]
+            setMode $ TopMode { term: cursor'.location.term }
+          | otherwise ->
+            throwError
+              $ "escapeCursor: stepRoot ended at non-Top Path: "
+              <> PP.pprint cursor'.location.path
+        _ -> pure unit
+    _ -> pure unit
+
+escapeSelect :: EditorEffect Unit
+escapeSelect = do
+  state <- get
+  case state.mode of
     SelectMode select -> do
-      tell [ "exit select" ]
-      put state { mode = CursorMode { location: select.locationStart } }
+      tell [ "escape select" ]
+      setMode $ CursorMode { location: select.locationStart }
+    _ -> pure unit
 
 enterSelect :: EditorEffect Unit
 enterSelect = do
   state <- get
   case state.mode of
+    TopMode top ->
+      setMode
+        $ CursorMode { location: { term: top.term, path: Top } }
     CursorMode cursor -> do
       tell [ "enter select" ]
-      put
-        state
-          { mode =
-            SelectMode
-              { locationStart: cursor.location
-              , locationEnd: { term: cursor.location.term, path: Top }
-              }
-          }
+      setMode
+        $ SelectMode
+            { locationStart: cursor.location
+            , locationEnd: { term: cursor.location.term, path: Top }
+            }
     SelectMode _ -> pure unit
