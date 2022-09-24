@@ -115,7 +115,7 @@ siblings loc = { lefts: goLeft [] loc, rights: goRight [] loc }
     Just loc' -> goLeft (loc' : lefts) loc'
 
   goRight rights loc = case stepRight loc of
-    Nothing -> rights
+    Nothing -> reverse rights
     Just loc' -> goRight (loc' : rights) loc'
 
 -- step down, then step right until can't
