@@ -12,7 +12,7 @@ import Zypr.EditorEffect as EditorEffect
 import Zypr.Example.Applications as Applications
 import Zypr.Example.Lambdas as Lambdas
 import Zypr.Example.YCombinator as YCombinator
-import Zypr.SyntaxTheme (Res)
+import Zypr.SyntaxTheme (Res, basicSyntaxTheme, syntaxThemes)
 
 renderMenu :: EditorThis -> EditorState -> Res
 renderMenu this _state =
@@ -22,7 +22,7 @@ renderMenu this _state =
             -- [ DOM.text "(⛓️ ▪ zypr) " ]
             -- [ DOM.text "(z y▪p▪r)"]
             -- [ DOM.text "[zypr]" ]
-            [ DOM.text "/#/zypr/#/" ]
+            [ DOM.text "|#|zypr|#|" ]
         , createLeafElement menuItemClass
             { thisEditor: this
             , title: "examples"
@@ -37,6 +37,18 @@ renderMenu this _state =
                   , onClick: EditorEffect.setTerm YCombinator.term
                   }
                 ]
+            }
+        , createLeafElement menuItemClass
+            { thisEditor: this
+            , title: "syntax"
+            , options:
+                map
+                  ( \thm ->
+                      { label: thm.meta.name
+                      , onClick: EditorEffect.setSyntaxTheme thm
+                      }
+                  )
+                  syntaxThemes
             }
         , DOM.a
             [ Props.className "menu-item"

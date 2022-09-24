@@ -1,14 +1,14 @@
 module Zypr.EditorEffect where
 
-import Data.Tuple.Nested ((/\))
 import Prelude
 import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.Reader (ReaderT, runReaderT)
-import Control.Monad.State (StateT, get, modify_, runStateT)
+import Control.Monad.State (StateT, get, modify, modify_, runStateT)
 import Control.Monad.Writer (WriterT, runWriterT, tell)
 import Data.Either (Either(..))
 import Data.Foldable (foldr)
 import Data.Maybe (Maybe(..))
+import Data.Tuple.Nested ((/\))
 import Effect (Effect)
 import React (ReactThis, getProps, getState, modifyState)
 import Text.PP as PP
@@ -18,6 +18,7 @@ import Zypr.Location (Location, ppLocation)
 import Zypr.Location as Location
 import Zypr.Path (Path(..))
 import Zypr.Syntax (Term)
+import Zypr.SyntaxTheme (SyntaxTheme)
 
 type EditorEffect a
   = StateT EditorState (ReaderT EditorProps (WriterT (Array String) (ExceptT String Effect))) a
@@ -37,12 +38,12 @@ runEditorEffect this eff = do
 
 setTerm :: Term -> EditorEffect Unit
 setTerm term = do
-  tell [ "loaded new term: " <> PP.pprint term ]
+  tell [ "loaded term: " <> PP.pprint term ]
   setMode $ TopMode { term }
 
 setLocation :: Location -> EditorEffect Unit
 setLocation loc = do
-  tell [ "jumped to new location: " <> show (ppLocation loc) ]
+  tell [ "jumped to location: " <> show (ppLocation loc) ]
   state <- get
   setMode $ CursorMode { location: loc }
 
@@ -152,3 +153,7 @@ enterSelect = do
             , locationEnd: { term: cursor.location.term, path: Top }
             }
     SelectMode _ -> pure unit
+
+setSyntaxTheme :: SyntaxTheme -> EditorEffect Unit
+setSyntaxTheme thm = do
+  modify_ _ { syntaxTheme = thm }

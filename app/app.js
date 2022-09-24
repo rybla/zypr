@@ -36425,22 +36425,36 @@
   var identity4 = /* @__PURE__ */ identity(categoryFn);
   var map4 = /* @__PURE__ */ map(functorArray);
   var pprint1 = /* @__PURE__ */ pprint(ppPath);
-  var setMode = function(mode) {
+  var setSyntaxTheme = function(thm) {
     return modify_2(function(v) {
-      var $45 = {};
-      for (var $46 in v) {
-        if ({}.hasOwnProperty.call(v, $46)) {
-          $45[$46] = v[$46];
+      var $46 = {};
+      for (var $47 in v) {
+        if ({}.hasOwnProperty.call(v, $47)) {
+          $46[$47] = v[$47];
         }
         ;
       }
       ;
-      $45.mode = mode;
-      return $45;
+      $46.syntaxTheme = thm;
+      return $46;
+    });
+  };
+  var setMode = function(mode) {
+    return modify_2(function(v) {
+      var $49 = {};
+      for (var $50 in v) {
+        if ({}.hasOwnProperty.call(v, $50)) {
+          $49[$50] = v[$50];
+        }
+        ;
+      }
+      ;
+      $49.mode = mode;
+      return $49;
     });
   };
   var setTerm = function(term4) {
-    return discard2(tell2(["loaded new term: " + pprint2(term4)]))(function() {
+    return discard2(tell2(["loaded term: " + pprint2(term4)]))(function() {
       return setMode(new TopMode({
         term: term4
       }));
@@ -36474,7 +36488,7 @@
         });
       }
       ;
-      throw new Error("Failed pattern match at Zypr.EditorEffect (line 98, column 3 - line 106, column 64): " + [state3.mode.constructor.name]);
+      throw new Error("Failed pattern match at Zypr.EditorEffect (line 99, column 3 - line 107, column 64): " + [state3.mode.constructor.name]);
     });
   };
   var stepDown2 = /* @__PURE__ */ step2(function(loc) {
@@ -36489,7 +36503,7 @@
       return throwError2("can't step down at location: " + show5(ppLocation(loc)));
     }
     ;
-    throw new Error("Failed pattern match at Zypr.EditorEffect (line 67, column 16 - line 71, column 85): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at Zypr.EditorEffect (line 68, column 16 - line 72, column 85): " + [v.constructor.name]);
   });
   var stepNext2 = /* @__PURE__ */ step2(function(loc) {
     var v = stepNext(loc);
@@ -36503,7 +36517,7 @@
       return throwError2("can't step right at location: " + show5(ppLocation(loc)));
     }
     ;
-    throw new Error("Failed pattern match at Zypr.EditorEffect (line 59, column 16 - line 63, column 86): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at Zypr.EditorEffect (line 60, column 16 - line 64, column 86): " + [v.constructor.name]);
   });
   var stepPrev2 = /* @__PURE__ */ step2(function(loc) {
     var v = stepPrev(loc);
@@ -36517,7 +36531,7 @@
       return throwError2("can't step left at location: " + show5(ppLocation(loc)));
     }
     ;
-    throw new Error("Failed pattern match at Zypr.EditorEffect (line 51, column 16 - line 55, column 85): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at Zypr.EditorEffect (line 52, column 16 - line 56, column 85): " + [v.constructor.name]);
   });
   var stepUp2 = /* @__PURE__ */ step2(function(loc) {
     var v = stepUp(loc);
@@ -36531,7 +36545,7 @@
       return throwError2("can't step up at location: " + show5(ppLocation(loc)));
     }
     ;
-    throw new Error("Failed pattern match at Zypr.EditorEffect (line 75, column 16 - line 79, column 83): " + [v.constructor.name]);
+    throw new Error("Failed pattern match at Zypr.EditorEffect (line 76, column 16 - line 80, column 83): " + [v.constructor.name]);
   });
   var stepRoot = /* @__PURE__ */ function() {
     var $lazy_go = $runtime_lazy3("go", "Zypr.EditorEffect", function() {
@@ -36539,7 +36553,7 @@
         var v = function(v1) {
           if (state3.mode instanceof CursorMode && otherwise) {
             return discard2(stepUp2)(function() {
-              return $lazy_go(91);
+              return $lazy_go(92);
             });
           }
           ;
@@ -36556,11 +36570,11 @@
         return v(true);
       });
     });
-    var go2 = $lazy_go(84);
+    var go2 = $lazy_go(85);
     return go2;
   }();
   var setLocation = function(loc) {
-    return discard2(tell2(["jumped to new location: " + show5(ppLocation(loc))]))(function() {
+    return discard2(tell2(["jumped to location: " + show5(ppLocation(loc))]))(function() {
       return bind2(get2)(function(state3) {
         return setMode(new CursorMode({
           location: loc
@@ -36580,18 +36594,18 @@
         ;
         if (res instanceof Right) {
           return modifyState($$this)(function() {
-            var $85 = foldr2(compose2)(identity4)(map4(function($87) {
-              return logEditorConsole(stringEditorConsoleLog($87));
+            var $89 = foldr2(compose2)(identity4)(map4(function($91) {
+              return logEditorConsole(stringEditorConsoleLog($91));
             })(res.value0.value1));
-            return function($86) {
-              return $85(function(v) {
+            return function($90) {
+              return $89(function(v) {
                 return res.value0.value0.value1;
-              }($86));
+              }($90));
             };
           }())();
         }
         ;
-        throw new Error("Failed pattern match at Zypr.EditorEffect (line 30, column 3 - line 36, column 25): " + [res.constructor.name]);
+        throw new Error("Failed pattern match at Zypr.EditorEffect (line 31, column 3 - line 37, column 25): " + [res.constructor.name]);
       };
     };
   };
@@ -36662,7 +36676,7 @@
       return pure3(unit);
     }
     ;
-    throw new Error("Failed pattern match at Zypr.EditorEffect (line 143, column 3 - line 154, column 30): " + [state3.mode.constructor.name]);
+    throw new Error("Failed pattern match at Zypr.EditorEffect (line 144, column 3 - line 155, column 30): " + [state3.mode.constructor.name]);
   });
 
   // output/Zypr.Key/foreign.js
@@ -36849,6 +36863,111 @@
   // output/Zypr.Example.Lambdas/index.js
   var term3 = /* @__PURE__ */ foldr(foldableArray)(apply)(/* @__PURE__ */ $$var("a"))([/* @__PURE__ */ lam("a"), /* @__PURE__ */ lam("b"), /* @__PURE__ */ lam("c"), /* @__PURE__ */ lam("d")]);
 
+  // output/Zypr.SyntaxTheme/index.js
+  var makeToken = function(className2) {
+    return function(res) {
+      return [div2([className("token " + className2)])(res)];
+    };
+  };
+  var makeStringToken = function(className2) {
+    return function(str) {
+      return makeToken(className2)([text(str)]);
+    };
+  };
+  var tk_app = /* @__PURE__ */ makeStringToken("keyword")("app");
+  var tk_assign = /* @__PURE__ */ makeStringToken("keyword")("=");
+  var tk_in = /* @__PURE__ */ makeStringToken("keyword keyword-in")("in");
+  var tk_lambda = /* @__PURE__ */ makeStringToken("keyword keyword-lambda")("\u03BB");
+  var tk_let = /* @__PURE__ */ makeStringToken("keyword keyword-let")("let");
+  var tk_lparen = /* @__PURE__ */ makeStringToken("punc punc-paren punc-lparen")("(");
+  var tk_mapsto = /* @__PURE__ */ makeStringToken("keyword keyword-mapsto")("\u21D2");
+  var tk_rparen = /* @__PURE__ */ makeStringToken("punc punc-paren punc-rparen rparen")(")");
+  var tk_space = /* @__PURE__ */ makeStringToken("space")(" ");
+  var tk_zipper = /* @__PURE__ */ makeStringToken("keyword emoji")("\u{1F587}\uFE0F");
+  var assoc = function(res) {
+    return concat([tk_lparen, res, tk_rparen]);
+  };
+  var basicSyntaxTheme = {
+    meta: {
+      name: "basic"
+    },
+    term: {
+      "var": function(v) {
+        return v.id;
+      },
+      lam: function(v) {
+        return assoc(concat([tk_lambda, tk_space, v.bnd, tk_space, tk_mapsto, tk_space, v.bod]));
+      },
+      app: function(v) {
+        return assoc(concat([v.apl, tk_space, v.arg]));
+      },
+      let_: function(v) {
+        return assoc(concat([tk_let, tk_space, v.bnd, tk_space, tk_assign, tk_space, v.imp, tk_space, tk_in, tk_space, v.bod]));
+      }
+    }
+  };
+  var emojiSyntaxTheme = {
+    meta: {
+      name: "emoji"
+    },
+    term: {
+      "var": function(v) {
+        return v.id;
+      },
+      lam: function(v) {
+        return assoc(concat([tk_zipper, tk_space, v.bnd, tk_space, tk_zipper, tk_space, v.bod]));
+      },
+      app: function(v) {
+        return assoc(concat([v.apl, tk_space, v.arg]));
+      },
+      let_: function(v) {
+        return assoc(concat([tk_zipper, tk_space, v.bnd, tk_space, tk_zipper, tk_space, v.imp, tk_space, tk_zipper, tk_space, v.bod]));
+      }
+    }
+  };
+  var judsonSyntaxTheme = /* @__PURE__ */ function() {
+    var whitcomb = makeStringToken("keyword")("Whitcomb");
+    var sundback = makeStringToken("keyword")("Sundback");
+    var l = makeStringToken("keyword")("L.");
+    var judson = makeStringToken("keyword")("Judson");
+    var gideon = makeStringToken("keyword")("Gideon");
+    return {
+      meta: {
+        name: "the judson"
+      },
+      term: {
+        "var": function(v) {
+          return v.id;
+        },
+        lam: function(v) {
+          return assoc(concat([gideon, tk_space, v.bnd, tk_space, sundback, tk_space, v.bod]));
+        },
+        app: function(v) {
+          return assoc(concat([v.apl, tk_space, v.arg]));
+        },
+        let_: function(v) {
+          return assoc(concat([whitcomb, tk_space, v.bnd, tk_space, l, tk_space, v.imp, tk_space, judson, tk_space, v.bod]));
+        }
+      }
+    };
+  }();
+  var appSyntaxTheme = /* @__PURE__ */ function() {
+    return {
+      meta: {
+        name: "app"
+      },
+      term: {
+        "var": basicSyntaxTheme["term"]["var"],
+        lam: basicSyntaxTheme.term.lam,
+        app: function(v1) {
+          return assoc(concat([tk_app, tk_space, v1.apl, tk_space, v1.arg]));
+        },
+        let_: basicSyntaxTheme.term.let_
+      }
+    };
+  }();
+  var syntaxThemes = [basicSyntaxTheme, emojiSyntaxTheme, appSyntaxTheme, judsonSyntaxTheme];
+
   // output/Zypr.Menu/index.js
   var map5 = /* @__PURE__ */ map(functorArray);
   var map12 = /* @__PURE__ */ map(functorEffect);
@@ -36893,7 +37012,7 @@
   var menuItemClass = /* @__PURE__ */ component()("menu-item")(menuItemComponent);
   var renderMenu = function($$this) {
     return function(_state) {
-      return [div2([className("menu")])([div2([className("menu-title")])([text("/#/zypr/#/")]), createLeafElement3(menuItemClass)({
+      return [div2([className("menu")])([div2([className("menu-title")])([text("|#|zypr|#|")]), createLeafElement3(menuItemClass)({
         thisEditor: $$this,
         title: "examples",
         options: [{
@@ -36906,6 +37025,15 @@
           label: "YCombinator.zypr",
           onClick: setTerm(term)
         }]
+      }), createLeafElement3(menuItemClass)({
+        thisEditor: $$this,
+        title: "syntax",
+        options: map5(function(thm) {
+          return {
+            label: thm.meta.name,
+            onClick: setSyntaxTheme(thm)
+          };
+        })(syntaxThemes)
       }), a([className("menu-item"), href("https://github.com/Riib11/zypr/")])([div2([className("menu-item-title")])([text("github")])])])];
     };
   };
@@ -37164,48 +37292,6 @@
     };
   };
   var editorClass = /* @__PURE__ */ component()("editor")(editorComponent);
-
-  // output/Zypr.SyntaxTheme/index.js
-  var makeToken = function(className2) {
-    return function(res) {
-      return [div2([className("token " + className2)])(res)];
-    };
-  };
-  var makeStringToken = function(className2) {
-    return function(str) {
-      return makeToken(className2)([text(str)]);
-    };
-  };
-  var tk_assign = /* @__PURE__ */ makeStringToken("keyword")("=");
-  var tk_in = /* @__PURE__ */ makeStringToken("keyword keyword-in")("in");
-  var tk_lambda = /* @__PURE__ */ makeStringToken("keyword keyword-lambda")("\u03BB");
-  var tk_let = /* @__PURE__ */ makeStringToken("keyword keyword-let")("let");
-  var tk_lparen = /* @__PURE__ */ makeStringToken("punc punc-paren punc-lparen")("(");
-  var tk_mapsto = /* @__PURE__ */ makeStringToken("keyword keyword-mapsto")("\u21D2");
-  var tk_rparen = /* @__PURE__ */ makeStringToken("punc punc-paren punc-rparen rparen")(")");
-  var tk_space = /* @__PURE__ */ makeStringToken("space")(" ");
-  var assoc = function(res) {
-    return concat([tk_lparen, res, tk_rparen]);
-  };
-  var basicSyntaxTheme = {
-    meta: {
-      name: "basic"
-    },
-    term: {
-      "var": function(v) {
-        return v.id;
-      },
-      lam: function(v) {
-        return assoc(concat([tk_lambda, tk_space, v.bnd, tk_space, tk_mapsto, tk_space, v.bod]));
-      },
-      app: function(v) {
-        return assoc(concat([v.apl, tk_space, v.arg]));
-      },
-      let_: function(v) {
-        return assoc(concat([tk_let, tk_space, v.bnd, tk_space, tk_assign, tk_space, v.imp, tk_space, tk_in, tk_space, v.bod]));
-      }
-    }
-  };
 
   // output/App/index.js
   var createLeafElement4 = /* @__PURE__ */ createLeafElement2();

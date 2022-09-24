@@ -68,7 +68,7 @@ body {
 }
 
 .menu-title {
-
+  /* border-radius: 0; */
   font-weight: bold;
   border-collapse: collapse;
 
@@ -206,6 +206,11 @@ body {
 .token.punc {
   /* font-weight: lighter; */
   color: gray;
+}
+
+.token.emoji {
+  /* background-color: black; */
+  /* font-size: 200%; */
 }
 
 
