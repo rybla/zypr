@@ -1,3 +1,5 @@
+/* html */
+
 html,
 body {
   margin: 0;
@@ -34,16 +36,109 @@ body {
   width: 100vw;
   height: 100vh;
 
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12pt;
+
   user-select: none;
+}
+
+/* menu */
+
+.menu {
+  margin: 0;
+  padding: 6px;
+
+  font-size: 10pt;
+
+  background-color: rgb(21, 33, 58);
+  color: white
+}
+
+.menu-title,
+.menu-item {
+  display: inline-block;
+  vertical-align: center;
+  text-align: left;
+}
+
+.menu-title,
+.menu-item-title {
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.menu-title {
+
+  font-weight: bold;
+  border-collapse: collapse;
+
+  background-color: rgb(255, 199, 94);
+  color: black;
+}
+
+.menu-item {
+  display: inline-block;
+  margin-left: 10px;
+
+  color: black;
+}
+
+.menu-item-title {
+  display: inline-block;
+  cursor: pointer;
+
+  background-color: tan;
+}
+
+.menu-item-title:hover,
+.menu-item.open>.menu-item-title {
+  background-color: rgb(255, 199, 94);
+}
+
+
+.menu-item-options {
+  position: absolute;
+
+  border-radius: 6px;
+  margin-top: 4px;
+
+  background-color: tan;
+  color: black;
+}
+
+.menu-item.open>.menu-item-options {
+  box-shadow: 0 0 4px 1px black;
+}
+
+.menu-item.closed>.menu-item-options {
+  display: none;
+}
+
+.menu-item-option {
+  padding: 2px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.menu-item-option:hover {
+  background-color: rgb(255, 199, 94);
 }
 
 /* program */
 
 .program {
-  margin: 0;
+  display: block;
+  margin: 10px 10px;
   padding: 10px;
   font-size: 12pt;
-  font-family: monospace;
+
+  vertical-align: center;
+
+  /* box-shadow: 2px 2px 10px 2px black; */
+  /* box-shadow: 0 0 6px 1px black inset; */
+
+  border-radius: 6px;
+
 }
 
 /* syntax */
@@ -127,26 +222,53 @@ body {
   background-color: rgb(21, 33, 58);
 
   font-size: 8pt;
-  font-family: monospace;
 }
 
 .console-item {
   display: inline-block;
+}
+
+.console-icon {
+  display: inline-block;
+  vertical-align: top;
+  padding: 5px 8px;
+  background-color: white;
+  border-radius: 6px;
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.console-icon-info {
+  background-color: orange;
+}
+
+.console-icon-log {
+  background-color: rgb(246, 229, 205);
+}
+
+.console-icon-error {
+  background-color: rgb(225, 61, 61);
+}
+
+.console-item-body {
+  display: inline-block;
   padding: 5px;
+  max-width: calc(100vw - 20px - 10px - 50px);
   overflow-x: scroll;
   white-space: pre;
+  /* width: 100px; */
 
   border-radius: 6px;
 }
 
-.console-item-info {
+.console-item-body-info {
   background-color: rgb(255, 199, 94);
 }
 
-.console-item-log {
+.console-item-body-log {
   background-color: tan;
 }
 
-.console-item-error {
+.console-item-body-error {
   background-color: rgb(255, 94, 94);
 }

@@ -39,7 +39,7 @@ basicSyntaxTheme =
             assoc $ concat [ apl, tk_space, arg ]
       , let_:
           \{ dat, bnd, imp, bod } ->
-            assoc $ concat [ tk_let, tk_space, bnd, tk_space, tk_assign, imp, tk_space, tk_in, tk_space, bod ]
+            assoc $ concat [ tk_let, tk_space, bnd, tk_space, tk_assign, tk_space, imp, tk_space, tk_in, tk_space, bod ]
       }
   }
 

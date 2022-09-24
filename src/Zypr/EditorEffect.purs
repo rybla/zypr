@@ -1,26 +1,23 @@
 module Zypr.EditorEffect where
 
-import Data.Tuple.Nested
+import Data.Tuple.Nested ((/\))
 import Prelude
 import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.Reader (ReaderT, runReaderT)
-import Control.Monad.State (StateT, get, modify_, put, runStateT)
+import Control.Monad.State (StateT, get, modify_, runStateT)
 import Control.Monad.Writer (WriterT, runWriterT, tell)
 import Data.Either (Either(..))
 import Data.Foldable (foldr)
-import Data.Identity (Identity)
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
-import Effect.Console as Console
-import Effect.Exception.Unsafe (unsafeThrow)
 import React (ReactThis, getProps, getState, modifyState)
 import Text.PP as PP
-import Zypr.EditorConsole (logEditorConsole, stringEditorConsoleError, stringEditorConsoleInfo, stringEditorConsoleLog)
+import Zypr.EditorConsole (logEditorConsole, stringEditorConsoleError, stringEditorConsoleLog)
 import Zypr.EditorTypes (EditorMode(..), EditorProps, EditorState)
 import Zypr.Location (Location, ppLocation)
 import Zypr.Location as Location
 import Zypr.Path (Path(..))
-import Zypr.SyntaxTheme (Res)
+import Zypr.Syntax (Term)
 
 type EditorEffect a
   = StateT EditorState (ReaderT EditorProps (WriterT (Array String) (ExceptT String Effect))) a
@@ -38,10 +35,16 @@ runEditorEffect this eff = do
         $ (foldr (<<<) identity (map (logEditorConsole <<< stringEditorConsoleLog) infos))
         <<< \_ -> state'
 
+setTerm :: Term -> EditorEffect Unit
+setTerm term = do
+  tell [ "loaded new term: " <> PP.pprint term ]
+  setMode $ TopMode { term }
+
 setLocation :: Location -> EditorEffect Unit
 setLocation loc = do
   tell [ "jumped to new location: " <> show (ppLocation loc) ]
-  modify_ _ { mode = CursorMode { location: loc } }
+  state <- get
+  setMode $ CursorMode { location: loc }
 
 stepPrev :: EditorEffect Unit
 stepPrev =

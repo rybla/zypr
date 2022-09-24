@@ -4,7 +4,8 @@ import Prelude
 import Data.Array (concat, intercalate, (:))
 import Effect (Effect)
 import Effect.Console as Console
-import React (ReactClass, ReactElement, ReactThis, component, getProps, getState)
+import Effect.Exception.Unsafe (unsafeThrow)
+import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getProps, getState)
 import React.DOM as DOM
 import React.DOM.Props as Props
 import Text.PP (pprint)
@@ -13,10 +14,17 @@ import Web.Event.EventTarget (addEventListener, eventListener)
 import Web.HTML (window)
 import Web.HTML.Window (toEventTarget)
 import Zypr.EditorConsole (stringEditorConsoleInfo)
+import Zypr.EditorEffect (EditorEffect)
+import Zypr.EditorEffect as EditorEffect
 import Zypr.EditorTypes (ConsoleItemType(..), EditorGiven, EditorMode(..), EditorProps, EditorState, EditorThis)
+import Zypr.Example.Applications as Applications
+import Zypr.Example.Lambdas as Lambdas
+import Zypr.Example.YCombinator as YCombinator
 import Zypr.KeyboardEventHandler (keyboardEventHandler)
+import Zypr.Path (Path(..))
 import Zypr.RenderSyntax (renderCursorMode, renderSelectMode, renderTopMode)
 import Zypr.SyntaxTheme (Res)
+import Zypr.Menu (renderMenu)
 
 editorClass :: ReactClass EditorProps
 editorClass = component "editor" editorComponent
@@ -35,7 +43,8 @@ editorComponent this = do
     DOM.div
       [ Props.className "editor" ]
       $ concat
-          [ renderProgram this state
+          [ renderMenu this state
+          , renderProgram this state
           , renderConsole this state
           ]
 
@@ -71,13 +80,13 @@ renderConsole this state =
       <> case state.mode of
           TopMode top ->
             [ stringEditorConsoleInfo <<< intercalate "\n"
-                $ [ "[mode: top]"
-                  , "  term: " <> pprint top.term
+                $ [ "mode: top"
+                  , "term: " <> pprint top.term
                   ]
             ]
           CursorMode cursor ->
             [ stringEditorConsoleInfo <<< intercalate "\n"
-                $ [ "[mode: cursor]"
+                $ [ "mode: cursor"
                   , "cursor location:"
                   , "  path: " <> pprint cursor.location.path
                   , "  term: " <> pprint cursor.location.term
@@ -85,7 +94,7 @@ renderConsole this state =
             ]
           SelectMode select ->
             [ stringEditorConsoleInfo <<< intercalate "\n"
-                $ [ "[mode: select]"
+                $ [ "mode: select"
                   , "selection start location:"
                   , "  path: " <> pprint select.locationStart.path
                   , "  term: " <> pprint select.locationStart.term
@@ -96,13 +105,24 @@ renderConsole this state =
             ]
   ]
   where
-  renderConsoleItem { type_, res } =
+  renderConsoleItem item =
     [ DOM.div
-        [ Props.className $ "console-item "
-            <> case type_ of
-                ConsoleItemError -> "console-item-error"
-                ConsoleItemInfo -> "console-item-info"
-                ConsoleItemLog -> "console-item-log"
+        [ Props.className $ "console-item console-item-" <> typeClassName
         ]
-        res
+        [ DOM.div [ Props.className $ "console-icon console-icon-" <> typeClassName ]
+            [ DOM.text case item.type_ of
+                ConsoleItemError -> "!"
+                ConsoleItemInfo -> "&"
+                ConsoleItemLog -> ">"
+            ]
+        , DOM.div
+            [ Props.className $ "console-item-body console-item-body-" <> typeClassName
+            ]
+            item.res
+        ]
     ]
+    where
+    typeClassName = case item.type_ of
+      ConsoleItemError -> "error"
+      ConsoleItemInfo -> "info"
+      ConsoleItemLog -> "log"

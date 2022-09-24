@@ -8,9 +8,7 @@ import React (ReactClass, ReactElement, ReactThis, component, createLeafElement,
 import React.DOM as DOM
 import React.DOM.Props as Props
 import Zypr.EditorTypes (EditorMode(..))
-import Zypr.Example.Lambdas as Lambdas
 import Zypr.Example.YCombinator as YCombinator
-import Zypr.Path (Path(..))
 import Zypr.RenderEditor (editorClass)
 import Zypr.SyntaxTheme (basicSyntaxTheme)
 
