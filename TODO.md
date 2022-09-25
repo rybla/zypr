@@ -20,7 +20,6 @@ Henry
 - [x] state modes: top (term), cursor (path, term), select (path, path, term)
 - [ ] mouse mover highlighting
 - [ ] mouse select
+- [x] propper left/right arrow key navigation
 
 Jacob
-
-- [ ] rest of arrow key navigation
