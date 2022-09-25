@@ -143,11 +143,12 @@ body {
 
 /* syntax */
 
-
-.term {
+.syntax {
   display: inline-block;
   border-radius: 6px;
 }
+
+.term {}
 
 .term-var {
   padding: 0 2px;
@@ -176,17 +177,17 @@ body {
   display: inline-block;
 }
 
-.select>.term {
+.select>.syntax {
   box-shadow: 0 0 0 2px blue;
   background-color: rgb(216, 216, 255);
 }
 
-.selectStart>.term {
+.selectStart>.syntax {
   box-shadow: 0 0 0 2px blue;
   background-color: rgb(216, 216, 255);
 }
 
-.selectEnd>.term {
+.selectEnd>.syntax {
   box-shadow: 0 0 0 2px blue;
   background-color: white;
 }

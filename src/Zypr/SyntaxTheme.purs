@@ -5,7 +5,6 @@ import Data.Array (concat)
 import React (ReactElement)
 import React.DOM as DOM
 import React.DOM.Props as Props
-import Zypr.Metadata
 import Zypr.Syntax
 
 type Res

@@ -29,16 +29,16 @@ type RenderArgs
 renderTopMode :: RenderArgs -> TopMode -> Res
 renderTopMode args top =
   renderLocationPath args loc
-    $ renderLocationTerm args loc
+    $ renderLocationSyntax args loc
   where
   loc :: Location
-  loc = { term: top.term, path: Top }
+  loc = { syn: TermSyntax top.term, path: Top }
 
 renderCursorMode :: RenderArgs -> CursorMode -> Res
 renderCursorMode args cursor =
   renderLocationPath args cursor.location
     $ renderCursor args
-    $ renderLocationTerm args cursor.location
+    $ renderLocationSyntax args cursor.location
 
 renderSelectMode :: RenderArgs -> SelectMode -> Res
 renderSelectMode args select =
@@ -46,7 +46,7 @@ renderSelectMode args select =
     $ renderSelectStart args
     $ renderLocationPath args select.locationEnd
     $ renderSelectEnd args
-    $ renderLocationTerm args select.locationEnd
+    $ renderLocationSyntax args select.locationEnd
 
 -- render the surrounding `Path`, and inject a `Res` at the `Top` 
 renderLocationPath :: RenderArgs -> Location -> (Res -> Res)
@@ -57,20 +57,20 @@ renderLocationPath args loc = case loc.path of
       loc' = unsafeFromJust $ stepUp loc
     in
       renderLocationPath args loc'
-        $ renderTermData args loc'
+        $ renderSyntaxData args loc'
         $ concat
-            [ map (renderLocationTerm args) sbls.lefts
+            [ map (renderLocationSyntax args) sbls.lefts
             , [ res ]
-            , map (renderLocationTerm args) sbls.rights
+            , map (renderLocationSyntax args) sbls.rights
             ]
     where
     sbls = siblings loc
 
--- only render `Term` at this `Location`
-renderLocationTerm :: RenderArgs -> Location -> Res
-renderLocationTerm args loc =
-  renderTermData args loc
-    $ map (renderLocationTerm args) (children loc)
+-- only render `Syntax` at this `Location`
+renderLocationSyntax :: RenderArgs -> Location -> Res
+renderLocationSyntax args loc =
+  renderSyntaxData args loc
+    $ map (renderLocationSyntax args) (children loc)
 
 renderCursor :: RenderArgs -> Res -> Res
 renderCursor args res =
@@ -90,36 +90,41 @@ renderSelectEnd args res =
       res
   ]
 
--- only render `TermData` at this `Location`, using pre-rendered children 
-renderTermData :: RenderArgs -> Location -> Array Res -> Res
-renderTermData args loc@{ term } ress =
+-- only render `SyntaxData` at this `Location`, using pre-rendered children 
+renderSyntaxData :: RenderArgs -> Location -> Array Res -> Res
+renderSyntaxData args loc@{ syn } ress =
   let
-    { dat } = toGenTerm term
+    { dat } = toGenSyntax syn
   in
     [ DOM.div
         [ Props.className
             <<< intercalate " "
             <<< concat
-            $ [ [ "term"
-                , case dat of
-                    VarData _ -> "term-var"
-                    LamData _ -> "term-lam"
-                    AppData _ -> "term-app"
-                    LetData _ -> "term-let"
-                ]
+            $ [ [ "syntax" ]
+              , case dat of
+                  TermData datTerm ->
+                    [ "term"
+                    , case datTerm of
+                        VarData _ -> "term-var"
+                        LamData _ -> "term-lam"
+                        AppData _ -> "term-app"
+                        LetData _ -> "term-let"
+                    ]
+                  BindData _datBind -> [ "bind" ]
               ]
         , Props.onClick \event -> do
             stopPropagation event
             runEditorEffect args.this do
               setLocation loc
         ] case dat /\ ress of
-        VarData dat /\ [] -> args.thm.term.var { dat, id: [ DOM.text dat.id ] }
-        LamData dat /\ [ bnd, bod ] -> args.thm.term.lam { dat, bnd, bod }
-        AppData dat /\ [ apl, arg ] -> args.thm.term.app { dat, apl, arg }
-        LetData dat /\ [ bnd, imp, bod ] -> args.thm.term.let_ { dat, bnd, imp, bod }
+        TermData (VarData dat) /\ [] -> args.thm.term.var { dat, id: [ DOM.text dat.id ] }
+        TermData (LamData dat) /\ [ bnd, bod ] -> args.thm.term.lam { dat, bnd, bod }
+        TermData (AppData dat) /\ [ apl, arg ] -> args.thm.term.app { dat, apl, arg }
+        TermData (LetData dat) /\ [ bnd, imp, bod ] -> args.thm.term.let_ { dat, bnd, imp, bod }
+        BindData dat /\ [] -> [ DOM.text dat.id ]
         _ ->
           unsafeThrow
-            $ "renderTermData: malformed term:"
+            $ "renderSyntaxData: malformed term:"
             <> ("\n  dat: " <> show dat)
             <> ("\n  ress: " <> "[" <> show (length ress) <> "]")
     ]

@@ -89,7 +89,7 @@ renderConsole this state =
                 $ [ "mode: cursor"
                   , "cursor location:"
                   , "  path: " <> pprint cursor.location.path
-                  , "  term: " <> pprint cursor.location.term
+                  , "  syn: " <> pprint cursor.location.syn
                   ]
             ]
           SelectMode select ->
@@ -97,10 +97,10 @@ renderConsole this state =
                 $ [ "mode: select"
                   , "selection start location:"
                   , "  path: " <> pprint select.locationStart.path
-                  , "  term: " <> pprint select.locationStart.term
+                  , "  syn: " <> pprint select.locationStart.syn
                   , "selection end location:"
                   , "  path: " <> pprint select.locationEnd.path
-                  , "  term: " <> pprint select.locationEnd.term
+                  , "  syn: " <> pprint select.locationEnd.syn
                   ]
             ]
   ]

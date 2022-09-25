@@ -1,19 +1,19 @@
 module Zypr.Path where
 
 import Prelude
-import Zypr.Syntax (AppData, LamData, LetData, Term, TermData(..))
 import Data.Generic.Rep (class Generic)
 import Data.Show.Generic (genericShow)
 import Effect.Exception.Unsafe (unsafeThrow)
 import Text.PP as PP
+import Zypr.Syntax
 
 data Path
   = Top
   | Zip
-    { dat :: TermData -- TermData of Term
-    , lefts :: Array Term -- Terms to the left, reversed
+    { dat :: SyntaxData -- SyntaxData of the Syntax this is a path to
+    , lefts :: Array Syntax -- Syntaxes to the left, reversed
     , up :: Path -- Path up
-    , rights :: Array Term -- Terms to the right
+    , rights :: Array Syntax -- Syntaxes to the right
     }
 
 -- pattern matching
@@ -22,7 +22,7 @@ casePath ::
   { top :: Unit -> a
   , lam ::
       { bnd :: { dat :: LamData, bnd :: Path, bod :: Term } -> a
-      , bod :: { dat :: LamData, bnd :: Term, bod :: Path } -> a
+      , bod :: { dat :: LamData, bnd :: Bind, bod :: Path } -> a
       }
   , app ::
       { apl :: { dat :: AppData, apl :: Path, arg :: Term } -> a
@@ -30,21 +30,21 @@ casePath ::
       }
   , let_ ::
       { bnd :: { dat :: LetData, bnd :: Path, imp :: Term, bod :: Term } -> a
-      , imp :: { dat :: LetData, bnd :: Term, imp :: Path, bod :: Term } -> a
-      , bod :: { dat :: LetData, bnd :: Term, imp :: Term, bod :: Path } -> a
+      , imp :: { dat :: LetData, bnd :: Bind, imp :: Path, bod :: Term } -> a
+      , bod :: { dat :: LetData, bnd :: Bind, imp :: Term, bod :: Path } -> a
       }
   } ->
   Path ->
   a
 casePath hdl = case _ of
   Top -> hdl.top unit
-  Zip { dat: LamData dat, lefts: [], up: bnd, rights: [ bod ] } -> hdl.lam.bnd { dat, bnd, bod }
-  Zip { dat: LamData dat, lefts: [ bnd ], up: bod, rights: [] } -> hdl.lam.bod { dat, bnd, bod }
-  Zip { dat: AppData dat, lefts: [], up: apl, rights: [ arg ] } -> hdl.app.apl { dat, apl, arg }
-  Zip { dat: AppData dat, lefts: [ apl ], up: arg, rights: [] } -> hdl.app.arg { dat, apl, arg }
-  Zip { dat: LetData dat, lefts: [], up: bnd, rights: [ imp, bod ] } -> hdl.let_.bnd { dat, bnd, imp, bod }
-  Zip { dat: LetData dat, lefts: [ bnd ], up: imp, rights: [ bod ] } -> hdl.let_.imp { dat, bnd, imp, bod }
-  Zip { dat: LetData dat, lefts: [ imp, bnd ], up: bod, rights: [] } -> hdl.let_.bod { dat, bnd, imp, bod }
+  Zip { dat: TermData (LamData dat), lefts: [], up: bnd, rights: [ TermSyntax bod ] } -> hdl.lam.bnd { dat, bnd, bod }
+  Zip { dat: TermData (LamData dat), lefts: [ BindSyntax bnd ], up: bod, rights: [] } -> hdl.lam.bod { dat, bnd, bod }
+  Zip { dat: TermData (AppData dat), lefts: [], up: apl, rights: [ TermSyntax arg ] } -> hdl.app.apl { dat, apl, arg }
+  Zip { dat: TermData (AppData dat), lefts: [ TermSyntax apl ], up: arg, rights: [] } -> hdl.app.arg { dat, apl, arg }
+  Zip { dat: TermData (LetData dat), lefts: [], up: bnd, rights: [ TermSyntax imp, TermSyntax bod ] } -> hdl.let_.bnd { dat, bnd, imp, bod }
+  Zip { dat: TermData (LetData dat), lefts: [ BindSyntax bnd ], up: imp, rights: [ TermSyntax bod ] } -> hdl.let_.imp { dat, bnd, imp, bod }
+  Zip { dat: TermData (LetData dat), lefts: [ TermSyntax imp, BindSyntax bnd ], up: bod, rights: [] } -> hdl.let_.bod { dat, bnd, imp, bod }
   path -> unsafeThrow $ "malformed path: " <> show path
 
 -- instances

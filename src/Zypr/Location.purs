@@ -2,7 +2,6 @@ module Zypr.Location where
 
 import Data.Tuple.Nested
 import Prelude
-import Zypr.Metadata
 import Zypr.Path
 import Zypr.Syntax
 import Data.Array (null, reverse, uncons, unsnoc, (:))
@@ -11,8 +10,8 @@ import Effect.Exception.Unsafe (unsafeThrow)
 import Text.PP as PP
 
 type Location
-  = { term :: Term -- the Term at this Location
-    , path :: Path -- the Path to the Term at this Location
+  = { syn :: Syntax -- the Syntax at this Location
+    , path :: Path -- the Path to the Syntax at this Location
     }
 
 -- ppLocation
@@ -20,8 +19,8 @@ ppLocation :: Location -> PP.Doc
 ppLocation loc =
   PP.words
     [ PP.pp "{"
-    , PP.pp "term:"
-    , PP.pp loc.term
+    , PP.pp "syn:"
+    , PP.pp loc.syn
     , PP.pp ","
     , PP.pp "path:"
     , PP.pp loc.path
@@ -32,10 +31,10 @@ ppLocation loc =
 stepRight :: Location -> Maybe Location
 stepRight loc = case loc.path of
   Zip { dat, lefts, up, rights }
-    | Just { head: term, tail: rights' } <- uncons rights ->
+    | Just { head: syn, tail: rights' } <- uncons rights ->
       pure
-        { term
-        , path: Zip { dat, lefts: loc.term : lefts, up, rights: rights' }
+        { syn
+        , path: Zip { dat, lefts: loc.syn : lefts, up, rights: rights' }
         }
   _ -> Nothing
 
@@ -47,10 +46,10 @@ stepNext loc = case stepRight loc of
 stepLeft :: Location -> Maybe Location
 stepLeft loc = case loc.path of
   Zip { dat, lefts, up, rights }
-    | Just { head: term, tail: lefts' } <- uncons lefts ->
+    | Just { head: syn, tail: lefts' } <- uncons lefts ->
       pure
-        { term
-        , path: Zip { dat, lefts: lefts', up, rights: loc.term : rights }
+        { syn
+        , path: Zip { dat, lefts: lefts', up, rights: loc.syn : rights }
         }
   _ -> Nothing
 
@@ -60,12 +59,12 @@ stepPrev loc = case stepLeft loc of
   Nothing -> stepUp loc
 
 stepDown :: Location -> Maybe Location
-stepDown loc = case toGenTerm loc.term of
-  { dat, terms }
-    | Just { head: term, tail: terms' } <- uncons terms ->
+stepDown loc = case toGenSyntax loc.syn of
+  { dat, syns }
+    | Just { head: syn, tail: syns' } <- uncons syns ->
       pure
-        { term: term
-        , path: Zip { dat, lefts: [], up: loc.path, rights: terms' }
+        { syn
+        , path: Zip { dat, lefts: [], up: loc.path, rights: syns' }
         }
   _ -> Nothing
 
@@ -89,11 +88,11 @@ pickN = go []
 
 -- steps down to the Nth child of Term
 stepDownN :: Location -> Int -> Maybe Location
-stepDownN loc n = case toGenTerm loc.term of
-  { dat, terms }
-    | Just { lefts, pick: term, rights } <- pickN terms n ->
+stepDownN loc n = case toGenSyntax loc.syn of
+  { dat, syns }
+    | Just { lefts, pick: syn, rights } <- pickN syns n ->
       pure
-        { term
+        { syn
         , path: Zip { dat, lefts, up: loc.path, rights }
         }
   _ -> Nothing
@@ -102,7 +101,7 @@ stepUp :: Location -> Maybe Location
 stepUp loc = case loc.path of
   Zip { dat, lefts, up, rights } ->
     pure
-      { term: fromGenTerm { dat, terms: reverse lefts <> [ loc.term ] <> rights }
+      { syn: fromGenSyntax { dat, syns: reverse lefts <> [ loc.syn ] <> rights }
       , path: up
       }
   _ -> Nothing

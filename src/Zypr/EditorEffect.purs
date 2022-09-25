@@ -17,7 +17,7 @@ import Zypr.EditorTypes (EditorMode(..), EditorProps, EditorState)
 import Zypr.Location (Location, ppLocation)
 import Zypr.Location as Location
 import Zypr.Path (Path(..))
-import Zypr.Syntax (Term)
+import Zypr.Syntax (Syntax(..), Term)
 import Zypr.SyntaxTheme (SyntaxTheme)
 
 type EditorEffect a
@@ -98,7 +98,7 @@ step f = do
   state <- get
   case state.mode of
     TopMode top -> do
-      setMode $ CursorMode { location: { term: top.term, path: Top } }
+      setMode $ CursorMode { location: { syn: TermSyntax top.term, path: Top } }
     CursorMode cursor -> do
       location <- f cursor.location
       setMode $ CursorMode cursor { location = location }
@@ -119,9 +119,10 @@ escapeCursor = do
       state <- get
       case state.mode of
         CursorMode cursor'
-          | Top <- cursor'.location.path -> do
+          | Top <- cursor'.location.path
+          , TermSyntax term <- cursor'.location.syn -> do
             tell [ "escape cursor" ]
-            setMode $ TopMode { term: cursor'.location.term }
+            setMode $ TopMode { term }
           | otherwise ->
             throwError
               $ "escapeCursor: stepRoot ended at non-Top Path: "
@@ -144,13 +145,13 @@ enterSelect = do
   case state.mode of
     TopMode top ->
       setMode
-        $ CursorMode { location: { term: top.term, path: Top } }
+        $ CursorMode { location: { syn: TermSyntax top.term, path: Top } }
     CursorMode cursor -> do
       tell [ "enter select" ]
       setMode
         $ SelectMode
             { locationStart: cursor.location
-            , locationEnd: { term: cursor.location.term, path: Top }
+            , locationEnd: { syn: cursor.location.syn, path: Top }
             }
     SelectMode _ -> pure unit
 
