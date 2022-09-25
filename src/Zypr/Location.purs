@@ -39,7 +39,7 @@ stepRight loc = case loc.path of
   _ -> Nothing
 
 stepNext :: Location -> Maybe Location
-stepNext loc = case stepLeftmostDescendant loc of
+stepNext loc = case stepDown loc of
   Just loc' -> pure loc'
   Nothing ->
     let
