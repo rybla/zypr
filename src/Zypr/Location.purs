@@ -5,7 +5,7 @@ import Prelude
 import Zypr.Path
 import Zypr.Syntax
 import Data.Array (null, reverse, uncons, unsnoc, (:))
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), maybe)
 import Effect.Exception.Unsafe (unsafeThrow)
 import Text.PP as PP
 
@@ -39,9 +39,15 @@ stepRight loc = case loc.path of
   _ -> Nothing
 
 stepNext :: Location -> Maybe Location
-stepNext loc = case stepRight loc of
+stepNext loc = case stepLeftmostDescendant loc of
   Just loc' -> pure loc'
-  Nothing -> stepDown loc
+  Nothing ->
+    let
+      go loc = case stepRight loc of
+        Just loc' -> pure loc'
+        Nothing -> go =<< stepUp loc
+    in
+      go loc
 
 stepLeft :: Location -> Maybe Location
 stepLeft loc = case loc.path of
@@ -55,7 +61,9 @@ stepLeft loc = case loc.path of
 
 stepPrev :: Location -> Maybe Location
 stepPrev loc = case stepLeft loc of
-  Just loc' -> pure loc'
+  Just loc' -> case stepRightmostDescendant loc' of
+    Just loc'' -> pure loc''
+    Nothing -> pure loc'
   Nothing -> stepUp loc
 
 stepDown :: Location -> Maybe Location
@@ -126,3 +134,21 @@ children loc = case stepDown loc of
   go locs loc = case stepRight loc of
     Just loc' -> go (loc : locs) loc'
     Nothing -> reverse (loc : locs)
+
+-- step to this Location's leftmost descendant 
+stepLeftmostDescendant :: Location -> Maybe Location
+stepLeftmostDescendant loc = do
+  loc' <- stepDown loc
+  let
+    go loc = maybe (pure loc) go (stepDown loc)
+  go loc'
+
+-- step to this Location's rightmost descendant
+stepRightmostDescendant :: Location -> Maybe Location
+stepRightmostDescendant loc = do
+  loc' <- stepDown loc
+  let
+    goRight loc = maybe (goDown loc) goRight (stepRight loc)
+
+    goDown loc = maybe (pure loc) goRight (stepDown loc)
+  goRight loc'

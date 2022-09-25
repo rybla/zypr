@@ -55,7 +55,7 @@ lam :: Id -> Term -> Term
 lam id bod =
   Lam
     { dat: { indent_bod: false }
-    , bnd: bind id
+    , bnd: bnd id
     , bod
     }
 
@@ -71,13 +71,13 @@ let_ :: Id -> Term -> Term -> Term
 let_ id imp bod =
   Let
     { dat: { indent_imp: false, indent_bod: false }
-    , bnd: bind id
+    , bnd: bnd id
     , imp
     , bod
     }
 
-bind :: Id -> Bind
-bind id = Bind { id }
+bnd :: Id -> Bind
+bnd id = Bind { id }
 
 -- GenSyntax
 type GenSyntax

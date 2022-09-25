@@ -53,7 +53,7 @@ stepPrev =
     Just loc' -> do
       tell [ "stepped previous" ]
       pure loc'
-    Nothing -> throwError $ "can't step left at location: " <> show (ppLocation loc)
+    Nothing -> throwError $ "can't step backward at location: " <> show (ppLocation loc)
 
 stepNext :: EditorEffect Unit
 stepNext =
@@ -61,7 +61,7 @@ stepNext =
     Just loc' -> do
       tell [ "stepped next" ]
       pure loc'
-    Nothing -> throwError $ "can't step right at location: " <> show (ppLocation loc)
+    Nothing -> throwError $ "can't step forward at location: " <> show (ppLocation loc)
 
 stepDown :: EditorEffect Unit
 stepDown =
