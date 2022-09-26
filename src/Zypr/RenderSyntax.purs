@@ -50,15 +50,15 @@ renderTopMode args top =
 
 renderCursorMode :: RenderArgs -> CursorMode -> Res
 renderCursorMode args cursor =
-  renderLocationPath args cursor.location
+  renderLocationPath args cursor.location 0
     $ renderCursor args
     <<< renderLocationSyntax args cursor.location
 
 renderSelectMode :: RenderArgs -> SelectMode -> Res
 renderSelectMode args select =
-  renderLocationPath args select.locationStart \_il ->
-    renderSelectStart args $ renderLocationPath args select.locationEnd \il ->
-    renderSelectEnd args $ renderLocationSyntax args select.locationEnd il
+  renderLocationPath args select.locationStart 0 \il1 ->
+    renderSelectStart args $ renderLocationPath args select.locationEnd il1 \il2 ->
+    renderSelectEnd args $ renderLocationSyntax args select.locationEnd il2
 
 -- Given what node I am (SyntaxData) and what child I am (Int), how much should I be indented
 indentationIncrement :: SyntaxData -> Int -> Int
@@ -71,17 +71,18 @@ indentationIncrement (TermData (LetData letData)) 2 = 0
 indentationIncrement _ _ = 0
 
 -- render the surrounding `Path`, and inject a `Res` at the `Top` 
-renderLocationPath :: RenderArgs -> Location -> ((Int -> Res) -> Res)
-renderLocationPath args loc = case loc.path of
-  Top -> \kres -> kres 0
+renderLocationPath :: RenderArgs -> Location -> Int -> ((Int -> Res) -> Res)
+renderLocationPath args loc topIndentation = case loc.path of
+  Top -> \kres -> kres topIndentation
   Zip { dat, lefts, up, rights } -> \kres ->
     let
       loc' = unsafeFromJust $ stepUp loc -- note: replace with fromGenSyntax and up
     in
-      renderLocationPath args loc' \ indentationLevel ->
+      renderLocationPath args loc' topIndentation \ indentationLevel ->
         renderSyntaxData args loc'
         (
-          mapWithIndex (\ix kres -> kres (indentationIncrement (toGenSyntax loc'.syn).dat ix))
+          -- mapWithIndex (\ix kres -> kres (indentationIncrement (toGenSyntax loc'.syn).dat ix))
+          mapWithIndex (\ix kres -> kres (indentationIncrement dat ix))
           $ concat  
             ([ (\loc inc -> renderLocationSyntax args loc (indentationLevel + inc)) <$> sbls.lefts
             , [ \inc -> kres (indentationLevel + inc)  ]
@@ -130,6 +131,7 @@ renderClipboardPath args path =
   [ DOM.div [ Props.className "clipboard clipboard-path" ]
       $ renderLocationPath (args { interactable = false })
           { path, syn: TermSyntax hole }
+      0
       $ \_ -> [ DOM.div [ Props.className "selection-hole" ] [] ] -- TODO: suspicious
   ]
 
