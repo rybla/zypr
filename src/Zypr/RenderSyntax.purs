@@ -88,12 +88,12 @@ renderLocationSyntax args loc =
 renderCursor :: RenderArgs -> Res -> Res
 renderCursor args res =
   [ DOM.div [ Props.className "select" ]
-      res
+      $ res
+      <> case args.clipboard of
+          Just (Left term) -> renderClipboardTerm args term
+          Just (Right path) -> renderClipboardPath args path
+          Nothing -> []
   ]
-    <> case args.clipboard of
-        Just (Left term) -> renderClipboardTerm args term
-        Just (Right path) -> renderClipboardPath args path
-        Nothing -> []
 
 renderClipboardTerm :: RenderArgs -> Term -> Res
 renderClipboardTerm args term =

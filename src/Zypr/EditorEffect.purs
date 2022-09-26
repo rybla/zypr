@@ -270,6 +270,7 @@ unwrap = do
     CursorMode _ -> do
       tell [ "unwrap at cursor" ]
       modifyTermAtCursor case _ of
+        App { arg } -> pure arg
         Lam { bod } -> pure bod
         Let { bod } -> pure bod
         _ -> pure hole
