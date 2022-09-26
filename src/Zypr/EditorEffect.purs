@@ -13,6 +13,7 @@ import Data.String as String
 import Data.Tuple.Nested ((/\))
 import Effect (Effect)
 import React (ReactThis, getProps, getState, modifyState)
+import Text.PP (pprint)
 import Text.PP as PP
 import Zypr.EditorConsole (logEditorConsole, stringEditorConsoleError, stringEditorConsoleLog)
 import Zypr.EditorTypes (Clipboard, CursorMode, EditorMode(..), EditorProps, EditorState, SelectMode, emptyClipboard)
@@ -44,12 +45,12 @@ getSyntax = do
 
 setTerm :: Term -> EditorEffect Unit
 setTerm term = do
-  tell [ "loaded term: " <> PP.pprint term ]
+  tell [ "load term: " <> PP.pprint term ]
   setMode $ TopMode { term }
 
 setLocation :: Location -> EditorEffect Unit
 setLocation loc = do
-  tell [ "jumped to location: " <> show (ppLocation loc) ]
+  tell [ "jump to location: " <> show (ppLocation loc) ]
   state <- get
   setMode $ CursorMode { location: loc }
 
@@ -63,7 +64,7 @@ stepPrev :: EditorEffect Unit
 stepPrev =
   step \loc -> case Location.stepPrev loc of
     Just loc' -> do
-      tell [ "stepped previous" ]
+      tell [ "step backwards" ]
       pure loc'
     Nothing -> throwError $ "can't step backward at location: " <> show (ppLocation loc)
 
@@ -71,7 +72,7 @@ stepNext :: EditorEffect Unit
 stepNext =
   step \loc -> case Location.stepNext loc of
     Just loc' -> do
-      tell [ "stepped next" ]
+      tell [ "step forwards" ]
       pure loc'
     Nothing -> throwError $ "can't step forward at location: " <> show (ppLocation loc)
 
@@ -79,7 +80,7 @@ stepDown :: EditorEffect Unit
 stepDown =
   step \loc -> case Location.stepDown loc of
     Just loc' -> do
-      tell [ "stepped down" ]
+      tell [ "step down" ]
       pure loc'
     Nothing -> throwError $ "can't step down at location: " <> show (ppLocation loc)
 
@@ -87,7 +88,7 @@ stepUp :: EditorEffect Unit
 stepUp =
   step \loc -> case Location.stepUp loc of
     Just loc' -> do
-      tell [ "stepped up " ]
+      tell [ "step up " ]
       pure loc'
     Nothing -> throwError $ "can't step up at location: " <> show (ppLocation loc)
 
@@ -95,7 +96,7 @@ stepRight :: EditorEffect Unit
 stepRight =
   step \loc -> case Location.stepRight loc of
     Just loc' -> do
-      tell [ "stepped right" ]
+      tell [ "step right" ]
       pure loc'
     Nothing -> throwError $ "can't step right at location: " <> show (ppLocation loc)
 
@@ -103,7 +104,7 @@ stepLeft :: EditorEffect Unit
 stepLeft =
   step \loc -> case Location.stepLeft loc of
     Just loc' -> do
-      tell [ "stepped right" ]
+      tell [ "step right" ]
       pure loc'
     Nothing -> throwError $ "can't step right at location: " <> show (ppLocation loc)
 
@@ -137,6 +138,17 @@ step f = do
 setMode :: EditorMode -> EditorEffect Unit
 setMode mode = do
   modify_ _ { mode = mode }
+
+escape :: EditorEffect Unit
+escape = do
+  state <- get
+  case state.clipboard of
+    Just _ -> setClipboard emptyClipboard
+    _ -> do
+      case state.mode of
+        CursorMode _ -> escapeCursor
+        SelectMode _ -> escapeSelect
+        _ -> pure unit
 
 escapeCursor :: EditorEffect Unit
 escapeCursor = do
@@ -228,21 +240,25 @@ modifyBindAtCursor f = do
 
 enlambda :: EditorEffect Unit
 enlambda = do
+  tell [ "enlambda" ]
   modifyTermAtCursor $ pure <<< lam ""
   stepNext
 
 enlet :: EditorEffect Unit
 enlet = do
+  tell [ "enlet" ]
   modifyTermAtCursor $ pure <<< let_ "" hole
   stepNext
 
 enapp :: EditorEffect Unit
 enapp = do
+  tell [ "enapp" ]
   modifyTermAtCursor $ pure <<< app hole
   stepNext
 
 enarg :: EditorEffect Unit
 enarg = do
+  tell [ "enarg" ]
   modifyTermAtCursor $ pure <<< flip app hole
   stepDown
   stepRight
@@ -252,6 +268,7 @@ unwrap = do
   state <- get
   case state.mode of
     CursorMode _ -> do
+      tell [ "unwrap at cursor" ]
       modifyTermAtCursor case _ of
         Lam { bod } -> pure bod
         Let { bod } -> pure bod
@@ -260,11 +277,12 @@ unwrap = do
     _ -> throwError "can't unwrap here"
 
 dig :: EditorEffect Unit
-dig = modifyTermAtCursor \_ -> pure hole
+dig = do
+  tell [ "dig" ]
+  modifyTermAtCursor \_ -> pure hole
 
 editId :: String -> EditorEffect Unit
 editId label = do
-  tell [ "label: " <> label ]
   let
     f :: String -> String
     f str = case label of
@@ -298,21 +316,37 @@ isEditable = do
           TermSyntax (Var _) -> pure true
           BindSyntax _ -> pure true
           _ -> pure false
-  tell [ "isEditable: " <> show res ]
   pure res
+
+backspace :: EditorEffect Unit
+backspace = do
+  state <- get
+  case state.mode of
+    CursorMode _cursor -> do
+      isEditable
+        >>= case _ of
+            true -> editId "Backspace"
+            false -> unwrap
+    SelectMode _select -> unwrap
+    _ -> throwError "can't backspace here "
 
 copy :: EditorEffect Unit
 copy = do
   state <- get
   case state.mode of
     CursorMode cursor -> case cursor.location.syn of
-      TermSyntax term -> setClipboard $ Just $ Left term
+      TermSyntax term -> do
+        tell [ "copy term: " <> pprint term ]
+        setClipboard $ Just $ Left term
       _ -> throwError "can't copy a non-term"
-    SelectMode select -> setClipboard $ Just $ Right select.locationEnd.path
+    SelectMode select -> do
+      tell [ "copy selection: " <> pprint select.locationEnd.path ]
+      setClipboard $ Just $ Right select.locationEnd.path
     _ -> throwError "can't copy without a cursor or selection"
 
 unwrapSelection :: EditorEffect Unit
 unwrapSelection = do
+  tell [ "unwrap selection" ]
   select <- requireSelectMode
   setMode
     $ CursorMode
@@ -331,10 +365,12 @@ cut = do
   case state.mode of
     CursorMode cursor -> case cursor.location.syn of
       TermSyntax term -> do
+        tell [ "cut term: " <> pprint term ]
         setClipboard $ Just $ Left term
         modifyTermAtCursor \_ -> pure hole
       _ -> throwError "can't cut a non-term"
     SelectMode select -> do
+      tell [ "cut selection: " <> pprint select.locationEnd.path ]
       setClipboard $ Just $ Right select.locationEnd.path
       setMode
         $ CursorMode
@@ -354,9 +390,11 @@ paste = do
         case state.clipboard of
           -- replace term at cursor
           Just (Left term') -> do
+            tell [ "paste term: " <> pprint term' ]
             pure loc { syn = TermSyntax term' }
           -- wrap around cursor 
           Just (Right path) -> do
+            tell [ "paste selection: " <> pprint path ]
             pure
               $ { path: appendPaths loc.path path
                 , syn: loc.syn

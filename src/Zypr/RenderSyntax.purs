@@ -2,29 +2,41 @@ module Zypr.RenderSyntax where
 
 import Data.Tuple.Nested
 import Prelude
+import Zypr.EditorTypes
 import Zypr.Location
 import Zypr.Path
 import Zypr.Syntax
 import Zypr.SyntaxTheme
 import Data.Array (concat, concatMap, intercalate, length, zip)
+import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Data.String (joinWith)
-import Data.String.CodeUnits as String
 import Data.String as String
+import Data.String.CodeUnits as String
 import Debug as Debug
+import Effect (Effect)
 import Effect.Exception.Unsafe (unsafeThrow)
-import React (ReactThis)
+import React (ReactThis, getState)
 import React.DOM as DOM
 import React.DOM.Props as Props
 import React.SyntheticEvent (stopPropagation)
 import Text.PP as PP
 import Zypr.EditorEffect (runEditorEffect, setLocation)
-import Zypr.EditorTypes (CursorMode, EditorMode(..), EditorProps, EditorState, SelectMode, TopMode)
 
 type RenderArgs
-  = { this :: ReactThis EditorProps EditorState
+  = { this :: EditorThis
     , thm :: SyntaxTheme
+    , clipboard :: Clipboard
+    , interactable :: Boolean
     }
+
+initRenderArgs :: EditorThis -> EditorState -> RenderArgs
+initRenderArgs this state =
+  { this
+  , thm: state.syntaxTheme
+  , clipboard: state.clipboard
+  , interactable: true
+  }
 
 -- render modes
 renderTopMode :: RenderArgs -> TopMode -> Res
@@ -78,6 +90,25 @@ renderCursor args res =
   [ DOM.div [ Props.className "select" ]
       res
   ]
+    <> case args.clipboard of
+        Just (Left term) -> renderClipboardTerm args term
+        Just (Right path) -> renderClipboardPath args path
+        Nothing -> []
+
+renderClipboardTerm :: RenderArgs -> Term -> Res
+renderClipboardTerm args term =
+  [ DOM.div [ Props.className "clipboard clipboard-term" ]
+      $ renderLocationSyntax (args { interactable = false })
+          { syn: TermSyntax term, path: Top }
+  ]
+
+renderClipboardPath :: RenderArgs -> Path -> Res
+renderClipboardPath args path =
+  [ DOM.div [ Props.className "clipboard clipboard-path" ]
+      $ renderLocationPath (args { interactable = false })
+          { path, syn: TermSyntax hole }
+      $ [ DOM.div [ Props.className "selection-hole" ] [] ]
+  ]
 
 renderSelectStart :: RenderArgs -> Res -> Res
 renderSelectStart args res =
@@ -118,10 +149,11 @@ renderSyntaxData args loc@{ syn } ress =
                       , if String.null datBind.id then [ "bind-empty" ] else []
                       ]
               ]
-        , Props.onClick \event -> do
-            stopPropagation event
-            runEditorEffect args.this do
-              setLocation loc
+        , Props.onClick \event ->
+            when args.interactable do
+              stopPropagation event
+              runEditorEffect args.this do
+                setLocation loc
         ] case dat /\ ress of
         -- term-var
         TermData (VarData dat) /\ [] -> args.thm.term.var { dat, id: [ DOM.text dat.id ] }

@@ -25,7 +25,7 @@ import Zypr.Example.YCombinator as YCombinator
 import Zypr.KeyboardEventHandler (keyboardEventHandler)
 import Zypr.Menu (renderMenu)
 import Zypr.Path (Path(..))
-import Zypr.RenderSyntax (renderCursorMode, renderSelectMode, renderTopMode)
+import Zypr.RenderSyntax (initRenderArgs, renderCursorMode, renderSelectMode, renderTopMode)
 import Zypr.SyntaxTheme (Res)
 
 editorClass :: ReactClass EditorProps
@@ -58,20 +58,14 @@ editorComponent this = do
 
 renderProgram :: EditorThis -> EditorState -> Res
 renderProgram this state =
-  [ DOM.div [ Props.className "program" ] case state.mode of
-      TopMode top ->
-        renderTopMode
-          { this, thm: state.syntaxTheme }
-          top
-      CursorMode cursor ->
-        renderCursorMode
-          { this, thm: state.syntaxTheme }
-          cursor
-      SelectMode select ->
-        renderSelectMode
-          { this, thm: state.syntaxTheme }
-          select
-  ]
+  let
+    args = initRenderArgs this state
+  in
+    [ DOM.div [ Props.className "program" ] case state.mode of
+        TopMode top -> renderTopMode args top
+        CursorMode cursor -> renderCursorMode args cursor
+        SelectMode select -> renderSelectMode args select
+    ]
 
 renderConsole :: EditorThis -> EditorState -> Res
 renderConsole this state =

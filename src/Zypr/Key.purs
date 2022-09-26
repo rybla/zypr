@@ -86,6 +86,9 @@ key_Escape = defaultKey "Escape"
 key_Backspace :: Key
 key_Backspace = defaultKey "Backspace"
 
+key_Tab :: Key
+key_Tab = defaultKey "Tab"
+
 key_Space :: Key
 key_Space = defaultKey " "
 
@@ -96,7 +99,7 @@ key_enlambda :: Key
 key_enlambda = (defaultKey "l") { ctrl = true }
 
 key_enlet :: Key
-key_enlet = (defaultKey "f") { ctrl = true }
+key_enlet = (defaultKey "d") { ctrl = true }
 
 key_enapp :: Key
 key_enapp = key_Space { shift = true }
@@ -104,11 +107,8 @@ key_enapp = key_Space { shift = true }
 key_enarg :: Key
 key_enarg = key_Space
 
-key_unwrap :: Key
-key_unwrap = (defaultKey "d") { ctrl = true }
-
 key_dig :: Key
-key_dig = (defaultKey "d") { ctrl = true, shift = true }
+key_dig = key_Backspace { ctrl = true }
 
 key_copy :: Key
 key_copy = (defaultKey "c") { ctrl = true }

@@ -245,6 +245,32 @@ body {
   /* font-size: 200%; */
 }
 
+/* clipboard */
+
+.clipboard {
+  position: absolute;
+  margin-top: 20px;
+  margin-left: 20px;
+  padding: 2px;
+  border-radius: 6px;
+  background-color: white;
+  box-shadow: 0 0 4px 1px black;
+  border: 1px solid tan;
+  background-color: rgb(255, 238, 215);
+}
+
+.selection-hole {
+  display: inline-block;
+  width: 12pt;
+  height: 12pt;
+  vertical-align: middle;
+  box-shadow:
+    0 0 0 1px tan inset,
+    0 0 4px 1px black inset;
+  border-radius: 6px;
+  background-color: white;
+}
+
 
 /* console */
 

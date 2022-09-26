@@ -34,12 +34,12 @@ shouldPreventDefault key =
           , key_ArrowDown
           , key_ArrowUp
           , key_Space
+          , key_Tab
           , key_Backspace
           , key_enlambda
           , key_enlet
           , key_enapp
           , key_enarg
-          , key_unwrap
           , key_dig
           ]
     ]
@@ -58,12 +58,7 @@ handleKey key
   | key == key_ShiftArrowUp = sequence_ [ EditorEffect.enterSelect, EditorEffect.stepUp ]
   -- select
   | key == key_Period = EditorEffect.enterSelect
-  | key == key_Escape = do
-    state <- get
-    case state.mode of
-      CursorMode _ -> EditorEffect.escapeCursor
-      SelectMode _ -> EditorEffect.escapeSelect
-      _ -> pure unit
+  | key == key_Escape = EditorEffect.escape
   -- copy, cut, paste
   | key == key_copy = EditorEffect.copy
   | key == key_cut = EditorEffect.cut
@@ -73,12 +68,7 @@ handleKey key
   | key == key_enlet = EditorEffect.enlet
   | key == key_enapp = EditorEffect.enapp
   | key == key_enarg = EditorEffect.enarg
-  | key == key_unwrap = EditorEffect.unwrap
   | key == key_dig = EditorEffect.dig
   | isAlphaNum key = EditorEffect.editId key.label
-  | key == key_Backspace =
-    EditorEffect.isEditable
-      >>= case _ of
-          true -> EditorEffect.editId key.label
-          false -> EditorEffect.unwrap
+  | key == key_Backspace = EditorEffect.backspace
   | otherwise = pure unit
