@@ -7,7 +7,6 @@ import Zypr.Location
 import Zypr.Path
 import Zypr.Syntax
 import Zypr.SyntaxTheme
-
 import Data.Array (concat, concatMap, intercalate, length, mapWithIndex, replicate, zip)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
@@ -42,8 +41,7 @@ initRenderArgs this state =
 
 -- render modes
 renderTopMode :: RenderArgs -> TopMode -> Res
-renderTopMode args top =
-  renderLocationSyntax args loc 0
+renderTopMode args top = renderLocationSyntax args loc 0
   where
   loc :: Location
   loc = { syn: TermSyntax top.term, path: Top }
@@ -57,17 +55,24 @@ renderCursorMode args cursor =
 renderSelectMode :: RenderArgs -> SelectMode -> Res
 renderSelectMode args select =
   renderLocationPath args select.locationStart 0 \il1 ->
-    renderSelectStart args $ renderLocationPath args select.locationEnd il1 \il2 ->
-    renderSelectEnd args $ renderLocationSyntax args select.locationEnd il2
+    renderSelectStart args
+      $ renderLocationPath args select.locationEnd il1 \il2 ->
+          renderSelectEnd args $ renderLocationSyntax args select.locationEnd il2
 
 -- Given what node I am (SyntaxData) and what child I am (Int), how much should I be indented
 indentationIncrement :: SyntaxData -> Int -> Int
 indentationIncrement (TermData (LamData lamData)) 1 = 1
+
 indentationIncrement (TermData (AppData appData)) 0 = 0
+
 indentationIncrement (TermData (AppData appData)) 1 = 1
+
 indentationIncrement (TermData (LetData letData)) 0 = 1
+
 indentationIncrement (TermData (LetData letData)) 1 = 1
+
 indentationIncrement (TermData (LetData letData)) 2 = 0
+
 indentationIncrement _ _ = 0
 
 -- render the surrounding `Path`, and inject a `Res` at the `Top` 
@@ -76,26 +81,19 @@ renderLocationPath args loc topIndentation = case loc.path of
   Top -> \kres -> kres topIndentation
   Zip { dat, lefts, up, rights } -> \kres ->
     let
-      loc' = unsafeFromJust $ stepUp loc -- note: replace with fromGenSyntax and up
+      loc' = unsafeFromJust $ stepUp loc -- TODO: replace with fromGenSyntax and up
     in
-      renderLocationPath args loc' topIndentation \ indentationLevel ->
+      renderLocationPath args loc' topIndentation \indentationLevel ->
         renderSyntaxData args loc'
-        (
-          -- mapWithIndex (\ix kres -> kres (indentationIncrement (toGenSyntax loc'.syn).dat ix))
-          mapWithIndex (\ix kres -> kres (indentationIncrement dat ix))
-          $ concat  
-            ([ (\loc inc -> renderLocationSyntax args loc (indentationLevel + inc)) <$> sbls.lefts
-            , [ \inc -> kres (indentationLevel + inc)  ]
-            , (\loc inc -> renderLocationSyntax args loc (indentationLevel + inc )) <$> sbls.rights 
-
-            ] )
-        )
-        indentationLevel
-        -- (concat
-        --     [ map (\loc -> renderLocationSyntax args loc (indentationLevel + 1)) sbls.lefts
-        --     , [ kres (indentationLevel + 1) ]
-        --     , map (\loc -> renderLocationSyntax args loc (indentationLevel + 1)) sbls.rights
-        --     ]) indentationLevel
+          ( mapWithIndex (\ix kres -> kres (indentationIncrement dat ix))
+              $ concat
+                  ( [ (\loc inc -> renderLocationSyntax args loc (indentationLevel + inc)) <$> sbls.lefts
+                    , [ \inc -> kres (indentationLevel + inc) ]
+                    , (\loc inc -> renderLocationSyntax args loc (indentationLevel + inc)) <$> sbls.rights
+                    ]
+                  )
+          )
+          indentationLevel
     where
     sbls = siblings loc
 
@@ -103,10 +101,13 @@ renderLocationPath args loc topIndentation = case loc.path of
 renderLocationSyntax :: RenderArgs -> Location -> Int -> Res
 renderLocationSyntax args loc indentationLevel =
   renderSyntaxData args loc
-    (mapWithIndex (\ i loc
-      -> renderLocationSyntax args loc
-          (indentationLevel + indentationIncrement (toGenSyntax (loc.syn)).dat i))
-      (children loc))
+    ( mapWithIndex
+        ( \i loc ->
+            renderLocationSyntax args loc
+              (indentationLevel + indentationIncrement (toGenSyntax (loc.syn)).dat i)
+        )
+        (children loc)
+    )
     indentationLevel
 
 renderCursor :: RenderArgs -> Res -> Res
@@ -123,7 +124,8 @@ renderClipboardTerm :: RenderArgs -> Term -> Res
 renderClipboardTerm args term =
   [ DOM.div [ Props.className "clipboard clipboard-term" ]
       $ renderLocationSyntax (args { interactable = false })
-          { syn: TermSyntax term, path: Top } 0
+          { syn: TermSyntax term, path: Top }
+          0
   ]
 
 renderClipboardPath :: RenderArgs -> Path -> Res
@@ -131,7 +133,7 @@ renderClipboardPath args path =
   [ DOM.div [ Props.className "clipboard clipboard-path" ]
       $ renderLocationPath (args { interactable = false })
           { path, syn: TermSyntax hole }
-      0
+          0
       $ \_ -> [ DOM.div [ Props.className "selection-hole" ] [] ] -- TODO: suspicious
   ]
 
@@ -148,8 +150,10 @@ renderSelectEnd args res =
   ]
 
 renderIndent :: Int -> Res -> Res
-renderIndent indentationLevel res
-  = let indentRes = [ DOM.br' ] <> replicate indentationLevel (DOM.div [ Props.className "indentation" ] [DOM.text "  "]) in
+renderIndent indentationLevel res =
+  let
+    indentRes = [ DOM.br' ] <> replicate indentationLevel (DOM.div [ Props.className "indentation" ] [ DOM.text "  " ])
+  in
     indentRes <> res
 
 -- only render `SyntaxData` at this `Location`, using pre-rendered children 
@@ -192,7 +196,7 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
           args.thm.term.lam
             { dat
             , bnd
-            , bod : if dat.indent_bod then renderIndent (indentationLevel + 1) bod else bod
+            , bod: if dat.indent_bod then renderIndent (indentationLevel + 1) bod else bod
             , isAss:
                 case loc.path of
                   -- apl or arg
@@ -246,7 +250,6 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
             <> ("\n  ress: " <> "[" <> show (length ress) <> "]")
     ]
 
--- args.thm.term.app { dat, apl, arg }
 unsafeFromJust :: forall a. Maybe a -> a
 unsafeFromJust = case _ of
   Just a -> a
