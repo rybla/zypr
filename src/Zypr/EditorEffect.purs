@@ -270,12 +270,26 @@ unwrap = do
     CursorMode _ -> do
       tell [ "unwrap at cursor" ]
       modifyTermAtCursor case _ of
-        App { arg } -> pure arg
+        App { apl } -> pure apl
         Lam { bod } -> pure bod
         Let { bod } -> pure bod
         _ -> pure hole
     SelectMode _ -> unwrapSelection
     _ -> throwError "can't unwrap here"
+
+unwrap' :: EditorEffect Unit
+unwrap' = do
+  state <- get
+  case state.mode of
+    CursorMode _ -> do
+      tell [ "unwrap' at cursor" ]
+      modifyTermAtCursor case _ of
+        App { arg } -> pure arg
+        Lam { bod } -> pure bod
+        Let { bod } -> pure bod
+        _ -> pure hole
+    SelectMode _ -> unwrapSelection
+    _ -> throwError "can't unwrap' here "
 
 dig :: EditorEffect Unit
 dig = do
@@ -308,6 +322,14 @@ editId label = do
       pure $ BindSyntax (Bind dat { id = f dat.id })
     _ -> throwError "requires cursor at Var or Bind"
 
+clearId :: EditorEffect Unit
+clearId = do
+  modifySyntaxAtCursor case _ of
+    TermSyntax (Var var) -> pure $ TermSyntax hole
+    TermSyntax (Hole _) -> pure $ TermSyntax hole
+    BindSyntax (Bind dat) -> pure $ BindSyntax $ Bind dat { id = "" }
+    _ -> throwError "requires cursor at Var or Bind"
+
 -- the cursor is at the Location of an editable Syntax
 isEditable :: EditorEffect Boolean
 isEditable = do
@@ -319,6 +341,7 @@ isEditable = do
           _ -> pure false
   pure res
 
+-- normal backspace
 backspace :: EditorEffect Unit
 backspace = do
   state <- get
@@ -330,6 +353,32 @@ backspace = do
             false -> unwrap
     SelectMode _select -> unwrap
     _ -> throwError "can't backspace here "
+
+-- alternative backspace; some Syntax has multiple alternative ways to backspace
+backspace' :: EditorEffect Unit
+backspace' = do
+  state <- get
+  case state.mode of
+    CursorMode _cursor -> do
+      isEditable
+        >>= case _ of
+            true -> editId "Backspace"
+            false -> unwrap'
+    SelectMode _select -> unwrap'
+    _ -> throwError "can't backspace' here"
+
+-- super backspace; deletes all of focussed Syntax
+backspaceSuper :: EditorEffect Unit
+backspaceSuper = do
+  state <- get
+  case state.mode of
+    CursorMode _cursor -> do
+      isEditable
+        >>= case _ of
+            true -> clearId
+            false -> dig
+    SelectMode _select -> unwrap
+    _ -> throwError "can't backspaceSuper here "
 
 copy :: EditorEffect Unit
 copy = do

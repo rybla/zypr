@@ -33,18 +33,20 @@ fromEvent event =
   , alt: altKey event
   }
 
-alphaNums :: Array String
-alphaNums =
+validIdStrings :: Array String
+validIdStrings =
   String.split (String.Pattern " ")
-    "a b c d e f g h i j k l m n o p q r s t u v w x y z"
+    $ "a b c d e f g h i j k l m n o p q r s t u v w x y z "
+    <> "0 1 2 3 4 5 6 7 8 9"
+    <> "- = ; ' , . / ! @ # $ % ^ & * _ + : < > ?"
 
-isAlphaNum :: Key -> Boolean
-isAlphaNum key =
+isValidIdStrings :: Key -> Boolean
+isValidIdStrings key =
   and
     [ not key.meta
     , not key.ctrl
     , not key.alt
-    , String.toLower key.label `elem` alphaNums
+    , String.toLower key.label `elem` validIdStrings
     ]
 
 defaultKey :: String -> Key
@@ -86,6 +88,12 @@ key_Escape = defaultKey "Escape"
 key_Backspace :: Key
 key_Backspace = defaultKey "Backspace"
 
+key_ShiftBackspace :: Key
+key_ShiftBackspace = (defaultKey "Backspace") { shift = true }
+
+key_CtrlBackspace :: Key
+key_CtrlBackspace = (defaultKey "Backspace") { ctrl = true }
+
 key_Tab :: Key
 key_Tab = defaultKey "Tab"
 
@@ -94,6 +102,9 @@ key_Space = defaultKey " "
 
 key_Period :: Key
 key_Period = defaultKey "."
+
+key_Slash :: Key
+key_Slash = defaultKey "/"
 
 key_enlambda :: Key
 key_enlambda = (defaultKey "l") { ctrl = true }
@@ -106,9 +117,6 @@ key_enapp = key_Space { shift = true }
 
 key_enarg :: Key
 key_enarg = key_Space
-
-key_dig :: Key
-key_dig = key_Backspace { ctrl = true }
 
 key_copy :: Key
 key_copy = (defaultKey "c") { ctrl = true }

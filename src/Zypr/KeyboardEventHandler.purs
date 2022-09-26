@@ -29,19 +29,24 @@ shouldPreventDefault key =
   or
     [ key
         `elem`
-          [ key_ArrowLeft
-          , key_ArrowRight
-          , key_ArrowDown
-          , key_ArrowUp
-          , key_Space
-          , key_Tab
-          , key_Backspace
-          , key_enlambda
+          [ key_enlambda
           , key_enlet
           , key_enapp
           , key_enarg
-          , key_dig
           ]
+    , key.label
+        `elem`
+          ( _.label
+              <$> [ key_ArrowLeft
+                , key_ArrowRight
+                , key_ArrowDown
+                , key_ArrowUp
+                , key_Space
+                , key_Tab
+                , key_Backspace
+                , key_Slash
+                ]
+          )
     ]
 
 handleKey :: Key.Key -> EditorEffect Unit
@@ -68,7 +73,8 @@ handleKey key
   | key == key_enlet = EditorEffect.enlet
   | key == key_enapp = EditorEffect.enapp
   | key == key_enarg = EditorEffect.enarg
-  | key == key_dig = EditorEffect.dig
-  | isAlphaNum key = EditorEffect.editId key.label
+  | isValidIdStrings key = EditorEffect.editId key.label
   | key == key_Backspace = EditorEffect.backspace
+  | key == key_ShiftBackspace = EditorEffect.backspace'
+  | key == key_CtrlBackspace = EditorEffect.backspaceSuper
   | otherwise = pure unit
