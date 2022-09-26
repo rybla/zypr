@@ -1,6 +1,7 @@
 module Zypr.EditorEffect where
 
 import Prelude
+import Zypr.Syntax
 import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.Reader (ReaderT, runReaderT)
 import Control.Monad.State (StateT, get, modify, modify_, runStateT)
@@ -8,16 +9,16 @@ import Control.Monad.Writer (WriterT, runWriterT, tell)
 import Data.Either (Either(..))
 import Data.Foldable (foldr)
 import Data.Maybe (Maybe(..))
+import Data.String as String
 import Data.Tuple.Nested ((/\))
 import Effect (Effect)
 import React (ReactThis, getProps, getState, modifyState)
 import Text.PP as PP
 import Zypr.EditorConsole (logEditorConsole, stringEditorConsoleError, stringEditorConsoleLog)
-import Zypr.EditorTypes (EditorMode(..), EditorProps, EditorState)
+import Zypr.EditorTypes (EditorMode(..), EditorProps, EditorState, CursorMode)
 import Zypr.Location (Location, ppLocation)
 import Zypr.Location as Location
 import Zypr.Path (Path(..))
-import Zypr.Syntax (Syntax(..), Term)
 import Zypr.SyntaxTheme (SyntaxTheme)
 
 type EditorEffect a
@@ -35,6 +36,11 @@ runEditorEffect this eff = do
       modifyState this
         $ (foldr (<<<) identity (map (logEditorConsole <<< stringEditorConsoleLog) infos))
         <<< \_ -> state'
+
+getSyntax :: EditorEffect Syntax
+getSyntax = do
+  cursor <- requireCursorMode
+  pure cursor.location.syn
 
 setTerm :: Term -> EditorEffect Unit
 setTerm term = do
@@ -78,6 +84,22 @@ stepUp =
       tell [ "stepped up " ]
       pure loc'
     Nothing -> throwError $ "can't step up at location: " <> show (ppLocation loc)
+
+stepRight :: EditorEffect Unit
+stepRight =
+  step \loc -> case Location.stepRight loc of
+    Just loc' -> do
+      tell [ "stepped right" ]
+      pure loc'
+    Nothing -> throwError $ "can't step right at location: " <> show (ppLocation loc)
+
+stepLeft :: EditorEffect Unit
+stepLeft =
+  step \loc -> case Location.stepLeft loc of
+    Just loc' -> do
+      tell [ "stepped right" ]
+      pure loc'
+    Nothing -> throwError $ "can't step right at location: " <> show (ppLocation loc)
 
 stepRoot :: EditorEffect Unit
 stepRoot = do
@@ -158,3 +180,105 @@ enterSelect = do
 setSyntaxTheme :: SyntaxTheme -> EditorEffect Unit
 setSyntaxTheme thm = do
   modify_ _ { syntaxTheme = thm }
+
+requireCursorMode :: EditorEffect CursorMode
+requireCursorMode = do
+  state <- get
+  case state.mode of
+    CursorMode cursor -> pure cursor
+    _ -> throwError "requires cursor mode"
+
+modifySyntaxAtCursor :: (Syntax -> EditorEffect Syntax) -> EditorEffect Unit
+modifySyntaxAtCursor f = do
+  cursor <- requireCursorMode
+  syn' <- f cursor.location.syn
+  setMode
+    $ CursorMode cursor { location { syn = syn' } }
+
+modifyTermAtCursor :: (Term -> EditorEffect Term) -> EditorEffect Unit
+modifyTermAtCursor f = do
+  cursor <- requireCursorMode
+  case cursor.location.syn of
+    TermSyntax term -> do
+      term' <- f term
+      setMode $ CursorMode cursor { location { syn = TermSyntax term' } }
+    _ -> throwError "requires cursor at a Term"
+
+modifyBindAtCursor :: (Bind -> EditorEffect Bind) -> EditorEffect Unit
+modifyBindAtCursor f = do
+  cursor <- requireCursorMode
+  case cursor.location.syn of
+    BindSyntax bnd -> do
+      bnd' <- f bnd
+      setMode $ CursorMode cursor { location { syn = BindSyntax bnd' } }
+    _ -> throwError "requires cursor at a Bind"
+
+enlambda :: EditorEffect Unit
+enlambda = do
+  modifyTermAtCursor $ pure <<< lam ""
+  stepNext
+
+enlet :: EditorEffect Unit
+enlet = do
+  modifyTermAtCursor $ pure <<< let_ "" hole
+  stepNext
+
+enapp :: EditorEffect Unit
+enapp = do
+  modifyTermAtCursor $ pure <<< app hole
+  stepNext
+
+enarg :: EditorEffect Unit
+enarg = do
+  modifyTermAtCursor $ pure <<< flip app hole
+  stepDown
+  stepRight
+
+unwrap :: EditorEffect Unit
+unwrap =
+  modifyTermAtCursor case _ of
+    Lam { bod } -> pure bod
+    Let { bod } -> pure bod
+    _ -> pure hole
+
+dig :: EditorEffect Unit
+dig = modifyTermAtCursor \_ -> pure hole
+
+editId :: String -> EditorEffect Unit
+editId label = do
+  tell [ "label: " <> label ]
+  let
+    f :: String -> String
+    f str = case label of
+      "Backspace" -> String.take (max 0 $ String.length str - 1) str
+      _ -> str <> label
+  modifySyntaxAtCursor case _ of
+    TermSyntax (Var var) -> do
+      let
+        id' = f var.dat.id
+      if String.null id' then
+        pure $ TermSyntax hole
+      else
+        pure $ TermSyntax (Var var { dat { id = id' } })
+    TermSyntax (Hole _) -> do
+      let
+        id' = f ""
+      if String.null id' then
+        pure $ TermSyntax hole
+      else
+        pure $ TermSyntax (var id')
+    BindSyntax (Bind dat) -> do
+      pure $ BindSyntax (Bind dat { id = f dat.id })
+    _ -> throwError "requires cursor at Var or Bind"
+
+-- the cursor is at the Location of an editable Syntax
+isEditable :: EditorEffect Boolean
+isEditable = do
+  res <-
+    getSyntax
+      >>= case _ of
+          TermSyntax (Var _) -> pure true
+          BindSyntax _ -> pure true
+          _ -> pure false
+  tell [ "isEditable: " <> show res ]
+  pure res

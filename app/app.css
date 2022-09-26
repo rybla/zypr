@@ -161,10 +161,21 @@ body {
 
 .term-let {}
 
+.term-hole {
+  /* background-color: rgb(199, 0, 0); */
+  /* color: white; */
+  font-weight: bold;
+  color: red;
+  box-shadow: 0 0 0 2px red inset;
+  padding: 0 4px;
+}
+
 .bind {
   padding: 0 2px;
   color: rgb(0, 82, 0);
 }
+
+.bind-empty {}
 
 /* select */
 
@@ -195,6 +206,19 @@ body {
 .selectEnd>.syntax {
   box-shadow: 0 0 0 2px blue;
   background-color: white;
+}
+
+
+.select>.term-hole {
+  box-shadow: 0 0 0 2px blue, 0 0 0 2px red inset;
+}
+
+.selectStart>.term-hole {
+  box-shadow: 0 0 0 2px blue, 0 0 0 2px red inset;
+}
+
+.selectEnd>.term-hole {
+  box-shadow: 0 0 0 2px blue, 0 0 0 2px red inset;
 }
 
 

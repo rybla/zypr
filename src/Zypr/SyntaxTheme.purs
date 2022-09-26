@@ -19,6 +19,7 @@ type SyntaxTheme
         , lam :: { dat :: LamData, bnd :: Res, bod :: Res, isAss :: Boolean } -> Res
         , app :: { dat :: AppData, apl :: Res, arg :: Res, apl_isApp :: Boolean, isApl :: Boolean } -> Res
         , let_ :: { dat :: LetData, bnd :: Res, imp :: Res, bod :: Res, isAss :: Boolean } -> Res
+        , hole :: { dat :: HoleData } -> Res
         }
     }
 
@@ -52,6 +53,7 @@ basicSyntaxTheme =
       , let_:
           \{ dat, bnd, imp, bod, isAss } ->
             assocIf isAss $ concat [ tk_let, tk_space, bnd, tk_space, tk_assign, tk_space, imp, tk_space, tk_in, tk_space, bod ]
+      , hole: \{ dat } -> tk_question
       }
   }
 
@@ -72,6 +74,7 @@ emojiSyntaxTheme =
       , let_:
           \{ dat, bnd, imp, bod } ->
             assoc $ concat [ tk_zipper, tk_space, bnd, tk_space, tk_zipper, tk_space, imp, tk_space, tk_zipper, tk_space, bod ]
+      , hole: \{ dat } -> tk_question
       }
   }
 
@@ -99,6 +102,7 @@ judsonSyntaxTheme =
       , let_:
           \{ dat, bnd, imp, bod } ->
             assoc $ concat [ whitcomb, tk_space, bnd, tk_space, l, tk_space, imp, tk_space, judson, tk_space, bod ]
+      , hole: \{ dat } -> tk_question
       }
   }
   where
@@ -113,6 +117,9 @@ judsonSyntaxTheme =
   sundback = makeStringToken "keyword" "Sundback"
 
 -- Tokens
+tk_question :: Res
+tk_question = makeStringToken "" "?"
+
 tk_app :: Res
 tk_app = makeStringToken "keyword" "app"
 

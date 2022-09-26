@@ -27,7 +27,21 @@ keyboardEventHandler this event = do
 shouldPreventDefault :: Key.Key -> Boolean
 shouldPreventDefault key =
   or
-    [ key `elem` [ key_ArrowLeft, key_ArrowRight, key_ArrowDown, key_ArrowUp ]
+    [ key
+        `elem`
+          [ key_ArrowLeft
+          , key_ArrowRight
+          , key_ArrowDown
+          , key_ArrowUp
+          , key_Space
+          , key_Backspace
+          , key_enlambda
+          , key_enlet
+          , key_enapp
+          , key_enarg
+          , key_unwrap
+          , key_dig
+          ]
     ]
 
 handleKey :: Key.Key -> EditorEffect Unit
@@ -50,4 +64,17 @@ handleKey key
       CursorMode _ -> EditorEffect.escapeCursor
       SelectMode _ -> EditorEffect.escapeSelect
       _ -> pure unit
+  -- modify term
+  | key == key_enlambda = EditorEffect.enlambda
+  | key == key_enlet = EditorEffect.enlet
+  | key == key_enapp = EditorEffect.enapp
+  | key == key_enarg = EditorEffect.enarg
+  | key == key_unwrap = EditorEffect.unwrap
+  | key == key_dig = EditorEffect.dig
+  | isAlphaNum key = EditorEffect.editId key.label
+  | key == key_Backspace =
+    EditorEffect.isEditable
+      >>= case _ of
+          true -> EditorEffect.editId key.label
+          false -> EditorEffect.unwrap
   | otherwise = pure unit

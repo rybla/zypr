@@ -10,6 +10,7 @@ import Data.Array (concat, concatMap, intercalate, length, zip)
 import Data.Maybe (Maybe(..))
 import Data.String (joinWith)
 import Data.String.CodeUnits as String
+import Data.String as String
 import Debug as Debug
 import Effect.Exception.Unsafe (unsafeThrow)
 import React (ReactThis)
@@ -109,17 +110,22 @@ renderSyntaxData args loc@{ syn } ress =
                         LamData _ -> "term-lam"
                         AppData _ -> "term-app"
                         LetData _ -> "term-let"
+                        HoleData _ -> "term-hole"
                     ]
-                  BindData _datBind -> [ "bind" ]
+                  BindData datBind ->
+                    concat
+                      [ [ "bind" ]
+                      , if String.null datBind.id then [ "bind-empty" ] else []
+                      ]
               ]
         , Props.onClick \event -> do
             stopPropagation event
             runEditorEffect args.this do
               setLocation loc
         ] case dat /\ ress of
-        -- var
+        -- term-var
         TermData (VarData dat) /\ [] -> args.thm.term.var { dat, id: [ DOM.text dat.id ] }
-        -- lam
+        -- term-lam
         TermData (LamData dat) /\ [ bnd, bod ] ->
           args.thm.term.lam
             { dat
@@ -132,7 +138,7 @@ renderSyntaxData args loc@{ syn } ress =
                   Top -> true
                   _ -> false
             }
-        -- app
+        -- term-app
         TermData (AppData dat) /\ [ apl, arg ] ->
           args.thm.term.app
             { dat
@@ -147,7 +153,7 @@ renderSyntaxData args loc@{ syn } ress =
                   Zip { dat: TermData (AppData _), lefts: [], rights: [ _ ] } -> true
                   _ -> false
             }
-        --- let
+        --- term-let
         TermData (LetData dat) /\ [ bnd, imp, bod ] ->
           args.thm.term.let_
             { dat
@@ -161,8 +167,16 @@ renderSyntaxData args loc@{ syn } ress =
                   Top -> true
                   _ -> false
             }
+        -- term-hole 
+        TermData (HoleData dat) /\ [] -> args.thm.term.hole { dat }
         -- bind
-        BindData dat /\ [] -> [ DOM.text dat.id ]
+        BindData dat /\ [] ->
+          [ DOM.text
+              $ if String.null dat.id then
+                  "~"
+                else
+                  dat.id
+          ]
         _ ->
           unsafeThrow
             $ "renderSyntaxData: malformed term:"
