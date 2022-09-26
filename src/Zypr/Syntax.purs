@@ -5,6 +5,7 @@ import Data.Array as Array
 import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe(..))
 import Data.Show.Generic (genericShow)
+import Data.String as String
 import Effect.Exception.Unsafe (unsafeThrow)
 import Text.PP as PP
 
@@ -171,4 +172,6 @@ instance showBind :: Show Bind where
   show x = genericShow x
 
 instance ppBind :: PP.PP Bind where
-  pp (Bind bind) = PP.pp bind.id
+  pp (Bind bind) =
+    PP.pp
+      if String.null bind.id then "~" else bind.id
