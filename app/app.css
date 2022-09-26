@@ -144,11 +144,12 @@ body {
 /* syntax */
 
 .syntax {
-  display: inline-block;
+  display: inline;
   border-radius: 6px;
 }
 
-.term {}
+.term {
+}
 
 .term-var {
   padding: 0 2px;
@@ -181,16 +182,16 @@ body {
 
 
 .select {
-  display: inline-block;
+  display: inline;
 }
 
 .selectStart {
-  display: inline-block;
+  display: inline;
 }
 
 
 .selectEnd {
-  display: inline-block;
+  display: inline;
 }
 
 .select>.syntax {
@@ -243,6 +244,13 @@ body {
 .token.emoji {
   /* background-color: black; */
   /* font-size: 200%; */
+}
+
+/* indentation */
+
+.indentation {
+  white-space: pre;
+  display: inline-block;
 }
 
 /* clipboard */

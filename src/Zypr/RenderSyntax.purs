@@ -7,7 +7,8 @@ import Zypr.Location
 import Zypr.Path
 import Zypr.Syntax
 import Zypr.SyntaxTheme
-import Data.Array (concat, concatMap, intercalate, length, zip)
+
+import Data.Array (concat, concatMap, intercalate, length, mapWithIndex, replicate, zip)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Data.String (joinWith)
@@ -16,6 +17,7 @@ import Data.String.CodeUnits as String
 import Debug as Debug
 import Effect (Effect)
 import Effect.Exception.Unsafe (unsafeThrow)
+import Partial.Unsafe (unsafeCrashWith)
 import React (ReactThis, getState)
 import React.DOM as DOM
 import React.DOM.Props as Props
@@ -41,8 +43,7 @@ initRenderArgs this state =
 -- render modes
 renderTopMode :: RenderArgs -> TopMode -> Res
 renderTopMode args top =
-  renderLocationPath args loc
-    $ renderLocationSyntax args loc
+  renderLocationSyntax args loc 0
   where
   loc :: Location
   loc = { syn: TermSyntax top.term, path: Top }
@@ -51,39 +52,61 @@ renderCursorMode :: RenderArgs -> CursorMode -> Res
 renderCursorMode args cursor =
   renderLocationPath args cursor.location
     $ renderCursor args
-    $ renderLocationSyntax args cursor.location
+    <<< renderLocationSyntax args cursor.location
 
 renderSelectMode :: RenderArgs -> SelectMode -> Res
 renderSelectMode args select =
-  renderLocationPath args select.locationStart
-    $ renderSelectStart args
-    $ renderLocationPath args select.locationEnd
-    $ renderSelectEnd args
-    $ renderLocationSyntax args select.locationEnd
+  renderLocationPath args select.locationStart \_il ->
+    renderSelectStart args $ renderLocationPath args select.locationEnd \il ->
+    renderSelectEnd args $ renderLocationSyntax args select.locationEnd il
+
+-- Given what node I am (SyntaxData) and what child I am (Int), how much should I be indented
+indentationIncrement :: SyntaxData -> Int -> Int
+indentationIncrement (TermData (LamData lamData)) 1 = 1
+indentationIncrement (TermData (AppData appData)) 0 = 0
+indentationIncrement (TermData (AppData appData)) 1 = 1
+indentationIncrement (TermData (LetData letData)) 0 = 1
+indentationIncrement (TermData (LetData letData)) 1 = 1
+indentationIncrement (TermData (LetData letData)) 2 = 0
+indentationIncrement _ _ = 0
 
 -- render the surrounding `Path`, and inject a `Res` at the `Top` 
-renderLocationPath :: RenderArgs -> Location -> (Res -> Res)
+renderLocationPath :: RenderArgs -> Location -> ((Int -> Res) -> Res)
 renderLocationPath args loc = case loc.path of
-  Top -> identity
-  Zip { dat, lefts, up, rights } -> \res ->
+  Top -> \kres -> kres 0
+  Zip { dat, lefts, up, rights } -> \kres ->
     let
-      loc' = unsafeFromJust $ stepUp loc
+      loc' = unsafeFromJust $ stepUp loc -- note: replace with fromGenSyntax and up
     in
-      renderLocationPath args loc'
-        $ renderSyntaxData args loc'
-        $ concat
-            [ map (renderLocationSyntax args) sbls.lefts
-            , [ res ]
-            , map (renderLocationSyntax args) sbls.rights
-            ]
+      renderLocationPath args loc' \ indentationLevel ->
+        renderSyntaxData args loc'
+        (
+          mapWithIndex (\ix kres -> kres (indentationIncrement (toGenSyntax loc'.syn).dat ix))
+          $ concat  
+            ([ (\loc inc -> renderLocationSyntax args loc (indentationLevel + inc)) <$> sbls.lefts
+            , [ \inc -> kres (indentationLevel + inc)  ]
+            , (\loc inc -> renderLocationSyntax args loc (indentationLevel + inc )) <$> sbls.rights 
+
+            ] )
+        )
+        indentationLevel
+        -- (concat
+        --     [ map (\loc -> renderLocationSyntax args loc (indentationLevel + 1)) sbls.lefts
+        --     , [ kres (indentationLevel + 1) ]
+        --     , map (\loc -> renderLocationSyntax args loc (indentationLevel + 1)) sbls.rights
+        --     ]) indentationLevel
     where
     sbls = siblings loc
 
 -- only render `Syntax` at this `Location`
-renderLocationSyntax :: RenderArgs -> Location -> Res
-renderLocationSyntax args loc =
+renderLocationSyntax :: RenderArgs -> Location -> Int -> Res
+renderLocationSyntax args loc indentationLevel =
   renderSyntaxData args loc
-    $ map (renderLocationSyntax args) (children loc)
+    (mapWithIndex (\ i loc
+      -> renderLocationSyntax args loc
+          (indentationLevel + indentationIncrement (toGenSyntax (loc.syn)).dat i))
+      (children loc))
+    indentationLevel
 
 renderCursor :: RenderArgs -> Res -> Res
 renderCursor args res =
@@ -99,7 +122,7 @@ renderClipboardTerm :: RenderArgs -> Term -> Res
 renderClipboardTerm args term =
   [ DOM.div [ Props.className "clipboard clipboard-term" ]
       $ renderLocationSyntax (args { interactable = false })
-          { syn: TermSyntax term, path: Top }
+          { syn: TermSyntax term, path: Top } 0
   ]
 
 renderClipboardPath :: RenderArgs -> Path -> Res
@@ -107,7 +130,7 @@ renderClipboardPath args path =
   [ DOM.div [ Props.className "clipboard clipboard-path" ]
       $ renderLocationPath (args { interactable = false })
           { path, syn: TermSyntax hole }
-      $ [ DOM.div [ Props.className "selection-hole" ] [] ]
+      $ \_ -> [ DOM.div [ Props.className "selection-hole" ] [] ] -- TODO: suspicious
   ]
 
 renderSelectStart :: RenderArgs -> Res -> Res
@@ -122,9 +145,14 @@ renderSelectEnd args res =
       res
   ]
 
+renderIndent :: Int -> Res -> Res
+renderIndent indentationLevel res
+  = let indentRes = [ DOM.br' ] <> replicate indentationLevel (DOM.div [ Props.className "indentation" ] [DOM.text "  "]) in
+    indentRes <> res
+
 -- only render `SyntaxData` at this `Location`, using pre-rendered children 
-renderSyntaxData :: RenderArgs -> Location -> Array Res -> Res
-renderSyntaxData args loc@{ syn } ress =
+renderSyntaxData :: RenderArgs -> Location -> Array Res -> Int -> Res
+renderSyntaxData args loc@{ syn } ress indentationLevel =
   let
     { dat, syns } = toGenSyntax syn
   in
@@ -162,7 +190,7 @@ renderSyntaxData args loc@{ syn } ress =
           args.thm.term.lam
             { dat
             , bnd
-            , bod
+            , bod : if dat.indent_bod then renderIndent (indentationLevel + 1) bod else bod
             , isAss:
                 case loc.path of
                   -- apl or arg

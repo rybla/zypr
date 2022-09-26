@@ -62,7 +62,7 @@ var id = Var { dat: { id } }
 lam :: Id -> Term -> Term
 lam id bod =
   Lam
-    { dat: { indent_bod: false }
+    { dat: { indent_bod: true }
     , bnd: bnd id
     , bod
     }

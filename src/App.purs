@@ -3,12 +3,14 @@ module App
   ) where
 
 import Prelude
+
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getState)
 import React.DOM as DOM
 import React.DOM.Props as Props
 import Zypr.EditorTypes (EditorMode(..))
+import Zypr.Example.Lambdas as Lambdas
 import Zypr.Example.YCombinator as YCombinator
 import Zypr.RenderEditor (editorClass)
 import Zypr.SyntaxTheme (basicSyntaxTheme)
@@ -40,7 +42,7 @@ appComponent this =
       [ Props.className "app" ]
       [ createLeafElement editorClass
           { stateInit:
-              { mode: TopMode { term: YCombinator.term }
+              { mode: TopMode { term: Lambdas.term }
               , syntaxTheme: basicSyntaxTheme
               , clipboard: Nothing
               , console: []
