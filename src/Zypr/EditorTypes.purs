@@ -1,6 +1,8 @@
 module Zypr.EditorTypes where
 
 import Prelude
+import Data.Either (Either)
+import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import React (ReactElement, ReactThis)
 import Zypr.Location (Location)
@@ -20,6 +22,7 @@ type EditorProps
 type EditorState
   = { mode :: EditorMode
     , syntaxTheme :: SyntaxTheme
+    , clipboard :: Clipboard
     , console :: Array ConsoleItem
     }
 
@@ -36,6 +39,15 @@ type CursorMode
 
 type SelectMode
   = { locationStart :: Location, locationEnd :: Location }
+
+type Clipboard
+  = Maybe (Either Term Path)
+
+emptyClipboard :: Clipboard
+emptyClipboard = Nothing
+
+type Console
+  = Array ConsoleItem
 
 type ConsoleItem
   = { type_ :: ConsoleItemType, res :: Res }

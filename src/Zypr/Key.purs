@@ -109,3 +109,12 @@ key_unwrap = (defaultKey "d") { ctrl = true }
 
 key_dig :: Key
 key_dig = (defaultKey "d") { ctrl = true, shift = true }
+
+key_copy :: Key
+key_copy = (defaultKey "c") { ctrl = true }
+
+key_cut :: Key
+key_cut = (defaultKey "x") { ctrl = true }
+
+key_paste :: Key
+key_paste = (defaultKey "v") { ctrl = true }

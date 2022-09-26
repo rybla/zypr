@@ -3,6 +3,7 @@ module App
   ) where
 
 import Prelude
+import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getState)
 import React.DOM as DOM
@@ -41,6 +42,7 @@ appComponent this =
           { stateInit:
               { mode: TopMode { term: YCombinator.term }
               , syntaxTheme: basicSyntaxTheme
+              , clipboard: Nothing
               , console: []
               }
           }

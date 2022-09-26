@@ -16,6 +16,14 @@ data Path
     , rights :: Array Syntax -- Syntaxes to the right
     }
 
+-- append the first path above the second path
+appendPaths :: Path -> Path -> Path
+appendPaths path1 path2 = case path2 of
+  Top -> path1
+  Zip { dat, lefts, up, rights } ->
+    Zip
+      { dat, lefts, up: appendPaths path1 up, rights }
+
 -- pattern matching
 casePath ::
   forall a.
@@ -55,24 +63,46 @@ derive instance eqPath :: Eq Path
 instance showPath :: Show Path where
   show x = genericShow x
 
+-- instance ppPath :: PP.PP Path where
+--   pp = go (PP.pp "@")
+--     where
+--     go :: PP.Doc -> Path -> PP.Doc
+--     go doc =
+--       casePath
+--         { top: \_ -> doc
+--         , lam:
+--             { bnd: \lam -> go ((PP.paren <<< PP.words) [ PP.pp "fun", doc, PP.pp "=>", PP.pp lam.bod ]) lam.bnd
+--             , bod: \lam -> go ((PP.paren <<< PP.words) [ PP.pp "fun", PP.pp lam.bnd, PP.pp "=>", doc ]) lam.bod
+--             }
+--         , app:
+--             { apl: \app -> go ((PP.paren <<< PP.words) [ doc, PP.pp app.arg ]) app.apl
+--             , arg: \app -> go ((PP.paren <<< PP.words) [ doc, PP.pp app.arg ]) app.arg
+--             }
+--         , let_:
+--             { bnd: \let_ -> go ((PP.paren <<< PP.words) [ PP.pp "let", doc, PP.pp "=", PP.pp let_.imp, PP.pp "in", PP.pp let_.bod ]) let_.bnd
+--             , imp: \let_ -> go ((PP.paren <<< PP.words) [ PP.pp "let", PP.pp let_.bnd, PP.pp "=", doc, PP.pp "in", PP.pp let_.bod ]) let_.imp
+--             , bod: \let_ -> go ((PP.paren <<< PP.words) [ PP.pp "let", PP.pp let_.bnd, PP.pp "=", PP.pp let_.imp, PP.pp "in", PP.pp let_.bod ]) let_.bod
+--             }
+--         }
 instance ppPath :: PP.PP Path where
-  pp = go (PP.pp "@")
-    where
-    go :: PP.Doc -> Path -> PP.Doc
-    go doc =
-      casePath
-        { top: \_ -> doc
-        , lam:
-            { bnd: \lam -> go ((PP.paren <<< PP.words) [ PP.pp "fun", doc, PP.pp "=>", PP.pp lam.bod ]) lam.bnd
-            , bod: \lam -> go ((PP.paren <<< PP.words) [ PP.pp "fun", PP.pp lam.bnd, PP.pp "=>", doc ]) lam.bod
-            }
-        , app:
-            { apl: \app -> go ((PP.paren <<< PP.words) [ doc, PP.pp app.arg ]) app.apl
-            , arg: \app -> go ((PP.paren <<< PP.words) [ doc, PP.pp app.arg ]) app.arg
-            }
-        , let_:
-            { bnd: \let_ -> go ((PP.paren <<< PP.words) [ PP.pp "let", doc, PP.pp "=", PP.pp let_.imp, PP.pp "in", PP.pp let_.bod ]) let_.bnd
-            , imp: \let_ -> go ((PP.paren <<< PP.words) [ PP.pp "let", PP.pp let_.bnd, PP.pp "=", doc, PP.pp "in", PP.pp let_.bod ]) let_.imp
-            , bod: \let_ -> go ((PP.paren <<< PP.words) [ PP.pp "let", PP.pp let_.bnd, PP.pp "=", PP.pp let_.imp, PP.pp "in", PP.pp let_.bod ]) let_.bod
-            }
-        }
+  pp = case _ of
+    Top -> PP.pp "Top"
+    Zip { dat, lefts, up, rights } ->
+      PP.words
+        [ PP.pp "Zip["
+        , PP.pp $ "dat = "
+            <> case dat of
+                TermData (VarData varDat) -> "<var: " <> varDat.id <> ">"
+                TermData (LamData _) -> "<lam>"
+                TermData (AppData _) -> "<app>"
+                TermData (LetData _) -> "<let>"
+                TermData (HoleData _) -> "<hole>"
+                BindData bndDat -> "<bind: " <> bndDat.id <> ">"
+        , PP.pp ","
+        , PP.pp "lefts = " <> PP.ppArray lefts
+        , PP.pp ","
+        , PP.pp "up = " <> PP.pp up
+        , PP.pp ","
+        , PP.pp "rights = " <> PP.ppArray rights
+        , PP.pp "]"
+        ]

@@ -64,6 +64,10 @@ handleKey key
       CursorMode _ -> EditorEffect.escapeCursor
       SelectMode _ -> EditorEffect.escapeSelect
       _ -> pure unit
+  -- copy, cut, paste
+  | key == key_copy = EditorEffect.copy
+  | key == key_cut = EditorEffect.cut
+  | key == key_paste = EditorEffect.paste
   -- modify term
   | key == key_enlambda = EditorEffect.enlambda
   | key == key_enlet = EditorEffect.enlet

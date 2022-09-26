@@ -2,6 +2,8 @@ module Zypr.RenderEditor where
 
 import Prelude
 import Data.Array (concat, intercalate, (:))
+import Data.Either (Either(..))
+import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Effect.Console as Console
 import Effect.Exception.Unsafe (unsafeThrow)
@@ -13,7 +15,7 @@ import Web.Event.Event (EventType(..))
 import Web.Event.EventTarget (addEventListener, eventListener)
 import Web.HTML (window)
 import Web.HTML.Window (toEventTarget)
-import Zypr.EditorConsole (stringEditorConsoleInfo)
+import Zypr.EditorConsole (stringEditorConsoleInfo, stringEditorConsoleLog)
 import Zypr.EditorEffect (EditorEffect)
 import Zypr.EditorEffect as EditorEffect
 import Zypr.EditorTypes (ConsoleItemType(..), EditorGiven, EditorMode(..), EditorProps, EditorState, EditorThis)
@@ -21,10 +23,10 @@ import Zypr.Example.Applications as Applications
 import Zypr.Example.Lambdas as Lambdas
 import Zypr.Example.YCombinator as YCombinator
 import Zypr.KeyboardEventHandler (keyboardEventHandler)
+import Zypr.Menu (renderMenu)
 import Zypr.Path (Path(..))
 import Zypr.RenderSyntax (renderCursorMode, renderSelectMode, renderTopMode)
 import Zypr.SyntaxTheme (Res)
-import Zypr.Menu (renderMenu)
 
 editorClass :: ReactClass EditorProps
 editorClass = component "editor" editorComponent
@@ -77,6 +79,20 @@ renderConsole this state =
       $ intercalate [ DOM.br' ]
       $ map renderConsoleItem
       $ state.console
+      <> case state.clipboard of
+          Just (Left term) ->
+            [ stringEditorConsoleInfo <<< intercalate "\n"
+                $ [ "clipboard:"
+                  , "term: " <> pprint term
+                  ]
+            ]
+          Just (Right path) ->
+            [ stringEditorConsoleInfo <<< intercalate "\n"
+                $ [ "clipboard:"
+                  , "path: " <> pprint path
+                  ]
+            ]
+          Nothing -> []
       <> case state.mode of
           TopMode top ->
             [ stringEditorConsoleInfo <<< intercalate "\n"

@@ -4,7 +4,7 @@ import Prelude
 import Zypr.Syntax
 import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.Reader (ReaderT, runReaderT)
-import Control.Monad.State (StateT, get, modify, modify_, runStateT)
+import Control.Monad.State (StateT, get, gets, modify, modify_, runStateT)
 import Control.Monad.Writer (WriterT, runWriterT, tell)
 import Data.Either (Either(..))
 import Data.Foldable (foldr)
@@ -15,10 +15,10 @@ import Effect (Effect)
 import React (ReactThis, getProps, getState, modifyState)
 import Text.PP as PP
 import Zypr.EditorConsole (logEditorConsole, stringEditorConsoleError, stringEditorConsoleLog)
-import Zypr.EditorTypes (EditorMode(..), EditorProps, EditorState, CursorMode)
+import Zypr.EditorTypes (Clipboard, CursorMode, EditorMode(..), EditorProps, EditorState, SelectMode, emptyClipboard)
 import Zypr.Location (Location, ppLocation)
 import Zypr.Location as Location
-import Zypr.Path (Path(..))
+import Zypr.Path (Path(..), appendPaths)
 import Zypr.SyntaxTheme (SyntaxTheme)
 
 type EditorEffect a
@@ -52,6 +52,12 @@ setLocation loc = do
   tell [ "jumped to location: " <> show (ppLocation loc) ]
   state <- get
   setMode $ CursorMode { location: loc }
+
+modifyLocation :: (Location -> EditorEffect Location) -> EditorEffect Unit
+modifyLocation f = do
+  cursor <- requireCursorMode
+  loc' <- f cursor.location
+  setMode $ CursorMode cursor { location = loc' }
 
 stepPrev :: EditorEffect Unit
 stepPrev =
@@ -188,6 +194,13 @@ requireCursorMode = do
     CursorMode cursor -> pure cursor
     _ -> throwError "requires cursor mode"
 
+requireSelectMode :: EditorEffect SelectMode
+requireSelectMode = do
+  state <- get
+  case state.mode of
+    SelectMode select -> pure select
+    _ -> throwError "requires select mode"
+
 modifySyntaxAtCursor :: (Syntax -> EditorEffect Syntax) -> EditorEffect Unit
 modifySyntaxAtCursor f = do
   cursor <- requireCursorMode
@@ -235,11 +248,16 @@ enarg = do
   stepRight
 
 unwrap :: EditorEffect Unit
-unwrap =
-  modifyTermAtCursor case _ of
-    Lam { bod } -> pure bod
-    Let { bod } -> pure bod
-    _ -> pure hole
+unwrap = do
+  state <- get
+  case state.mode of
+    CursorMode _ -> do
+      modifyTermAtCursor case _ of
+        Lam { bod } -> pure bod
+        Let { bod } -> pure bod
+        _ -> pure hole
+    SelectMode _ -> unwrapSelection
+    _ -> throwError "can't unwrap here"
 
 dig :: EditorEffect Unit
 dig = modifyTermAtCursor \_ -> pure hole
@@ -282,3 +300,66 @@ isEditable = do
           _ -> pure false
   tell [ "isEditable: " <> show res ]
   pure res
+
+copy :: EditorEffect Unit
+copy = do
+  state <- get
+  case state.mode of
+    CursorMode cursor -> case cursor.location.syn of
+      TermSyntax term -> setClipboard $ Just $ Left term
+      _ -> throwError "can't copy a non-term"
+    SelectMode select -> setClipboard $ Just $ Right select.locationEnd.path
+    _ -> throwError "can't copy without a cursor or selection"
+
+unwrapSelection :: EditorEffect Unit
+unwrapSelection = do
+  select <- requireSelectMode
+  setMode
+    $ CursorMode
+        { location:
+            { path: select.locationStart.path
+            , syn: select.locationEnd.syn
+            }
+        }
+
+setClipboard :: Clipboard -> EditorEffect Unit
+setClipboard cb = modify_ \state -> state { clipboard = cb }
+
+cut :: EditorEffect Unit
+cut = do
+  state <- get
+  case state.mode of
+    CursorMode cursor -> case cursor.location.syn of
+      TermSyntax term -> do
+        setClipboard $ Just $ Left term
+        modifyTermAtCursor \_ -> pure hole
+      _ -> throwError "can't cut a non-term"
+    SelectMode select -> do
+      setClipboard $ Just $ Right select.locationEnd.path
+      setMode
+        $ CursorMode
+            { location:
+                { path: select.locationStart.path
+                , syn: select.locationEnd.syn
+                }
+            }
+    _ -> throwError "can't cut without a cursor or selection"
+
+paste :: EditorEffect Unit
+paste = do
+  modifyLocation \loc -> do
+    state <- get
+    case loc.syn of
+      TermSyntax _ -> do
+        case state.clipboard of
+          -- replace term at cursor
+          Just (Left term') -> do
+            pure loc { syn = TermSyntax term' }
+          -- wrap around cursor 
+          Just (Right path) -> do
+            pure
+              $ { path: appendPaths loc.path path
+                , syn: loc.syn
+                }
+          Nothing -> throwError "can't paste with empty clipboard"
+      _ -> throwError "can't paste at a non-Term"
