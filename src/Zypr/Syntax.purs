@@ -1,7 +1,9 @@
 module Zypr.Syntax where
 
 import Prelude
+import Data.Array as Array
 import Data.Generic.Rep (class Generic)
+import Data.Maybe (Maybe(..))
 import Data.Show.Generic (genericShow)
 import Effect.Exception.Unsafe (unsafeThrow)
 import Text.PP as PP
@@ -66,6 +68,11 @@ app apl arg =
     , apl
     , arg
     }
+
+apps :: Term -> Array Term -> Term
+apps apl args = case Array.uncons args of
+  Just { head: arg, tail: args' } -> apps (app apl arg) args'
+  Nothing -> apl
 
 let_ :: Id -> Term -> Term -> Term
 let_ id imp bod =

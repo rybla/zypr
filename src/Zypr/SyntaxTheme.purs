@@ -16,9 +16,9 @@ type SyntaxTheme
         }
     , term ::
         { var :: { dat :: VarData, id :: Res } -> Res
-        , lam :: { dat :: LamData, bnd :: Res, bod :: Res } -> Res
-        , app :: { dat :: AppData, apl :: Res, arg :: Res } -> Res
-        , let_ :: { dat :: LetData, bnd :: Res, imp :: Res, bod :: Res } -> Res
+        , lam :: { dat :: LamData, bnd :: Res, bod :: Res, isAss :: Boolean } -> Res
+        , app :: { dat :: AppData, apl :: Res, arg :: Res, apl_isApp :: Boolean, isApl :: Boolean } -> Res
+        , let_ :: { dat :: LetData, bnd :: Res, imp :: Res, bod :: Res, isAss :: Boolean } -> Res
         }
     }
 
@@ -39,14 +39,19 @@ basicSyntaxTheme =
       { var:
           \{ dat, id } -> id
       , lam:
-          \{ dat, bnd, bod } ->
-            assoc $ concat [ tk_lambda, tk_space, bnd, tk_space, tk_mapsto, tk_space, bod ]
+          \{ dat, bnd, bod, isAss } ->
+            assocIf isAss $ concat [ tk_lambda, tk_space, bnd, tk_space, tk_mapsto, tk_space, bod ]
       , app:
-          \{ dat, apl, arg } ->
-            assoc $ concat [ apl, tk_space, arg ]
+          \{ dat, apl, arg, apl_isApp, isApl } ->
+            let
+              sep = if apl_isApp then [] else [ tk_space ]
+
+              wrap = if isApl then (_ <> tk_appHandle) else assoc
+            in
+              wrap $ concat $ [ apl ] <> sep <> [ arg ]
       , let_:
-          \{ dat, bnd, imp, bod } ->
-            assoc $ concat [ tk_let, tk_space, bnd, tk_space, tk_assign, tk_space, imp, tk_space, tk_in, tk_space, bod ]
+          \{ dat, bnd, imp, bod, isAss } ->
+            assocIf isAss $ concat [ tk_let, tk_space, bnd, tk_space, tk_assign, tk_space, imp, tk_space, tk_in, tk_space, bod ]
       }
   }
 
@@ -110,6 +115,9 @@ judsonSyntaxTheme =
 -- Tokens
 tk_app :: Res
 tk_app = makeStringToken "keyword" "app"
+
+tk_appHandle :: Res
+tk_appHandle = makeStringToken "punc punc-appHandle" "▪"
 
 tk_space :: Res
 tk_space = makeStringToken "space" " "

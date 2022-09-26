@@ -1,6 +1,6 @@
 # TODO
 
-General
+## General
 
 - [ ] selection where parent is end of selection (dynamic end)
 - [ ] moving up/down lines with arrow keys
@@ -14,12 +14,14 @@ General
 - [ ] action: wrap in lam, app, let (shortcuts)
 - [ ] action: unwrap lam, app, let (Backspace)
 
-Henry
+## Henry
 
 - [x] use `GenTerm` as a "tree view"
 - [x] state modes: top (term), cursor (path, term), select (path, path, term)
 - [ ] mouse mover highlighting
 - [ ] mouse select
 - [x] propper left/right arrow key navigation
+- [ ] visual bug where parentheses are displayed around the applicant in a
+      partial application if you start a selection there
 
-Jacob
+## Jacob

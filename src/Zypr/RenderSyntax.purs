@@ -94,7 +94,7 @@ renderSelectEnd args res =
 renderSyntaxData :: RenderArgs -> Location -> Array Res -> Res
 renderSyntaxData args loc@{ syn } ress =
   let
-    { dat } = toGenSyntax syn
+    { dat, syns } = toGenSyntax syn
   in
     [ DOM.div
         [ Props.className
@@ -117,10 +117,51 @@ renderSyntaxData args loc@{ syn } ress =
             runEditorEffect args.this do
               setLocation loc
         ] case dat /\ ress of
+        -- var
         TermData (VarData dat) /\ [] -> args.thm.term.var { dat, id: [ DOM.text dat.id ] }
-        TermData (LamData dat) /\ [ bnd, bod ] -> args.thm.term.lam { dat, bnd, bod }
-        TermData (AppData dat) /\ [ apl, arg ] -> args.thm.term.app { dat, apl, arg }
-        TermData (LetData dat) /\ [ bnd, imp, bod ] -> args.thm.term.let_ { dat, bnd, imp, bod }
+        -- lam
+        TermData (LamData dat) /\ [ bnd, bod ] ->
+          args.thm.term.lam
+            { dat
+            , bnd
+            , bod
+            , isAss:
+                case loc.path of
+                  -- apl or arg
+                  Zip { dat: TermData (AppData _) } -> true
+                  Top -> true
+                  _ -> false
+            }
+        -- app
+        TermData (AppData dat) /\ [ apl, arg ] ->
+          args.thm.term.app
+            { dat
+            , apl
+            , arg
+            , apl_isApp:
+                case syns of
+                  [ TermSyntax (App _), _ ] -> true
+                  _ -> false
+            , isApl:
+                case loc.path of
+                  Zip { dat: TermData (AppData _), lefts: [], rights: [ _ ] } -> true
+                  _ -> false
+            }
+        --- let
+        TermData (LetData dat) /\ [ bnd, imp, bod ] ->
+          args.thm.term.let_
+            { dat
+            , bnd
+            , imp
+            , bod
+            , isAss:
+                case loc.path of
+                  -- apl or arg
+                  Zip { dat: TermData (AppData _) } -> true
+                  Top -> true
+                  _ -> false
+            }
+        -- bind
         BindData dat /\ [] -> [ DOM.text dat.id ]
         _ ->
           unsafeThrow
@@ -129,6 +170,7 @@ renderSyntaxData args loc@{ syn } ress =
             <> ("\n  ress: " <> "[" <> show (length ress) <> "]")
     ]
 
+-- args.thm.term.app { dat, apl, arg }
 unsafeFromJust :: forall a. Maybe a -> a
 unsafeFromJust = case _ of
   Just a -> a

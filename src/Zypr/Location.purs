@@ -64,7 +64,9 @@ stepPrev loc = case stepLeft loc of
   Just loc' -> case stepRightmostDescendant loc' of
     Just loc'' -> pure loc''
     Nothing -> pure loc'
-  Nothing -> stepUp loc
+  Nothing -> case stepUp loc of
+    Just loc' -> pure loc'
+    Nothing -> stepRightmostDescendant loc -- at Top
 
 stepDown :: Location -> Maybe Location
 stepDown loc = case toGenSyntax loc.syn of

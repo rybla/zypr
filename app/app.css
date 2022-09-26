@@ -161,6 +161,11 @@ body {
 
 .term-let {}
 
+.bind {
+  padding: 0 2px;
+  color: rgb(0, 82, 0);
+}
+
 /* select */
 
 
@@ -208,6 +213,8 @@ body {
   /* font-weight: lighter; */
   color: gray;
 }
+
+.token.punc.appHandle {}
 
 .token.emoji {
   /* background-color: black; */
