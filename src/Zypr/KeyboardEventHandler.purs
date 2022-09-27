@@ -34,6 +34,7 @@ shouldPreventDefault key =
           , key_enapp
           , key_enarg
           ]
+    , isValidIdStrings key
     , key.label
         `elem`
           ( _.label
