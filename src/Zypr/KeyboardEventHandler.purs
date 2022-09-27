@@ -73,6 +73,9 @@ handleKey key
   | key == key_enlet = EditorEffect.enlet
   | key == key_enapp = EditorEffect.enapp
   | key == key_enarg = EditorEffect.enarg
+  -- misc
+  | key == key_ToggleConsoleVisible = EditorEffect.toggleConsoleVisible
+  -- modify Id
   | isValidIdStrings key = EditorEffect.editId key.label
   | key == key_Backspace = EditorEffect.backspace
   | key == key_ShiftBackspace = EditorEffect.backspace'

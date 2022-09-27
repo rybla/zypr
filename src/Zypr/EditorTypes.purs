@@ -24,6 +24,7 @@ type EditorState
     , syntaxTheme :: SyntaxTheme
     , clipboard :: Clipboard
     , console :: Array ConsoleItem
+    , consoleVisible :: Boolean
     }
 
 data EditorMode

@@ -135,6 +135,9 @@ step f = do
       locationEnd <- f select.locationEnd
       setMode $ SelectMode select { locationEnd = locationEnd }
 
+toggleConsoleVisible :: EditorEffect Unit
+toggleConsoleVisible = modify_ \state -> state { consoleVisible = not state.consoleVisible }
+
 setMode :: EditorMode -> EditorEffect Unit
 setMode mode = do
   modify_ _ { mode = mode }
@@ -142,13 +145,18 @@ setMode mode = do
 escape :: EditorEffect Unit
 escape = do
   state <- get
-  case state.clipboard of
-    Just _ -> setClipboard emptyClipboard
-    _ -> do
-      case state.mode of
-        CursorMode _ -> escapeCursor
-        SelectMode _ -> escapeSelect
-        _ -> pure unit
+  -- OLD: when Escape would clear the clipboard
+  -- case state.clipboard of
+  --   Just _ -> clearClipboard
+  --   _ -> do
+  --     case state.mode of
+  --       CursorMode _ -> escapeCursor
+  --       SelectMode _ -> escapeSelect
+  --       _ -> pure unit
+  case state.mode of
+    CursorMode _ -> escapeCursor
+    SelectMode _ -> escapeSelect
+    _ -> pure unit
 
 escapeCursor :: EditorEffect Unit
 escapeCursor = do
@@ -408,6 +416,9 @@ unwrapSelection = do
 
 setClipboard :: Clipboard -> EditorEffect Unit
 setClipboard cb = modify_ \state -> state { clipboard = cb }
+
+clearClipboard :: EditorEffect Unit
+clearClipboard = setClipboard emptyClipboard
 
 cut :: EditorEffect Unit
 cut = do

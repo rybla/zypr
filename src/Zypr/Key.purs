@@ -100,6 +100,9 @@ key_Tab = defaultKey "Tab"
 key_Space :: Key
 key_Space = defaultKey " "
 
+key_ToggleConsoleVisible :: Key
+key_ToggleConsoleVisible = (defaultKey "`") { ctrl = true }
+
 key_Period :: Key
 key_Period = defaultKey "."
 

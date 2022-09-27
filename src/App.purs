@@ -3,7 +3,6 @@ module App
   ) where
 
 import Prelude
-
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getState)
@@ -46,6 +45,7 @@ appComponent this =
               , syntaxTheme: basicSyntaxTheme
               , clipboard: Nothing
               , console: []
+              , consoleVisible: false
               }
           }
       ]

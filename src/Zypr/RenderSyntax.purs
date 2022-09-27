@@ -27,7 +27,6 @@ import Zypr.EditorEffect (runEditorEffect, setLocation)
 type RenderArgs
   = { this :: EditorThis
     , thm :: SyntaxTheme
-    , clipboard :: Clipboard
     , interactable :: Boolean
     }
 
@@ -35,7 +34,6 @@ initRenderArgs :: EditorThis -> EditorState -> RenderArgs
 initRenderArgs this state =
   { this
   , thm: state.syntaxTheme
-  , clipboard: state.clipboard
   , interactable: true
   }
 
@@ -113,11 +111,7 @@ renderLocationSyntax args loc indentationLevel =
 renderCursor :: RenderArgs -> Res -> Res
 renderCursor args res =
   [ DOM.div [ Props.className "select" ]
-      $ res
-      <> case args.clipboard of
-          Just (Left term) -> renderClipboardTerm args term
-          Just (Right path) -> renderClipboardPath args path
-          Nothing -> []
+      res
   ]
 
 renderClipboardTerm :: RenderArgs -> Term -> Res

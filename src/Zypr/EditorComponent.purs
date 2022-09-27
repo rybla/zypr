@@ -16,7 +16,7 @@ import Web.Event.EventTarget (addEventListener, eventListener)
 import Web.HTML (window)
 import Web.HTML.Window (toEventTarget)
 import Zypr.EditorConsole (stringEditorConsoleInfo, stringEditorConsoleLog)
-import Zypr.EditorEffect (EditorEffect)
+import Zypr.EditorEffect (EditorEffect, runEditorEffect)
 import Zypr.EditorEffect as EditorEffect
 import Zypr.EditorTypes (ConsoleItemType(..), EditorGiven, EditorMode(..), EditorProps, EditorState, EditorThis)
 import Zypr.Example.Applications as Applications
@@ -25,7 +25,8 @@ import Zypr.Example.YCombinator as YCombinator
 import Zypr.KeyboardEventHandler (keyboardEventHandler)
 import Zypr.Menu (renderMenu)
 import Zypr.Path (Path(..))
-import Zypr.RenderSyntax (initRenderArgs, renderCursorMode, renderSelectMode, renderTopMode)
+import Zypr.RenderSyntax (initRenderArgs, renderClipboardPath, renderClipboardTerm, renderCursorMode, renderSelectMode, renderTopMode)
+import Zypr.Syntax (Term)
 import Zypr.SyntaxTheme (Res)
 
 editorClass :: ReactClass EditorProps
@@ -47,7 +48,7 @@ editorComponent this = do
       $ concat
           [ renderMenu this state
           , renderProgram this state
-          , renderConsole this state
+          , renderFooter this state
           ]
 
   componentDidMount = do
@@ -65,6 +66,50 @@ renderProgram this state =
         TopMode top -> renderTopMode args top
         CursorMode cursor -> renderCursorMode args cursor
         SelectMode select -> renderSelectMode args select
+    ]
+
+renderFooter :: EditorThis -> EditorState -> Res
+renderFooter this state =
+  [ DOM.div [ Props.className "footer" ]
+      $ concat
+          [ renderPopout this state
+          , if state.consoleVisible then renderConsole this state else []
+          ]
+  ]
+
+renderPopout :: EditorThis -> EditorState -> Res
+renderPopout this state =
+  let
+    args = initRenderArgs this state
+  in
+    [ DOM.div [ Props.className "popout" ]
+        $ concat
+            [ case state.clipboard of
+                Just cb -> renderClipboard this state cb
+                Nothing -> []
+            ]
+    ]
+
+renderClipboard :: EditorThis -> EditorState -> Either Term Path -> Res
+renderClipboard this state cb =
+  let
+    args = initRenderArgs this state
+  in
+    [ DOM.div [ Props.className "clipboard" ]
+        $ [ DOM.div [ Props.className "clipboard-label" ]
+              [ DOM.text "clipboard"
+              , DOM.div
+                  [ Props.className "clipboard-clear"
+                  , Props.onClick \_event -> runEditorEffect this EditorEffect.clearClipboard
+                  ]
+                  [ DOM.text "✕" ]
+              ]
+          , DOM.br'
+          , DOM.div [ Props.className "clipboard-value" ]
+              $ case cb of
+                  Left term -> renderClipboardTerm args term
+                  Right path -> renderClipboardPath args path
+          ]
     ]
 
 renderConsole :: EditorThis -> EditorState -> Res
