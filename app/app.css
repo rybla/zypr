@@ -148,8 +148,7 @@ body {
   border-radius: 6px;
 }
 
-.term {
-}
+.term {}
 
 .term-var {
   padding: 0 2px;
@@ -253,30 +252,80 @@ body {
   display: inline-block;
 }
 
+/* footer */
+
+.footer {
+  margin: 0;
+  /* padding: 10px; */
+  /* width: calc(100% - 20px); */
+  /* padding: 20px; */
+  /* width: calc(100vw - 20px); */
+  width: 100vw;
+  position: fixed;
+  bottom: 0;
+}
+
+/* popout */
+
+.popout {
+  background-color: tan;
+}
+
 /* clipboard */
 
 .clipboard {
-  position: absolute;
-  margin-top: 20px;
-  margin-left: 20px;
-  padding: 2px;
+  padding: 10px;
+  width: calc(100% - 20px);
+  font-size: 12pt;
+}
+
+.clipboard-label {
+  display: inline-block;
+  margin-bottom: 10px;
+  padding: 5px;
   border-radius: 6px;
+  font-size: 8pt;
+
+  background-color: rgb(21, 33, 58);
+  color: white;
+}
+
+.clipboard-clear {
+  display: inline-block;
+  padding: 0 4px;
+  border-radius: 6px;
+  margin-left: 10px;
+
+  font-style: normal;
+  cursor: pointer;
+  color: black;
   background-color: white;
+}
+
+.clipboard-clear:hover {
+  background-color: rgb(149, 0, 0);
+  color: white;
+}
+
+.clipboard-value {
+  display: inline-block;
+  border-radius: 6px;
   box-shadow: 0 0 4px 1px black;
-  border: 1px solid tan;
+  /* border: 1px solid tan; */
   background-color: rgb(255, 238, 215);
 }
 
 .selection-hole {
   display: inline-block;
-  width: 12pt;
-  height: 12pt;
+  width: 10pt;
+  height: 10pt;
   vertical-align: middle;
   box-shadow:
-    0 0 0 1px tan inset,
+    /* 0 0 0 1px rgb(247, 215, 172) inset, */
     0 0 4px 1px black inset;
   border-radius: 6px;
-  background-color: white;
+  /* background-color: white; */
+  background-color: tan;
 }
 
 
@@ -286,8 +335,6 @@ body {
   margin: 0;
   padding: 10px;
   width: calc(100% - 20px);
-  position: fixed;
-  bottom: 0;
 
   box-shadow: 0 -1px 0 0 tan;
   background-color: rgb(21, 33, 58);
@@ -324,10 +371,9 @@ body {
 .console-item-body {
   display: inline-block;
   padding: 5px;
-  max-width: calc(100vw - 20px - 10px - 50px);
+  /* max-width: calc(100vw - 20px - 10px - 50px); */
   overflow-x: scroll;
   white-space: pre;
-  /* width: 100px; */
 
   border-radius: 6px;
 }

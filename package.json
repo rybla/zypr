@@ -15,7 +15,8 @@
     "bundle": "spago bundle-app --main Main --to app/app.js",
     "serve": "parcel ./app/index.html",
     "run": "spago run",
-    "launch": "npm run build && npm run bundle && npm run serve"
+    "launch": "npm run build && npm run bundle && npm run serve",
+    "deploy": "npm run build && parcel build --no-source-maps ./app/index.html --dist-dir docs --public-url ./"
   },
   "devDependencies": {
     "process": "^0.11.10"
