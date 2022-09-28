@@ -1,6 +1,7 @@
 module Zypr.EditorEffect where
 
 import Prelude
+import Zypr.EditorTypes
 import Zypr.Syntax
 import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.Reader (ReaderT, runReaderT)
@@ -8,7 +9,7 @@ import Control.Monad.State (StateT, get, gets, modify, modify_, runStateT)
 import Control.Monad.Writer (WriterT, runWriterT, tell)
 import Data.Array (elem)
 import Data.Either (Either(..))
-import Data.Foldable (foldr)
+import Data.Foldable (foldr, sequence_)
 import Data.Maybe (Maybe(..))
 import Data.String as String
 import Data.Tuple.Nested ((/\))
@@ -18,7 +19,6 @@ import React (ReactThis, getProps, getState, modifyState)
 import Text.PP (pprint)
 import Text.PP as PP
 import Zypr.EditorConsole (logEditorConsole, stringEditorConsoleError, stringEditorConsoleLog)
-import Zypr.EditorTypes (Clipboard, CursorMode, EditorMode(..), EditorProps, EditorState, Query, QueryAction(..), QueryOutput, SelectMode, QueryInput, emptyClipboard, emptyQuery)
 import Zypr.Key (Key)
 import Zypr.Key as Key
 import Zypr.Location (Location)
@@ -86,6 +86,30 @@ stepNext =
       tell [ "step forwards" ]
       pure loc'
     Nothing -> throwError $ "can't step forward at location: " <> show (Location.ppLocation loc)
+
+-- skips binds
+stepNextTerm :: EditorEffect Unit
+stepNextTerm = do
+  stepNext
+  state <- get
+  case state.mode of
+    CursorMode cursor
+      | BindSyntax _ <- cursor.location.syn -> stepNextTerm
+    SelectMode select
+      | BindSyntax _ <- select.locationEnd.syn -> stepNextTerm
+    _ -> pure unit
+
+-- skips terms
+stepPrevTerm :: EditorEffect Unit
+stepPrevTerm = do
+  stepPrev
+  state <- get
+  case state.mode of
+    CursorMode cursor
+      | BindSyntax _ <- cursor.location.syn -> stepPrevTerm
+    SelectMode select
+      | BindSyntax _ <- select.locationEnd.syn -> stepPrevTerm
+    _ -> pure unit
 
 stepDown :: EditorEffect Unit
 stepDown =
@@ -398,11 +422,27 @@ backspace = do
   state <- get
   case state.mode of
     CursorMode cursor
-      | BindSyntax _ <- cursor.location.syn -> modifyIdViaKey Key.key_Backspace
-      | Just _ <- cursor.query.mb_output -> modifyQueryStringViaKey Key.key_Backspace
+      | BindSyntax _ <- cursor.location.syn -> do
+        modifyIdViaKey Key.key_Backspace
+      | TermSyntax term <- cursor.location.syn
+      , Just _ <- cursor.query.mb_output -> do
+        modifyQueryStringViaKey Key.key_Backspace
+        case term of
+          -- if deleted entire id of var, then unwrap
+          Var var -> do
+            cursor' <- requireCursorMode
+            when (String.null cursor'.query.input.string) unwrap
+          _ -> pure unit
+      -- special case for backspacing at var
+      | TermSyntax (Var var) <- cursor.location.syn
+      , String.null cursor.query.input.string -> do
+        setQueryInputString var.dat.id
+        modifyQueryStringViaKey Key.key_Backspace
+        cursor' <- requireCursorMode
+        when (String.null cursor'.query.input.string) unwrap
       | otherwise -> unwrap
     SelectMode _select -> unwrap
-    _ -> throwError "can't backspace here "
+    _ -> throwError "can't backspace here"
 
 {-
 -- alternative backspace; some Syntax has multiple alternative ways to backspace
@@ -443,10 +483,9 @@ space = do
         if String.null cursor.query.input.string then
           setQueryInputString " "
         else
-          throwError "can only put a space in a query at the start"
+          throwError "Space is not allowed in a query other than as the first char"
     _ -> throwError "can't space here"
 
--- TODO
 copy :: EditorEffect Unit
 copy = do
   state <- get
@@ -545,12 +584,13 @@ keyinput key = do
   case state.mode of
     CursorMode cursor -> case cursor.location.syn of
       BindSyntax _ -> editId (modifyStringViaKey key)
-      -- TermSyntax _ -> modifyQueryStringViaKey key
       TermSyntax term
+        -- special case for typing at a var
         | Var var <- term
         , String.null cursor.query.input.string -> do
           setQueryInputString var.dat.id
           modifyQueryStringViaKey key
+        -- typing at any other term
         | otherwise -> modifyQueryStringViaKey key
     _ -> pure unit
 
@@ -645,8 +685,7 @@ calculateQuery input = do
             _ -> throwError "clasp index out of bounds while calculating query"
     pure
       $ Just
-          { action: LamQueryAction
-          , nClasps: 1
+          { nClasps: 1
           , change
           }
   -- app
@@ -662,8 +701,7 @@ calculateQuery input = do
             _ -> throwError "clasp index out of bounds while calculating query"
     pure
       $ Just
-          { action: AppQueryAction
-          , nClasps: 2
+          { nClasps: 2
           , change
           }
   else if input.string == "let" then do
@@ -678,8 +716,7 @@ calculateQuery input = do
             _ -> throwError "clasp index out of bounds while calculating query"
     pure
       $ Just
-          { action: LetQueryAction
-          , nClasps: 2
+          { nClasps: 2
           , change
           }
   else do
@@ -687,8 +724,7 @@ calculateQuery input = do
       id = idFromString input.string
     pure
       $ Just
-          { action: VarQueryAction id
-          , nClasps: 0
+          { nClasps: 0
           , change: Left (var id)
           }
 
@@ -702,7 +738,12 @@ submitQuery = do
       Left term -> replaceTermAtCursor term
       Right path -> do
         wrapTermAtCursor path
-        stepUp -- TODO: this is just a quick fix for now
+        -- where to move cursor after submitting
+        case path of
+          Zip { dat: TermData (LamData _) } -> pure unit
+          Zip { dat: TermData (AppData _) } -> stepUp
+          Zip { dat: TermData (LetData _) } -> sequence_ [ stepUp, stepNext ]
+          _ -> pure unit
   clearQuery
 
 -- arrows
@@ -711,6 +752,7 @@ arrowright = do
   escapeSelect
   state <- get
   case state.mode of
+    SelectMode select -> stepNextTerm
     CursorMode cursor
       | Just _ <- cursor.query.mb_output -> moveQueryIxClaspNext
     _ -> stepNext
@@ -720,6 +762,7 @@ arrowleft = do
   escapeSelect
   state <- get
   case state.mode of
+    SelectMode select -> stepPrevTerm
     CursorMode cursor
       | Just _ <- cursor.query.mb_output -> moveQueryIxClaspPrev
     _ -> stepPrev
@@ -727,9 +770,9 @@ arrowleft = do
 shiftArrowright :: EditorEffect Unit
 shiftArrowright = do
   enterSelect
-  stepNext
+  stepNextTerm
 
 shiftArrowleft :: EditorEffect Unit
 shiftArrowleft = do
   enterSelect
-  stepPrev
+  stepPrevTerm

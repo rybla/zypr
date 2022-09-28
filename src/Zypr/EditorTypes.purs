@@ -51,16 +51,9 @@ type QueryInput
     }
 
 type QueryOutput
-  = { action :: QueryAction -- matched action
-    , nClasps :: Int -- number of possible clasps in action
+  = { nClasps :: Int -- number of possible clasps in action
     , change :: Either Term Path -- change to be applied
     }
-
-data QueryAction
-  = VarQueryAction Id
-  | LamQueryAction
-  | LetQueryAction
-  | AppQueryAction
 
 emptyQuery :: Query
 emptyQuery =

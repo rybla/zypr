@@ -1,7 +1,8 @@
 module Zypr.RenderEditor where
 
 import Prelude
-import Data.Array (concat, intercalate, (:))
+import Zypr.RenderSyntax
+import Data.Array (concat, intercalate, reverse, (:))
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
@@ -25,7 +26,6 @@ import Zypr.Example.YCombinator as YCombinator
 import Zypr.KeyboardEventHandler (keyboardEventHandler)
 import Zypr.Menu (renderMenu)
 import Zypr.Path (Path(..))
-import Zypr.RenderSyntax
 import Zypr.Syntax (Term)
 import Zypr.SyntaxTheme (Res)
 
@@ -140,7 +140,7 @@ renderConsole this state =
   [ DOM.div [ Props.className "console" ]
       $ intercalate [ DOM.br' ]
       $ map renderConsoleItem
-      $ state.console
+      $ reverse state.console
       <> case state.clipboard of
           Just (Left term) ->
             [ stringEditorConsoleInfo <<< intercalate "\n"
