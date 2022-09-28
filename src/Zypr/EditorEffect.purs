@@ -6,20 +6,27 @@ import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.Reader (ReaderT, runReaderT)
 import Control.Monad.State (StateT, get, gets, modify, modify_, runStateT)
 import Control.Monad.Writer (WriterT, runWriterT, tell)
+import Data.Array (elem)
 import Data.Either (Either(..))
 import Data.Foldable (foldr)
 import Data.Maybe (Maybe(..))
 import Data.String as String
 import Data.Tuple.Nested ((/\))
 import Effect (Effect)
+import Effect.Exception.Unsafe (unsafeThrow)
 import React (ReactThis, getProps, getState, modifyState)
 import Text.PP (pprint)
 import Text.PP as PP
 import Zypr.EditorConsole (logEditorConsole, stringEditorConsoleError, stringEditorConsoleLog)
-import Zypr.EditorTypes (Clipboard, CursorMode, EditorMode(..), EditorProps, EditorState, SelectMode, emptyClipboard)
-import Zypr.Location (Location, ppLocation)
+import Zypr.EditorTypes (Clipboard, CursorMode, EditorMode(..), EditorProps, EditorState, Query, QueryAction(..), QueryOutput, SelectMode, QueryInput, emptyClipboard, emptyQuery)
+import Zypr.Key (Key)
+import Zypr.Key as Key
+import Zypr.Location (Location)
 import Zypr.Location as Location
-import Zypr.Path (Path(..), appendPaths)
+import Zypr.ModifyString (modifyStringViaKey, modifyStringViaKeyWithResult)
+import Zypr.ModifyString as ModifyString
+import Zypr.Path (Path(..))
+import Zypr.Path as Path
 import Zypr.SyntaxTheme (SyntaxTheme)
 
 type EditorEffect a
@@ -50,9 +57,13 @@ setTerm term = do
 
 setLocation :: Location -> EditorEffect Unit
 setLocation loc = do
-  tell [ "jump to location: " <> show (ppLocation loc) ]
+  tell [ "jump to location: " <> show (Location.ppLocation loc) ]
   state <- get
-  setMode $ CursorMode { location: loc }
+  setMode
+    $ CursorMode
+        { location: loc
+        , query: emptyQuery
+        }
 
 modifyLocation :: (Location -> EditorEffect Location) -> EditorEffect Unit
 modifyLocation f = do
@@ -66,7 +77,7 @@ stepPrev =
     Just loc' -> do
       tell [ "step backwards" ]
       pure loc'
-    Nothing -> throwError $ "can't step backward at location: " <> show (ppLocation loc)
+    Nothing -> throwError $ "can't step backward at location: " <> show (Location.ppLocation loc)
 
 stepNext :: EditorEffect Unit
 stepNext =
@@ -74,7 +85,7 @@ stepNext =
     Just loc' -> do
       tell [ "step forwards" ]
       pure loc'
-    Nothing -> throwError $ "can't step forward at location: " <> show (ppLocation loc)
+    Nothing -> throwError $ "can't step forward at location: " <> show (Location.ppLocation loc)
 
 stepDown :: EditorEffect Unit
 stepDown =
@@ -82,7 +93,7 @@ stepDown =
     Just loc' -> do
       tell [ "step down" ]
       pure loc'
-    Nothing -> throwError $ "can't step down at location: " <> show (ppLocation loc)
+    Nothing -> throwError $ "can't step down at location: " <> show (Location.ppLocation loc)
 
 stepUp :: EditorEffect Unit
 stepUp =
@@ -90,7 +101,7 @@ stepUp =
     Just loc' -> do
       tell [ "step up " ]
       pure loc'
-    Nothing -> throwError $ "can't step up at location: " <> show (ppLocation loc)
+    Nothing -> throwError $ "can't step up at location: " <> show (Location.ppLocation loc)
 
 stepRight :: EditorEffect Unit
 stepRight =
@@ -98,7 +109,7 @@ stepRight =
     Just loc' -> do
       tell [ "step right" ]
       pure loc'
-    Nothing -> throwError $ "can't step right at location: " <> show (ppLocation loc)
+    Nothing -> throwError $ "can't step right at location: " <> show (Location.ppLocation loc)
 
 stepLeft :: EditorEffect Unit
 stepLeft =
@@ -106,7 +117,7 @@ stepLeft =
     Just loc' -> do
       tell [ "step right" ]
       pure loc'
-    Nothing -> throwError $ "can't step right at location: " <> show (ppLocation loc)
+    Nothing -> throwError $ "can't step right at location: " <> show (Location.ppLocation loc)
 
 stepRoot :: EditorEffect Unit
 stepRoot = do
@@ -127,7 +138,11 @@ step f = do
   state <- get
   case state.mode of
     TopMode top -> do
-      setMode $ CursorMode { location: { syn: TermSyntax top.term, path: Top } }
+      setMode
+        $ CursorMode
+            { location: { syn: TermSyntax top.term, path: Top }
+            , query: emptyQuery
+            }
     CursorMode cursor -> do
       location <- f cursor.location
       setMode $ CursorMode cursor { location = location }
@@ -154,7 +169,9 @@ escape = do
   --       SelectMode _ -> escapeSelect
   --       _ -> pure unit
   case state.mode of
-    CursorMode _ -> escapeCursor
+    CursorMode cursor
+      | Just _ <- cursor.query.mb_output -> clearQuery
+      | otherwise -> escapeCursor
     SelectMode _ -> escapeSelect
     _ -> pure unit
 
@@ -184,7 +201,11 @@ escapeSelect = do
   case state.mode of
     SelectMode select -> do
       tell [ "escape select" ]
-      setMode $ CursorMode { location: select.locationStart }
+      setMode
+        $ CursorMode
+            { location: select.locationStart
+            , query: emptyQuery
+            }
     _ -> pure unit
 
 enterSelect :: EditorEffect Unit
@@ -193,7 +214,10 @@ enterSelect = do
   case state.mode of
     TopMode top ->
       setMode
-        $ CursorMode { location: { syn: TermSyntax top.term, path: Top } }
+        $ CursorMode
+            { location: { syn: TermSyntax top.term, path: Top }
+            , query: emptyQuery
+            }
     CursorMode cursor -> do
       tell [ "enter select" ]
       setMode
@@ -202,6 +226,14 @@ enterSelect = do
             , locationEnd: { syn: cursor.location.syn, path: Top }
             }
     SelectMode _ -> pure unit
+
+escapeQuery :: EditorEffect Unit
+escapeQuery = do
+  cursor <- requireCursorMode
+  setMode
+    $ CursorMode
+        cursor
+          { query = emptyQuery }
 
 setSyntaxTheme :: SyntaxTheme -> EditorEffect Unit
 setSyntaxTheme thm = do
@@ -304,13 +336,8 @@ dig = do
   tell [ "dig" ]
   modifyTermAtCursor \_ -> pure hole
 
-editId :: String -> EditorEffect Unit
-editId label = do
-  let
-    f :: String -> String
-    f str = case label of
-      "Backspace" -> String.take (max 0 $ String.length str - 1) str
-      _ -> str <> label
+editId :: (String -> String) -> EditorEffect Unit
+editId f =
   modifySyntaxAtCursor case _ of
     TermSyntax (Var var) -> do
       let
@@ -328,7 +355,10 @@ editId label = do
         pure $ TermSyntax (var id')
     BindSyntax (Bind dat) -> do
       pure $ BindSyntax (Bind dat { id = f dat.id })
-    _ -> throwError "requires cursor at Var or Bind"
+    _ -> throwError "to edit Id, requires cursor at Var or Bind"
+
+modifyIdViaKey :: Key -> EditorEffect Unit
+modifyIdViaKey key = editId (modifyStringViaKey key)
 
 clearId :: EditorEffect Unit
 clearId = do
@@ -336,7 +366,7 @@ clearId = do
     TermSyntax (Var var) -> pure $ TermSyntax hole
     TermSyntax (Hole _) -> pure $ TermSyntax hole
     BindSyntax (Bind dat) -> pure $ BindSyntax $ Bind dat { id = "" }
-    _ -> throwError "requires cursor at Var or Bind"
+    _ -> throwError "to clear, Id requires cursor at Var or Bind"
 
 -- the cursor is at the Location of an editable Syntax
 isEditable :: EditorEffect Boolean
@@ -349,6 +379,7 @@ isEditable = do
           _ -> pure false
   pure res
 
+{-
 -- normal backspace
 backspace :: EditorEffect Unit
 backspace = do
@@ -361,7 +392,19 @@ backspace = do
             false -> unwrap
     SelectMode _select -> unwrap
     _ -> throwError "can't backspace here "
+-}
+backspace :: EditorEffect Unit
+backspace = do
+  state <- get
+  case state.mode of
+    CursorMode cursor
+      | BindSyntax _ <- cursor.location.syn -> modifyIdViaKey Key.key_Backspace
+      | Just _ <- cursor.query.mb_output -> modifyQueryStringViaKey Key.key_Backspace
+      | otherwise -> unwrap
+    SelectMode _select -> unwrap
+    _ -> throwError "can't backspace here "
 
+{-
 -- alternative backspace; some Syntax has multiple alternative ways to backspace
 backspace' :: EditorEffect Unit
 backspace' = do
@@ -374,7 +417,7 @@ backspace' = do
             false -> unwrap'
     SelectMode _select -> unwrap'
     _ -> throwError "can't backspace' here"
-
+-}
 -- super backspace; deletes all of focussed Syntax
 backspaceSuper :: EditorEffect Unit
 backspaceSuper = do
@@ -386,8 +429,24 @@ backspaceSuper = do
             true -> clearId
             false -> dig
     SelectMode _select -> unwrap
-    _ -> throwError "can't backspaceSuper here "
+    _ -> throwError "can't backspaceSuper here"
 
+-- normally, can't put a space into a string using ModifyString utilities, so we
+-- have to do it manually here
+space :: EditorEffect Unit
+space = do
+  state <- get
+  case state.mode of
+    CursorMode cursor -> case cursor.location.syn of
+      BindSyntax _ -> pure unit
+      TermSyntax _ ->
+        if String.null cursor.query.input.string then
+          setQueryInputString " "
+        else
+          throwError "can only put a space in a query at the start"
+    _ -> throwError "can't space here"
+
+-- TODO
 copy :: EditorEffect Unit
 copy = do
   state <- get
@@ -412,6 +471,7 @@ unwrapSelection = do
             { path: select.locationStart.path
             , syn: select.locationEnd.syn
             }
+        , query: emptyQuery
         }
 
 setClipboard :: Clipboard -> EditorEffect Unit
@@ -439,26 +499,223 @@ cut = do
                 { path: select.locationStart.path
                 , syn: select.locationEnd.syn
                 }
+            , query: emptyQuery
             }
     _ -> throwError "can't cut without a cursor or selection"
 
 paste :: EditorEffect Unit
 paste = do
-  modifyLocation \loc -> do
-    state <- get
-    case loc.syn of
-      TermSyntax _ -> do
-        case state.clipboard of
-          -- replace term at cursor
-          Just (Left term') -> do
-            tell [ "paste term: " <> pprint term' ]
-            pure loc { syn = TermSyntax term' }
-          -- wrap around cursor 
-          Just (Right path) -> do
-            tell [ "paste selection: " <> pprint path ]
-            pure
-              $ { path: appendPaths loc.path path
-                , syn: loc.syn
-                }
-          Nothing -> throwError "can't paste with empty clipboard"
-      _ -> throwError "can't paste at a non-Term"
+  state <- get
+  cursor <- requireCursorMode
+  case cursor.location.syn of
+    TermSyntax _ -> do
+      case state.clipboard of
+        -- replace term at cursor
+        Just (Left term') -> do
+          tell [ "paste term: " <> pprint term' ]
+          replaceTermAtCursor term'
+        -- wrap around term at cursor 
+        Just (Right path) -> do
+          tell [ "paste selection: " <> pprint path ]
+          wrapTermAtCursor path
+        Nothing -> throwError "can't paste with empty clipboard"
+    _ -> throwError "can't paste at a non-Term"
+
+replaceTermAtCursor :: Term -> EditorEffect Unit
+replaceTermAtCursor term = do
+  modifyTermAtCursor \_ -> do
+    tell [ "replace term at cursor with term: " <> pprint term ]
+    pure term
+
+-- wrap a path around the term at the cursor
+wrapTermAtCursor :: Path -> EditorEffect Unit
+wrapTermAtCursor path = do
+  modifyLocation \loc -> case loc.syn of
+    TermSyntax _ -> do
+      tell [ "wrap term at cursor with path: " <> pprint path ]
+      pure
+        $ { path: Path.appendPaths loc.path path
+          , syn: loc.syn
+          }
+    _ -> throwError "can't wrap a path around a non-Term"
+
+keyinput :: Key -> EditorEffect Unit
+keyinput key = do
+  state <- get
+  case state.mode of
+    CursorMode cursor -> case cursor.location.syn of
+      BindSyntax _ -> editId (modifyStringViaKey key)
+      TermSyntax _ -> modifyQueryStringViaKey key
+    _ -> pure unit
+
+-- clear query
+clearQuery :: EditorEffect Unit
+clearQuery = setQueryInputString ""
+
+{-
+-- OLD: before key-based string modification
+-- modify the query string
+modifyQueryString :: (String -> EditorEffect String) -> EditorEffect Unit
+modifyQueryString f = do
+  cursor <- requireCursorMode
+  string' <- f cursor.query.input.string
+  let
+    input' :: QueryInput
+    input' =
+      { string: string'
+      , ixClasp: 0
+      }
+  mb_output' <- calculateQuery input'
+  setMode
+    $ CursorMode
+        cursor
+          { query =
+            cursor.query
+              { input = input'
+              , mb_output = mb_output'
+              }
+          }
+-}
+updateQuery :: QueryInput -> EditorEffect Unit
+updateQuery input = do
+  cursor <- requireCursorMode
+  mb_output <- calculateQuery input
+  setMode $ CursorMode cursor { query = { input, mb_output } }
+
+modifyQueryStringViaKey :: Key -> EditorEffect Unit
+modifyQueryStringViaKey key = do
+  cursor <- requireCursorMode
+  let
+    { string, mb_result } = modifyStringViaKeyWithResult key cursor.query.input.string
+  case mb_result of
+    Nothing -> setQueryInputString string
+    Just ModifyString.Submit -> submitQuery
+    Just ModifyString.Escape -> clearQuery
+
+setQueryInputString :: String -> EditorEffect Unit
+setQueryInputString string = updateQuery { string, ixClasp: 0 }
+
+-- move the query clasp index by an int (+1 or -1)
+moveQueryIxClasp :: Int -> EditorEffect Unit
+moveQueryIxClasp dixClasp = do
+  cursor <- requireCursorMode
+  case cursor.query.mb_output of
+    Nothing -> throwError "can't move query input clasp without active query"
+    Just output -> do
+      let
+        ixClasp = (cursor.query.input.ixClasp + dixClasp) `mod` output.nClasps
+      tell [ "changed query.input.ixClasp from " <> show cursor.query.input.ixClasp <> " to " <> show ixClasp ]
+      updateQuery cursor.query.input { ixClasp = ixClasp }
+
+moveQueryIxClaspNext :: EditorEffect Unit
+moveQueryIxClaspNext = do
+  tell [ "move query clasp to next position" ]
+  moveQueryIxClasp 1
+
+moveQueryIxClaspPrev :: EditorEffect Unit
+moveQueryIxClaspPrev = do
+  tell [ "move query clasp to previous position" ]
+  moveQueryIxClasp (-1)
+
+-- `string` is query string 
+calculateQuery :: QueryInput -> EditorEffect (Maybe QueryOutput)
+calculateQuery input = do
+  tell [ "calculating query from input: " <> show input ]
+  if String.null input.string then
+    pure Nothing
+  else if input.string `elem` [ "fun", "lam" ] then do
+    change <-
+      Right
+        <$> case input.ixClasp of
+            -- clasp at bod
+            0 -> pure $ Path.lam_bod (bnd "") Top
+            -- bad clasp index
+            _ -> throwError "clasp index out of bounds while calculating query"
+    pure
+      $ Just
+          { action: LamQueryAction
+          , nClasps: 1
+          , change
+          }
+  -- app
+  else if input.string == " " then do
+    change <-
+      Right
+        <$> case input.ixClasp of
+            -- clasp at apl
+            1 -> pure $ Path.app_apl hole Top
+            -- clasp at arg
+            0 -> pure $ Path.app_arg hole Top
+            -- bad clasp index
+            _ -> throwError "clasp index out of bounds while calculating query"
+    pure
+      $ Just
+          { action: AppQueryAction
+          , nClasps: 2
+          , change
+          }
+  else if input.string == "let" then do
+    change <-
+      Right
+        <$> case input.ixClasp of
+            -- clasp at imp
+            1 -> pure $ Path.let_imp (bnd "") hole Top
+            -- clasp at bod
+            0 -> pure $ Path.let_bod (bnd "") hole Top
+            -- bad clasp index
+            _ -> throwError "clasp index out of bounds while calculating query"
+    pure
+      $ Just
+          { action: LetQueryAction
+          , nClasps: 2
+          , change
+          }
+  else do
+    let
+      id = idFromString input.string
+    pure
+      $ Just
+          { action: VarQueryAction id
+          , nClasps: 0
+          , change: Left (var id)
+          }
+
+-- submit query
+submitQuery :: EditorEffect Unit
+submitQuery = do
+  cursor <- requireCursorMode
+  case cursor.query.mb_output of
+    Nothing -> throwError "can't submit query with no active query"
+    Just output -> case output.change of
+      Left term -> replaceTermAtCursor term
+      Right path -> wrapTermAtCursor path
+  clearQuery
+
+-- arrows
+arrowright :: EditorEffect Unit
+arrowright = do
+  escapeSelect
+  state <- get
+  case state.mode of
+    CursorMode cursor
+      | Just _ <- cursor.query.mb_output -> moveQueryIxClaspNext
+    _ -> stepNext
+
+arrowleft :: EditorEffect Unit
+arrowleft = do
+  escapeSelect
+  state <- get
+  case state.mode of
+    CursorMode cursor
+      | Just _ <- cursor.query.mb_output -> moveQueryIxClaspPrev
+    _ -> stepPrev
+
+shiftArrowright :: EditorEffect Unit
+shiftArrowright = do
+  enterSelect
+  stepNext
+
+shiftArrowleft :: EditorEffect Unit
+shiftArrowleft = do
+  enterSelect
+  stepPrev

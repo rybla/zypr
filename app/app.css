@@ -252,6 +252,39 @@ body {
   display: inline-block;
 }
 
+/* query */
+
+.query-output {
+  display: inline;
+  /* background-color: rgb(247, 255, 140); */
+  background-color: rgb(255, 199, 94);
+  box-shadow: 0 0 0 2px blue;
+  border-radius: 6px;
+}
+
+.query-output-term-new {
+  display: inline;
+  color: black;
+  font-style: italic;
+}
+
+.query-output-term-old {
+  display: inline;
+  background-color: rgb(172, 172, 172);
+  border-radius: 6px;
+}
+
+.query-output-path {
+  display: inline;
+}
+
+.query-output-path-term {
+  display: inline;
+  background-color: white;
+  box-shadow: 0 0 0 2px blue;
+  border-radius: 6px;
+}
+
 /* footer */
 
 .footer {
@@ -315,7 +348,7 @@ body {
   background-color: rgb(255, 238, 215);
 }
 
-.selection-hole {
+.clipboard-clasp {
   display: inline-block;
   width: 10pt;
   height: 10pt;

@@ -50,7 +50,7 @@ let_imp bnd bod up = Zip { dat: TermData (LetData letData), lefts: [ BindSyntax 
 
 -- | path into let with clasp at bod
 let_bod :: Bind -> Term -> Path -> Path
-let_bod bnd imp up = Zip { dat: TermData (LetData letData), lefts: [ BindSyntax bnd, TermSyntax imp ], up, rights: [] }
+let_bod bnd imp up = Zip { dat: TermData (LetData letData), lefts: [ TermSyntax imp, BindSyntax bnd ], up, rights: [] }
 
 -- pattern matching
 casePath ::

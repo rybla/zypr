@@ -27,6 +27,7 @@ import Zypr.EditorEffect (runEditorEffect, setLocation)
 type RenderArgs
   = { this :: EditorThis
     , thm :: SyntaxTheme
+    , mb_query :: Maybe Query
     , interactable :: Boolean
     }
 
@@ -34,6 +35,10 @@ initRenderArgs :: EditorThis -> EditorState -> RenderArgs
 initRenderArgs this state =
   { this
   , thm: state.syntaxTheme
+  , mb_query:
+      case state.mode of
+        CursorMode { query } -> Just query
+        _ -> Nothing
   , interactable: true
   }
 
@@ -47,8 +52,7 @@ renderTopMode args top = renderLocationSyntax args loc 0
 renderCursorMode :: RenderArgs -> CursorMode -> Res
 renderCursorMode args cursor =
   renderLocationPath args cursor.location 0
-    $ renderCursor args
-    <<< renderLocationSyntax args cursor.location
+    $ renderCursor args cursor
 
 renderSelectMode :: RenderArgs -> SelectMode -> Res
 renderSelectMode args select =
@@ -108,10 +112,34 @@ renderLocationSyntax args loc indentationLevel =
     )
     indentationLevel
 
-renderCursor :: RenderArgs -> Res -> Res
-renderCursor args res =
-  [ DOM.div [ Props.className "select" ]
-      res
+renderCursor :: RenderArgs -> CursorMode -> Int -> Res
+renderCursor args cursor il =
+  [ DOM.div [ Props.className "select" ] case args.mb_query of
+      Nothing -> renderLocationSyntax args cursor.location il
+      Just query -> case query.mb_output of
+        -- since no query output, nothing to display
+        Nothing -> renderLocationSyntax args cursor.location il
+        Just output ->
+          [ DOM.div [ Props.className "query-output" ] case output.change of
+              Left term -> renderQueryOutputTerm args term cursor il
+              Right path -> renderQueryOutputPath args path cursor il
+          ]
+  ]
+
+renderQueryOutputTerm :: RenderArgs -> Term -> CursorMode -> Int -> Res
+renderQueryOutputTerm args term cursor il =
+  [ DOM.div [ Props.className "query-output-term-new" ]
+      $ renderLocationSyntax args { syn: TermSyntax term, path: Top } il
+  , DOM.div [ Props.className "query-output-term-old" ]
+      $ renderLocationSyntax args cursor.location il
+  ]
+
+renderQueryOutputPath :: RenderArgs -> Path -> CursorMode -> Int -> Res
+renderQueryOutputPath args path cursor il =
+  [ DOM.div [ Props.className "query-output-path" ]
+      $ renderLocationPath args { syn: TermSyntax hole, path } il
+      $ (\res -> [ DOM.div [ Props.className "query-output-path-term" ] res ])
+      <<< renderLocationSyntax args cursor.location -- properly uses new indentation after wrapping by path
   ]
 
 renderClipboardTerm :: RenderArgs -> Term -> Res
@@ -128,7 +156,7 @@ renderClipboardPath args path =
       $ renderLocationPath (args { interactable = false })
           { path, syn: TermSyntax hole }
           0
-      $ \_ -> [ DOM.div [ Props.className "selection-hole" ] [] ] -- TODO: suspicious
+      $ \_ -> [ DOM.div [ Props.className "clipboard-clasp" ] [] ] -- TODO: suspicious
   ]
 
 renderSelectStart :: RenderArgs -> Res -> Res

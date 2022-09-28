@@ -55,25 +55,37 @@ type BindData
 type Id
   = String
 
+idFromString :: String -> Id
+idFromString x = x
+
 -- shorthands
 var :: Id -> Term
-var id = Var { dat: { id } }
+var id = Var { dat: varData id }
+
+varData :: Id -> VarData
+varData id = { id }
 
 lam :: Id -> Term -> Term
 lam id bod =
   Lam
-    { dat: { indent_bod: false }
+    { dat: lamData
     , bnd: bnd id
     , bod
     }
 
+lamData :: LamData
+lamData = { indent_bod: false }
+
 app :: Term -> Term -> Term
 app apl arg =
   App
-    { dat: { indent_arg: false }
+    { dat: appData
     , apl
     , arg
     }
+
+appData :: AppData
+appData = { indent_arg: false }
 
 apps :: Term -> Array Term -> Term
 apps apl args = case Array.uncons args of
@@ -83,17 +95,26 @@ apps apl args = case Array.uncons args of
 let_ :: Id -> Term -> Term -> Term
 let_ id imp bod =
   Let
-    { dat: { indent_imp: false, indent_bod: false }
+    { dat: letData
     , bnd: bnd id
     , imp
     , bod
     }
 
+letData :: LetData
+letData = { indent_imp: false, indent_bod: false }
+
 hole :: Term
-hole = Hole { dat: {} }
+hole = Hole { dat: holeData }
+
+holeData :: HoleData
+holeData = {}
 
 bnd :: Id -> Bind
-bnd id = Bind { id }
+bnd id = Bind (bindData id)
+
+bindData :: Id -> BindData
+bindData id = { id }
 
 -- GenSyntax
 type GenSyntax

@@ -7,7 +7,7 @@ import Effect (Effect)
 import React (ReactElement, ReactThis)
 import Zypr.Location (Location)
 import Zypr.Path (Path)
-import Zypr.Syntax (Term)
+import Zypr.Syntax (Term, Id)
 import Zypr.SyntaxTheme (SyntaxTheme, Res)
 
 type EditorThis
@@ -36,10 +36,42 @@ type TopMode
   = { term :: Term }
 
 type CursorMode
-  = { location :: Location }
+  = { location :: Location
+    , query :: Query
+    }
+
+type Query
+  = { input :: QueryInput
+    , mb_output :: Maybe QueryOutput
+    }
+
+type QueryInput
+  = { string :: String -- query string
+    , ixClasp :: Int -- selected clasp index in action
+    }
+
+type QueryOutput
+  = { action :: QueryAction -- matched action
+    , nClasps :: Int -- number of possible clasps in action
+    , change :: Either Term Path -- change to be applied
+    }
+
+data QueryAction
+  = VarQueryAction Id
+  | LamQueryAction
+  | LetQueryAction
+  | AppQueryAction
+
+emptyQuery :: Query
+emptyQuery =
+  { input: { string: "", ixClasp: 0 }
+  , mb_output: Nothing
+  }
 
 type SelectMode
-  = { locationStart :: Location, locationEnd :: Location }
+  = { locationStart :: Location
+    , locationEnd :: Location
+    }
 
 type Clipboard
   = Maybe (Either Term Path)

@@ -40,8 +40,17 @@ validIdStrings =
     <> "0 1 2 3 4 5 6 7 8 9"
     <> "- = ; ' , . / ! @ # $ % ^ & * _ + : < > ?"
 
-isValidIdStrings :: Key -> Boolean
-isValidIdStrings key =
+isValidIdModificationKey :: Key -> Boolean
+isValidIdModificationKey key =
+  and
+    [ not key.meta
+    , not key.ctrl
+    , not key.alt
+    , String.toLower key.label `elem` validIdStrings
+    ]
+
+isValidQueryModificationKey :: Key -> Boolean
+isValidQueryModificationKey key =
   and
     [ not key.meta
     , not key.ctrl
@@ -84,6 +93,9 @@ key_ShiftArrowUp = key_ArrowUp { shift = true }
 
 key_Escape :: Key
 key_Escape = defaultKey "Escape"
+
+key_Enter :: Key
+key_Enter = defaultKey "Enter"
 
 key_Backspace :: Key
 key_Backspace = defaultKey "Backspace"

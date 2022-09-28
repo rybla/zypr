@@ -140,13 +140,19 @@ renderConsole this state =
                   ]
             ]
           CursorMode cursor ->
-            [ stringEditorConsoleInfo <<< intercalate "\n"
-                $ [ "mode: cursor"
-                  , "cursor location:"
-                  , "  path: " <> pprint cursor.location.path
-                  , "  syn: " <> pprint cursor.location.syn
-                  ]
-            ]
+            concat
+              [ case cursor.query.mb_output <#> _.change of
+                  Nothing -> []
+                  Just (Left term) -> [ stringEditorConsoleInfo $ "query term: " <> pprint term ]
+                  Just (Right path) -> [ stringEditorConsoleInfo $ "query path: " <> pprint path ]
+              , [ stringEditorConsoleInfo <<< intercalate "\n"
+                    $ [ "mode: cursor"
+                      , "cursor location:"
+                      , "  path: " <> pprint cursor.location.path
+                      , "  syn: " <> pprint cursor.location.syn
+                      ]
+                ]
+              ]
           SelectMode select ->
             [ stringEditorConsoleInfo <<< intercalate "\n"
                 $ [ "mode: select"
