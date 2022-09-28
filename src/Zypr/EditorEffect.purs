@@ -157,6 +157,22 @@ stepRoot = do
         _ -> pure unit
   go
 
+stepNextHole :: EditorEffect Unit
+stepNextHole = do
+  step \loc -> case Location.stepNextHole loc of
+    Just loc' -> do
+      tell [ "step next hole" ]
+      pure loc'
+    Nothing -> throwError $ "can't find a next hole"
+
+stepPrevHole :: EditorEffect Unit
+stepPrevHole = do
+  step \loc -> case Location.stepPrevHole loc of
+    Just loc' -> do
+      tell [ "step previous hole" ]
+      pure loc'
+    Nothing -> throwError $ "can't find a previous hole"
+
 step :: (Location -> EditorEffect Location) -> EditorEffect Unit
 step f = do
   state <- get
@@ -250,6 +266,16 @@ enterSelect = do
             , locationEnd: { syn: cursor.location.syn, path: Top }
             }
     SelectMode _ -> pure unit
+
+-- start a query initialized with the var's (at cursor) id
+enterQueryVar :: EditorEffect Unit
+enterQueryVar = do
+  cursor <- requireCursorMode
+  case cursor.location.syn of
+    TermSyntax (Var var) -> do
+      setQueryInputString var.dat.id
+      setQueryDisplayOldTerm false
+    _ -> throwError "can't enter query with Var's Id at a non-Var"
 
 escapeQuery :: EditorEffect Unit
 escapeQuery = do
@@ -425,7 +451,7 @@ backspace = do
       | BindSyntax _ <- cursor.location.syn -> do
         modifyIdViaKey Key.key_Backspace
       | TermSyntax term <- cursor.location.syn
-      , Just _ <- cursor.query.mb_output -> do
+      , not (String.null cursor.query.input.string) -> do
         modifyQueryStringViaKey Key.key_Backspace
         case term of
           -- if deleted entire id of var, then unwrap
@@ -433,13 +459,14 @@ backspace = do
             cursor' <- requireCursorMode
             when (String.null cursor'.query.input.string) unwrap
           _ -> pure unit
-      -- special case for backspacing at var
-      | TermSyntax (Var var) <- cursor.location.syn
-      , String.null cursor.query.input.string -> do
-        setQueryInputString var.dat.id
-        modifyQueryStringViaKey Key.key_Backspace
-        cursor' <- requireCursorMode
-        when (String.null cursor'.query.input.string) unwrap
+      -- OLD: when typing at Var immediately entered query with Var Id
+      -- -- special case for backspacing at var
+      -- | TermSyntax (Var var) <- cursor.location.syn
+      -- , String.null cursor.query.input.string -> do
+      --   setQueryInputString var.dat.id
+      --   modifyQueryStringViaKey Key.key_Backspace
+      --   cursor' <- requireCursorMode
+      --   when (String.null cursor'.query.input.string) unwrap
       | otherwise -> unwrap
     SelectMode _select -> unwrap
     _ -> throwError "can't backspace here"
@@ -485,6 +512,16 @@ space = do
         else
           throwError "Space is not allowed in a query other than as the first char"
     _ -> throwError "can't space here"
+
+enter :: EditorEffect Unit
+enter = do
+  state <- get
+  case state.mode of
+    CursorMode cursor
+      | String.null cursor.query.input.string
+      , TermSyntax (Var _) <- cursor.location.syn -> enterQueryVar
+      | not (String.null cursor.query.input.string) -> submitQuery
+    _ -> throwError "can't Enter here"
 
 copy :: EditorEffect Unit
 copy = do
@@ -583,14 +620,22 @@ keyinput key = do
   state <- get
   case state.mode of
     CursorMode cursor -> case cursor.location.syn of
-      BindSyntax _ -> editId (modifyStringViaKey key)
+      BindSyntax _bind -> editId (modifyStringViaKey key)
+      -- OLD: when typing at Var immediately entered query with Var Id
+      -- TermSyntax term
+      --   -- special case for typing at a var
+      --   | Var var <- term
+      --   , String.null cursor.query.input.string -> do
+      --     setQueryInputString var.dat.id
+      --     modifyQueryStringViaKey key
+      --   -- typing at any other term
+      --   | otherwise -> modifyQueryStringViaKey key
       TermSyntax term
-        -- special case for typing at a var
-        | Var var <- term
-        , String.null cursor.query.input.string -> do
-          setQueryInputString var.dat.id
+        -- if querying at Var, make sure to still show old Var
+        | Var _ <- term, String.null cursor.query.input.string -> do
+          setQueryDisplayOldTerm true
           modifyQueryStringViaKey key
-        -- typing at any other term
+        -- if querying at non-Var, then display of old term is already handled
         | otherwise -> modifyQueryStringViaKey key
     _ -> pure unit
 
@@ -622,9 +667,11 @@ modifyQueryString f = do
               }
           }
 -}
-updateQuery :: QueryInput -> EditorEffect Unit
-updateQuery input = do
+updateQuery :: (QueryInput -> QueryInput) -> EditorEffect Unit
+updateQuery f = do
   cursor <- requireCursorMode
+  let
+    input = f cursor.query.input
   mb_output <- calculateQuery input
   tell
     [ "new query input " <> show input <> " yields new query "
@@ -646,7 +693,12 @@ modifyQueryStringViaKey key = do
     Just ModifyString.Escape -> clearQuery
 
 setQueryInputString :: String -> EditorEffect Unit
-setQueryInputString string = updateQuery { string, ixClasp: 0 }
+setQueryInputString string =
+  updateQuery
+    _
+      { string = string
+      , ixClasp = 0
+      }
 
 -- move the query clasp index by an int (+1 or -1)
 moveQueryIxClasp :: Int -> EditorEffect Unit
@@ -657,7 +709,7 @@ moveQueryIxClasp dixClasp = do
     Just output -> do
       let
         ixClasp = (cursor.query.input.ixClasp + dixClasp) `mod` output.nClasps
-      updateQuery cursor.query.input { ixClasp = ixClasp }
+      updateQuery _ { ixClasp = ixClasp }
 
 moveQueryIxClaspNext :: EditorEffect Unit
 moveQueryIxClaspNext = do
@@ -745,6 +797,12 @@ submitQuery = do
           Zip { dat: TermData (LetData _) } -> sequence_ [ stepUp, stepNext ]
           _ -> pure unit
   clearQuery
+
+setQueryDisplayOldTerm :: Boolean -> EditorEffect Unit
+setQueryDisplayOldTerm displayOldTerm =
+  updateQuery
+    _
+      { displayOldTerm = displayOldTerm }
 
 -- arrows
 arrowright :: EditorEffect Unit

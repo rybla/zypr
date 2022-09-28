@@ -48,6 +48,7 @@ type Query
 type QueryInput
   = { string :: String -- query string
     , ixClasp :: Int -- selected clasp index in action
+    , displayOldTerm :: Boolean -- whether or not to display old term 
     }
 
 type QueryOutput
@@ -57,7 +58,11 @@ type QueryOutput
 
 emptyQuery :: Query
 emptyQuery =
-  { input: { string: "", ixClasp: 0 }
+  { input:
+      { string: ""
+      , ixClasp: 0
+      , displayOldTerm: true
+      }
   , mb_output: Nothing
   }
 

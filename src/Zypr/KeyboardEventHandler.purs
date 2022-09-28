@@ -64,6 +64,9 @@ handleKey key
   -- enter, escape
   | key == key_Period = EditorEffect.enterSelect
   | key == key_Escape = EditorEffect.escape
+  -- tab to next/prev hole
+  | key == key_Tab = EditorEffect.stepNextHole
+  | key == key_ShiftTab = EditorEffect.stepPrevHole
   -- copy, cut, paste
   | key == key_copy = EditorEffect.copy
   | key == key_cut = EditorEffect.cut
@@ -71,6 +74,7 @@ handleKey key
   -- special keys
   | key == key_Backspace = EditorEffect.backspace
   | key == key_Space = EditorEffect.space
+  | key == key_Enter = EditorEffect.enter
   -- query
   | isValidStringModificationKey key = EditorEffect.keyinput key
   -- TODO: tmp disable for testing query

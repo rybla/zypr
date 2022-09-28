@@ -133,11 +133,12 @@ renderQueryOutputTerm args term cursor il =
   ]
     <> case (cursor.query.mb_output <#> _.change) /\ cursor.location.syn of
         Just (Left _term) /\ TermSyntax (Hole _hole) -> []
-        Just (Left _term) /\ TermSyntax (Var _var) -> []
-        _ ->
-          [ DOM.div [ Props.className "query-output-term-old" ]
-              $ renderLocationSyntax args cursor.location il
-          ]
+        _
+          | not (cursor.query.input.displayOldTerm) -> []
+          | otherwise ->
+            [ DOM.div [ Props.className "query-output-term-old" ]
+                $ renderLocationSyntax args cursor.location il
+            ]
 
 -- , DOM.div [ Props.className "query-output-term-old" ]
 --     $ renderLocationSyntax args cursor.location il

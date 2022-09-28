@@ -109,6 +109,9 @@ key_CtrlBackspace = (defaultKey "Backspace") { ctrl = true }
 key_Tab :: Key
 key_Tab = defaultKey "Tab"
 
+key_ShiftTab :: Key
+key_ShiftTab = (defaultKey "Tab") { shift = true }
+
 key_Space :: Key
 key_Space = defaultKey " "
 

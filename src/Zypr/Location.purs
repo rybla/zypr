@@ -152,3 +152,17 @@ stepRightmostDescendant loc = do
 
     goDown loc = maybe (pure loc) goRight (stepDown loc)
   goRight loc'
+
+stepNextHole :: Location -> Maybe Location
+stepNextHole loc = do
+  loc' <- stepNext loc
+  case loc'.syn of
+    TermSyntax (Hole _) -> pure loc'
+    _ -> stepNextHole loc'
+
+stepPrevHole :: Location -> Maybe Location
+stepPrevHole loc = do
+  loc' <- stepPrev loc
+  case loc'.syn of
+    TermSyntax (Hole _) -> pure loc'
+    _ -> stepPrevHole loc'
