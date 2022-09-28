@@ -688,7 +688,9 @@ submitQuery = do
     Nothing -> throwError "can't submit query with no active query"
     Just output -> case output.change of
       Left term -> replaceTermAtCursor term
-      Right path -> wrapTermAtCursor path
+      Right path -> do
+        wrapTermAtCursor path
+        stepUp -- TODO: this is just a quick fix for now
   clearQuery
 
 -- arrows

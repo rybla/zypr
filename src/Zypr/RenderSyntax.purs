@@ -129,7 +129,7 @@ renderCursor args cursor il =
 renderQueryOutputTerm :: RenderArgs -> Term -> CursorMode -> Int -> Res
 renderQueryOutputTerm args term cursor il =
   [ DOM.div [ Props.className "query-output-term-new" ]
-      $ renderLocationSyntax args { syn: TermSyntax term, path: Top } il
+      $ renderLocationSyntax (args { interactable = false }) { syn: TermSyntax term, path: Top } il
   , DOM.div [ Props.className "query-output-term-old" ]
       $ renderLocationSyntax args cursor.location il
   ]
@@ -137,7 +137,7 @@ renderQueryOutputTerm args term cursor il =
 renderQueryOutputPath :: RenderArgs -> Path -> CursorMode -> Int -> Res
 renderQueryOutputPath args path cursor il =
   [ DOM.div [ Props.className "query-output-path" ]
-      $ renderLocationPath args { syn: TermSyntax hole, path } il
+      $ renderLocationPath (args { interactable = false }) { syn: TermSyntax hole, path } il
       $ (\res -> [ DOM.div [ Props.className "query-output-path-term" ] res ])
       <<< renderLocationSyntax args cursor.location -- properly uses new indentation after wrapping by path
   ]
