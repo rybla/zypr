@@ -10,19 +10,47 @@ import Zypr.Syntax
 data Path
   = Top
   | Zip
-    { dat :: SyntaxData -- SyntaxData of the Syntax this is a path to
-    , lefts :: Array Syntax -- Syntaxes to the left, reversed
+    { dat :: SyntaxData -- | SyntaxData of the Syntax this is a path to
+    , lefts :: Array Syntax -- | Syntaxes to the left, reversed
     , up :: Path -- Path up
-    , rights :: Array Syntax -- Syntaxes to the right
+    , rights :: Array Syntax -- | Syntaxes to the right
     }
 
--- append the first path above the second path
+-- | append the first path above the second path
 appendPaths :: Path -> Path -> Path
 appendPaths path1 path2 = case path2 of
   Top -> path1
   Zip { dat, lefts, up, rights } ->
     Zip
       { dat, lefts, up: appendPaths path1 up, rights }
+
+-- | path into lam with clasp at bnd
+lam_bnd :: Term -> Path -> Path
+lam_bnd bod up = Zip { dat: TermData (LamData lamData), lefts: [], up, rights: [ TermSyntax bod ] }
+
+-- | path into lam with clasp at bod
+lam_bod :: Bind -> Path -> Path
+lam_bod bnd up = Zip { dat: TermData (LamData lamData), lefts: [ BindSyntax bnd ], up, rights: [] }
+
+-- | path into app with clasp at apl 
+app_apl :: Term -> Path -> Path
+app_apl arg up = Zip { dat: TermData (AppData appData), lefts: [], up, rights: [ TermSyntax arg ] }
+
+-- | path into app with clasp at arg
+app_arg :: Term -> Path -> Path
+app_arg apl up = Zip { dat: TermData (AppData appData), lefts: [ TermSyntax apl ], up, rights: [] }
+
+-- | path into let with clasp at bnd
+let_bnd :: Term -> Term -> Path -> Path
+let_bnd imp bod up = Zip { dat: TermData (LetData letData), lefts: [], up, rights: [ TermSyntax imp, TermSyntax bod ] }
+
+-- | path into let with clasp at imp
+let_imp :: Bind -> Term -> Path -> Path
+let_imp bnd bod up = Zip { dat: TermData (LetData letData), lefts: [ BindSyntax bnd ], up, rights: [ TermSyntax bod ] }
+
+-- | path into let with clasp at bod
+let_bod :: Bind -> Term -> Path -> Path
+let_bod bnd imp up = Zip { dat: TermData (LetData letData), lefts: [ BindSyntax bnd, TermSyntax imp ], up, rights: [] }
 
 -- pattern matching
 casePath ::
