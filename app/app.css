@@ -254,17 +254,49 @@ body {
 
 /* query */
 
+@keyframes example {
+  0% {
+    background-color: red
+  }
+
+  20% {
+    background-color: orange
+  }
+
+  40% {
+    background-color: yellow
+  }
+
+  60% {
+    background-color: green
+  }
+
+  80% {
+    background-color: blue
+  }
+
+  100% {
+    background-color: purple
+  }
+}
+
 .query-output {
   display: inline;
   /* background-color: rgb(247, 255, 140); */
   background-color: rgb(255, 199, 94);
   box-shadow: 0 0 0 2px blue;
   border-radius: 6px;
+
+  animation-name: example;
+  animation-duration: 10s;
+  animation-play-state: running;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
 }
 
 .query-output-term-new {
   display: inline;
-  color: black;
+  /* color: black; */
   font-style: italic;
 }
 
