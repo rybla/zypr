@@ -545,14 +545,15 @@ keyinput key = do
   case state.mode of
     CursorMode cursor -> case cursor.location.syn of
       BindSyntax _ -> editId (modifyStringViaKey key)
-      TermSyntax _ -> modifyQueryStringViaKey key
+      -- TermSyntax _ -> modifyQueryStringViaKey key
+      TermSyntax term
+        | Var var <- term
+        , String.null cursor.query.input.string -> do
+          setQueryInputString var.dat.id
+          modifyQueryStringViaKey key
+        | otherwise -> modifyQueryStringViaKey key
     _ -> pure unit
 
-{-
-TermSyntax term 
-        | term 
-        | otherwise -> modifyQueryStringViaKey key
--}
 -- clear query
 clearQuery :: EditorEffect Unit
 clearQuery = setQueryInputString ""
