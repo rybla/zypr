@@ -187,6 +187,10 @@ renderIndent indentationLevel res =
   in
     indentRes <> res
 
+renderWithIndent :: Res -> Int -> Boolean -> Res
+renderWithIndent html indentationLevel indented
+  = if indented then renderIndent (indentationLevel + 1) html else html
+
 -- only render `SyntaxData` at this `Location`, using pre-rendered children 
 renderSyntaxData :: RenderArgs -> Location -> Array Res -> Int -> Res
 renderSyntaxData args loc@{ syn } ress indentationLevel =
@@ -227,7 +231,7 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
           args.thm.term.lam
             { dat
             , bnd
-            , bod: if dat.indent_bod then renderIndent (indentationLevel + 1) bod else bod
+            , bod: renderWithIndent bod indentationLevel dat.indent_bod
             , isAss:
                 case loc.path of
                   -- apl or arg
@@ -240,7 +244,7 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
           args.thm.term.app
             { dat
             , apl
-            , arg
+            , arg : renderWithIndent arg indentationLevel dat.indent_arg
             , apl_isApp:
                 case syns of
                   [ TermSyntax (App _), _ ] -> true
@@ -254,9 +258,9 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
         TermData (LetData dat) /\ [ bnd, imp, bod ] ->
           args.thm.term.let_
             { dat
-            , bnd
-            , imp
-            , bod
+            , bnd : bnd
+            , imp : renderWithIndent imp indentationLevel dat.indent_imp
+            , bod : renderWithIndent bod indentationLevel dat.indent_bod
             , isAss:
                 case loc.path of
                   -- apl or arg

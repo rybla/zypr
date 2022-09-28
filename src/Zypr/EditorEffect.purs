@@ -3,11 +3,12 @@ module Zypr.EditorEffect where
 import Prelude
 import Zypr.EditorTypes
 import Zypr.Syntax
+
 import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.Reader (ReaderT, runReaderT)
 import Control.Monad.State (StateT, get, gets, modify, modify_, runStateT)
 import Control.Monad.Writer (WriterT, runWriterT, tell)
-import Data.Array (elem)
+import Data.Array (elem, length, reverse)
 import Data.Either (Either(..))
 import Data.Foldable (foldr, sequence_)
 import Data.Maybe (Maybe(..))
@@ -19,6 +20,7 @@ import React (ReactThis, getProps, getState, modifyState)
 import Text.PP (pprint)
 import Text.PP as PP
 import Zypr.EditorConsole (logEditorConsole, stringEditorConsoleError, stringEditorConsoleLog)
+import Zypr.Indent (toggleIndentData)
 import Zypr.Key (Key)
 import Zypr.Key as Key
 import Zypr.Location (Location)
@@ -834,3 +836,22 @@ shiftArrowleft :: EditorEffect Unit
 shiftArrowleft = do
   enterSelect
   stepPrevTerm
+
+toggleIndent :: EditorEffect Unit 
+toggleIndent = do 
+  cursor <- requireCursorMode
+  -- modifyTermAtCursor \term -> ?a 
+  -- case Location.stepUp cursor.location of
+  --   Nothing -> throwError "can't indent top of program"
+  --   Just loc -> setLocation loc
+  case cursor.location.path of
+     Top -> throwError "can't indent top of program"
+     Zip {dat, lefts, up, rights}
+        -> let dat' = case toggleIndentData dat (length lefts) of
+                Just dat' -> dat'
+                Nothing -> dat
+           in
+           setLocation {
+              syn: cursor.location.syn,
+              path: Zip {dat: dat', lefts, up, rights}
+           }

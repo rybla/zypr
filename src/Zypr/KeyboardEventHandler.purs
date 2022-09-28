@@ -2,6 +2,7 @@ module Zypr.KeyboardEventHandler where
 
 import Prelude
 import Zypr.Key
+
 import Control.Monad.State (get)
 import Data.Array (elem)
 import Data.Foldable (or, sequence_)
@@ -65,6 +66,7 @@ handleKey key
   | key == key_Period = EditorEffect.enterSelect
   | key == key_Escape = EditorEffect.escape
   -- tab to next/prev hole
+  | key == key_Tab = EditorEffect.toggleIndent
   | key == key_Tab = EditorEffect.stepNextHole
   | key == key_ShiftTab = EditorEffect.stepPrevHole
   -- copy, cut, paste
