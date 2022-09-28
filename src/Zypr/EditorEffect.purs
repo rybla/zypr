@@ -548,6 +548,11 @@ keyinput key = do
       TermSyntax _ -> modifyQueryStringViaKey key
     _ -> pure unit
 
+{-
+TermSyntax term 
+        | term 
+        | otherwise -> modifyQueryStringViaKey key
+-}
 -- clear query
 clearQuery :: EditorEffect Unit
 clearQuery = setQueryInputString ""
@@ -580,6 +585,13 @@ updateQuery :: QueryInput -> EditorEffect Unit
 updateQuery input = do
   cursor <- requireCursorMode
   mb_output <- calculateQuery input
+  tell
+    [ "new query input " <> show input <> " yields new query "
+        <> case mb_output <#> _.change of
+            Just (Left term) -> "output term: " <> pprint term
+            Just (Right path) -> "output path: " <> pprint path
+            Nothing -> "output: Nothing"
+    ]
   setMode $ CursorMode cursor { query = { input, mb_output } }
 
 modifyQueryStringViaKey :: Key -> EditorEffect Unit
@@ -604,7 +616,6 @@ moveQueryIxClasp dixClasp = do
     Just output -> do
       let
         ixClasp = (cursor.query.input.ixClasp + dixClasp) `mod` output.nClasps
-      tell [ "changed query.input.ixClasp from " <> show cursor.query.input.ixClasp <> " to " <> show ixClasp ]
       updateQuery cursor.query.input { ixClasp = ixClasp }
 
 moveQueryIxClaspNext :: EditorEffect Unit
@@ -643,9 +654,9 @@ calculateQuery input = do
       Right
         <$> case input.ixClasp of
             -- clasp at apl
-            1 -> pure $ Path.app_apl hole Top
+            0 -> pure $ Path.app_apl hole Top
             -- clasp at arg
-            0 -> pure $ Path.app_arg hole Top
+            1 -> pure $ Path.app_arg hole Top
             -- bad clasp index
             _ -> throwError "clasp index out of bounds while calculating query"
     pure

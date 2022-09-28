@@ -139,7 +139,8 @@ tk_lambda :: Res
 tk_lambda = makeStringToken "keyword keyword-lambda" "λ"
 
 tk_mapsto :: Res
-tk_mapsto = makeStringToken "keyword keyword-mapsto" "⇒"
+-- tk_mapsto = makeStringToken "keyword keyword-mapsto" "⇒"
+tk_mapsto = makeStringToken "keyword keyword-mapsto" "↦"
 
 tk_let :: Res
 tk_let = makeStringToken "keyword keyword-let" "let"

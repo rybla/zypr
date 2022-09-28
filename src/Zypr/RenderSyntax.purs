@@ -130,10 +130,18 @@ renderQueryOutputTerm :: RenderArgs -> Term -> CursorMode -> Int -> Res
 renderQueryOutputTerm args term cursor il =
   [ DOM.div [ Props.className "query-output-term-new" ]
       $ renderLocationSyntax (args { interactable = false }) { syn: TermSyntax term, path: Top } il
-  , DOM.div [ Props.className "query-output-term-old" ]
-      $ renderLocationSyntax args cursor.location il
   ]
+    <> case (cursor.query.mb_output <#> _.change) /\ cursor.location.syn of
+        Just (Left _term) /\ TermSyntax (Hole _hole) -> []
+        Just (Left _term) /\ TermSyntax (Var _var) -> []
+        _ ->
+          [ DOM.div [ Props.className "query-output-term-old" ]
+              $ renderLocationSyntax args cursor.location il
+          ]
 
+-- , DOM.div [ Props.className "query-output-term-old" ]
+--     $ renderLocationSyntax args cursor.location il
+-- ]
 renderQueryOutputPath :: RenderArgs -> Path -> CursorMode -> Int -> Res
 renderQueryOutputPath args path cursor il =
   [ DOM.div [ Props.className "query-output-path" ]
@@ -144,7 +152,7 @@ renderQueryOutputPath args path cursor il =
 
 renderClipboardTerm :: RenderArgs -> Term -> Res
 renderClipboardTerm args term =
-  [ DOM.div [ Props.className "clipboard clipboard-term" ]
+  [ DOM.div [ Props.className "clipboard-term" ]
       $ renderLocationSyntax (args { interactable = false })
           { syn: TermSyntax term, path: Top }
           0
@@ -152,7 +160,7 @@ renderClipboardTerm args term =
 
 renderClipboardPath :: RenderArgs -> Path -> Res
 renderClipboardPath args path =
-  [ DOM.div [ Props.className "clipboard clipboard-path" ]
+  [ DOM.div [ Props.className "clipboard-path" ]
       $ renderLocationPath (args { interactable = false })
           { path, syn: TermSyntax hole }
           0

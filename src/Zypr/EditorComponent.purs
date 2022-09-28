@@ -25,7 +25,7 @@ import Zypr.Example.YCombinator as YCombinator
 import Zypr.KeyboardEventHandler (keyboardEventHandler)
 import Zypr.Menu (renderMenu)
 import Zypr.Path (Path(..))
-import Zypr.RenderSyntax (initRenderArgs, renderClipboardPath, renderClipboardTerm, renderCursorMode, renderSelectMode, renderTopMode)
+import Zypr.RenderSyntax
 import Zypr.Syntax (Term)
 import Zypr.SyntaxTheme (Res)
 
@@ -85,11 +85,34 @@ renderPopout this state =
     [ DOM.div [ Props.className "popout" ]
         $ concat
             [ case state.clipboard of
-                Just cb -> renderClipboard this state cb
+                Just cb ->
+                  renderPopoutItem this state "clipboard"
+                    [ DOM.div [ Props.className "clipboard-value" ]
+                        $ case cb of
+                            Left term -> renderClipboardTerm args term
+                            Right path -> renderClipboardPath args path
+                    ]
                 Nothing -> []
             ]
     ]
 
+renderPopoutItem :: EditorThis -> EditorState -> String -> Res -> Res
+renderPopoutItem this state label res =
+  [ DOM.div [ Props.className "popout-item" ]
+      $ [ DOM.div [ Props.className "popout-item-label" ]
+            [ DOM.text label
+            , DOM.div
+                [ Props.className "popout-item-clear"
+                , Props.onClick \_event -> runEditorEffect this EditorEffect.clearClipboard
+                ]
+                [ DOM.text "✕" ]
+            ]
+        , DOM.br'
+        , DOM.div [ Props.className "popout-item-body" ] res
+        ]
+  ]
+
+{-
 renderClipboard :: EditorThis -> EditorState -> Either Term Path -> Res
 renderClipboard this state cb =
   let
@@ -111,7 +134,7 @@ renderClipboard this state cb =
                   Right path -> renderClipboardPath args path
           ]
     ]
-
+-}
 renderConsole :: EditorThis -> EditorState -> Res
 renderConsole this state =
   [ DOM.div [ Props.className "console" ]

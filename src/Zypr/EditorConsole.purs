@@ -14,7 +14,7 @@ stringEditorConsoleLog :: String -> ConsoleItem
 stringEditorConsoleLog log = { type_: ConsoleItemLog, res: [ DOM.text log ] }
 
 maxConsoleItems ∷ Int
-maxConsoleItems = 3
+maxConsoleItems = 7
 
 logEditorConsole :: ConsoleItem -> EditorState -> EditorState
 logEditorConsole item state =

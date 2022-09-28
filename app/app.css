@@ -321,10 +321,6 @@ body {
 
 .footer {
   margin: 0;
-  /* padding: 10px; */
-  /* width: calc(100% - 20px); */
-  /* padding: 20px; */
-  /* width: calc(100vw - 20px); */
   width: 100vw;
   position: fixed;
   bottom: 0;
@@ -333,29 +329,37 @@ body {
 /* popout */
 
 .popout {
+  padding: 10px;
+}
+
+.popout-item {
+  padding: 10px;
+  padding-top: 0;
+  width: calc(100% - 20px);
+  border-radius: 6px;
+  font-size: 12pt;
+
+  box-shadow: 0 0 4px 1px black;
   background-color: tan;
 }
 
-/* clipboard */
-
-.clipboard {
-  padding: 10px;
-  width: calc(100% - 20px);
-  font-size: 12pt;
-}
-
-.clipboard-label {
+.popout-item-label {
   display: inline-block;
   margin-bottom: 10px;
-  padding: 5px;
+  margin-left: -10px;
+  padding: 4px;
+
   border-radius: 6px;
+  border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
+
   font-size: 8pt;
 
   background-color: rgb(21, 33, 58);
   color: white;
 }
 
-.clipboard-clear {
+.popout-item-clear {
   display: inline-block;
   padding: 0 4px;
   border-radius: 6px;
@@ -367,13 +371,16 @@ body {
   background-color: white;
 }
 
-.clipboard-clear:hover {
+.popout-item-clear:hover {
   background-color: rgb(149, 0, 0);
   color: white;
 }
 
+/* clipboard */
+
 .clipboard-value {
   display: inline-block;
+  padding: 5px;
   border-radius: 6px;
   box-shadow: 0 0 4px 1px black;
   /* border: 1px solid tan; */
@@ -436,7 +443,7 @@ body {
 .console-item-body {
   display: inline-block;
   padding: 5px;
-  /* max-width: calc(100vw - 20px - 10px - 50px); */
+  max-width: calc(100vw - 20px - 50px);
   overflow-x: scroll;
   white-space: pre;
 
