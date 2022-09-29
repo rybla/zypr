@@ -190,8 +190,17 @@ renderIndent indentationLevel res =
     indentRes <> res
 
 renderWithIndent :: Res -> Int -> Boolean -> Res
-renderWithIndent html indentationLevel indented
-  = if indented then renderIndent (indentationLevel + 1) html else html
+renderWithIndent html indentationLevel indented =
+  if indented then
+    renderIndent
+      ( if indentationLevel > 0 then
+          indentationLevel + 1
+        else
+          0
+      )
+      html
+  else
+    html
 
 -- only render `SyntaxData` at this `Location`, using pre-rendered children 
 renderSyntaxData :: RenderArgs -> Location -> Array Res -> Int -> Res
@@ -239,7 +248,7 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
                 case loc.path of
                   -- apl or arg
                   Zip { dat: TermData (AppData _) } -> true
-                  Top -> true
+                  Top -> false
                   _ -> false
             }
         -- term-app
@@ -247,7 +256,7 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
           args.thm.term.app
             { dat
             , apl
-            , arg : renderWithIndent arg indentationLevel dat.indent_arg
+            , arg: renderWithIndent arg indentationLevel dat.indent_arg
             , apl_isApp:
                 case syns of
                   [ TermSyntax (App _), _ ] -> true
@@ -255,20 +264,21 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
             , isApl:
                 case loc.path of
                   Zip { dat: TermData (AppData _), lefts: [], rights: [ _ ] } -> true
+                  Top -> false
                   _ -> false
             }
         --- term-let
         TermData (LetData dat) /\ [ bnd, imp, bod ] ->
           args.thm.term.let_
             { dat
-            , bnd : bnd
-            , imp : renderWithIndent imp indentationLevel dat.indent_imp
-            , bod : renderWithIndent bod indentationLevel dat.indent_bod
+            , bnd: bnd
+            , imp: renderWithIndent imp indentationLevel dat.indent_imp
+            , bod: renderWithIndent bod indentationLevel dat.indent_bod
             , isAss:
                 case loc.path of
                   -- apl or arg
                   Zip { dat: TermData (AppData _) } -> true
-                  Top -> true
+                  Top -> false
                   _ -> false
             }
         -- term-hole 
@@ -276,10 +286,10 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
         -- bind
         BindData dat /\ [] ->
           [ DOM.text
-              $ if String.null dat.id then
-                  "~"
-                else
-                  dat.id
+              if String.null dat.id then
+                "~"
+              else
+                dat.id
           ]
         -- plus
         TermData (PlusData dat) /\ [ left, right ] -> args.thm.term.plus { dat, left, right }

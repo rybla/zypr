@@ -3,7 +3,6 @@ module Zypr.EditorEffect where
 import Prelude
 import Zypr.EditorTypes
 import Zypr.Syntax
-
 import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.Reader (ReaderT, runReaderT)
 import Control.Monad.State (StateT, get, gets, modify, modify_, runStateT)
@@ -809,7 +808,7 @@ submitQuery = do
         wrapTermAtCursor path
         -- where to move cursor after submitting
         case path of
-          Zip { dat: TermData (LamData _) } -> pure unit
+          Zip { dat: TermData (LamData _) } -> sequence_ [ stepUp, stepNext ]
           Zip { dat: TermData (AppData _) } -> stepUp
           Zip { dat: TermData (LetData _) } -> sequence_ [ stepUp, stepNext ]
           _ -> pure unit
@@ -852,21 +851,22 @@ shiftArrowleft = do
   enterSelect
   stepPrevTerm
 
-toggleIndent :: EditorEffect Unit 
-toggleIndent = do 
+toggleIndent :: EditorEffect Unit
+toggleIndent = do
   cursor <- requireCursorMode
   -- modifyTermAtCursor \term -> ?a 
   -- case Location.stepUp cursor.location of
   --   Nothing -> throwError "can't indent top of program"
   --   Just loc -> setLocation loc
   case cursor.location.path of
-     Top -> throwError "can't indent top of program"
-     Zip {dat, lefts, up, rights}
-        -> let dat' = case toggleIndentData dat (length lefts) of
-                Just dat' -> dat'
-                Nothing -> dat
-           in
-           setLocation {
-              syn: cursor.location.syn,
-              path: Zip {dat: dat', lefts, up, rights}
-           }
+    Top -> throwError "can't indent top of program"
+    Zip { dat, lefts, up, rights } ->
+      let
+        dat' = case toggleIndentData dat (length lefts) of
+          Just dat' -> dat'
+          Nothing -> dat
+      in
+        setLocation
+          { syn: cursor.location.syn
+          , path: Zip { dat: dat', lefts, up, rights }
+          }
