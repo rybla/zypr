@@ -802,16 +802,18 @@ submitQuery = do
   cursor <- requireCursorMode
   case cursor.query.mb_output of
     Nothing -> throwError "can't submit query with no active query"
-    Just output -> case output.change of
-      Left term -> replaceTermAtCursor term
-      Right path -> do
-        wrapTermAtCursor path
-        -- where to move cursor after submitting
-        case path of
-          Zip { dat: TermData (LamData _) } -> sequence_ [ stepUp, stepNext ]
-          Zip { dat: TermData (AppData _) } -> stepUp
-          Zip { dat: TermData (LetData _) } -> sequence_ [ stepUp, stepNext ]
-          _ -> pure unit
+    Just output -> do
+      tell [ "submit query" ]
+      case output.change of
+        Left term -> replaceTermAtCursor term
+        Right path -> do
+          wrapTermAtCursor path
+          -- where to move cursor after submitting
+          case path of
+            Zip { dat: TermData (LamData _) } -> sequence_ [ stepUp, stepNext ]
+            Zip { dat: TermData (AppData _) } -> stepUp
+            Zip { dat: TermData (LetData _) } -> sequence_ [ stepUp, stepNext ]
+            _ -> pure unit
   clearQuery
 
 setQueryDisplayOldTerm :: Boolean -> EditorEffect Unit

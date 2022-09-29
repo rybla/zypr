@@ -240,6 +240,8 @@ body {
 
 .token.punc.appHandle {}
 
+.token.punc.aplHandle {}
+
 .token.emoji {
   /* background-color: black; */
   /* font-size: 200%; */

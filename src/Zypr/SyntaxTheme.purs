@@ -16,11 +16,11 @@ type SyntaxTheme
         }
     , term ::
         { var :: { dat :: VarData, id :: Res } -> Res
-        , lam :: { dat :: LamData, bnd :: Res, bod :: Res, isAss :: Boolean } -> Res
-        , app :: { dat :: AppData, apl :: Res, arg :: Res, apl_isApp :: Boolean, isApl :: Boolean } -> Res
+        , lam :: { dat :: LamData, bnd :: Res, bod :: Res, isAss :: Boolean, bod_isLam :: Boolean, isLamBod :: Boolean } -> Res
+        , app :: { dat :: AppData, apl :: Res, arg :: Res, apl_isApp :: Boolean, isApl :: Boolean, isAss :: Boolean } -> Res
         , let_ :: { dat :: LetData, bnd :: Res, imp :: Res, bod :: Res, isAss :: Boolean } -> Res
         , hole :: { dat :: HoleData } -> Res
-        , plus :: { dat :: PlusData, left :: Res, right :: Res } -> Res
+        , plus :: { dat :: PlusData, left :: Res, right :: Res, isAss :: Boolean } -> Res
         }
     }
 
@@ -41,74 +41,78 @@ basicSyntaxTheme =
       { var:
           \{ dat, id } -> id
       , lam:
-          \{ dat, bnd, bod, isAss } ->
-            assocIf isAss $ concat [ tk_lambda, tk_space, bnd, tk_space, tk_mapsto, tk_space, bod ]
+          \{ dat, bnd, bod, isAss, isLamBod, bod_isLam } ->
+            assocIf isAss $ concat
+              $ if isLamBod && bod_isLam then
+                  [ bnd, tk_lamArgHandle, bod ]
+                else if bod_isLam then
+                  [ tk_lambda, tk_space, bnd, tk_lamArgHandle, bod ]
+                else if isLamBod then
+                  [ bnd, tk_lamArgHandle, tk_mapsto, tk_space, bod ]
+                else
+                  [ tk_lambda, tk_space, bnd, tk_space, tk_mapsto, tk_space, bod ]
       , app:
-          \{ dat, apl, arg, apl_isApp, isApl } ->
-            let
-              sep = if apl_isApp then [] else [ tk_space ]
-
-              wrap = if isApl then (_ <> tk_appHandle) else assoc
-            in
-              wrap $ concat $ [ apl ] <> sep <> [ arg ]
+          \{ dat, apl, arg, apl_isApp, isApl, isAss } ->
+            -- sep = if apl_isApp then [] else [ tk_space ]
+            -- wrap = if isApl then assocIf isAss <<< (tk_aplHandle <> _) <<< (_ <> tk_appHandle) else assocIf isAss <<< (tk_aplHandle <> _)
+            -- wrap = assocIf isAss <<< (_ <> tk_appHandle)
+            assocIf isAss $ concat $ [ apl, tk_appHandle, arg ]
       , let_:
           \{ dat, bnd, imp, bod, isAss } ->
             assocIf isAss $ concat [ tk_let, tk_space, bnd, tk_space, tk_assign, tk_space, imp, tk_space, tk_in, tk_space, bod ]
-      , hole: \{ dat } -> tk_question
-      , plus : \{ dat, left, right } -> concat [ tk_lparen , left , tk_space , tk_plus , tk_space , right, tk_rparen ]
+      , hole:
+          \{ dat } -> tk_question
+      , plus:
+          \{ dat, left, right, isAss } ->
+            assocIf isAss $ concat [ left, tk_space, tk_plus, tk_space, right ]
       }
   }
 
 emojiSyntaxTheme :: SyntaxTheme
 emojiSyntaxTheme =
-  { meta:
-      { name: "emoji"
+  basicSyntaxTheme
+    { meta
+      { name = "emoji" }
+    , term
+      { lam =
+        \{ dat, bnd, bod } ->
+          assoc $ concat [ tk_zipper, tk_space, bnd, tk_space, tk_zipper, tk_space, bod ]
+      , app =
+        \{ dat, apl, arg } ->
+          assoc $ concat [ apl, tk_space, arg ]
+      , let_ =
+        \{ dat, bnd, imp, bod } ->
+          assoc $ concat [ tk_zipper, tk_space, bnd, tk_space, tk_zipper, tk_space, imp, tk_space, tk_zipper, tk_space, bod ]
       }
-  , term:
-      { var:
-          \{ dat, id } -> id
-      , lam:
-          \{ dat, bnd, bod } ->
-            assoc $ concat [ tk_zipper, tk_space, bnd, tk_space, tk_zipper, tk_space, bod ]
-      , app:
-          \{ dat, apl, arg } ->
-            assoc $ concat [ apl, tk_space, arg ]
-      , let_:
-          \{ dat, bnd, imp, bod } ->
-            assoc $ concat [ tk_zipper, tk_space, bnd, tk_space, tk_zipper, tk_space, imp, tk_space, tk_zipper, tk_space, bod ]
-      , hole: \{ dat } -> tk_question
-      , plus : \{ dat, left, right } -> concat [ tk_lparen , tk_space , left , tk_plus , tk_space , tk_rparen ]
-      }
-  }
+    }
 
 appSyntaxTheme :: SyntaxTheme
 appSyntaxTheme =
   basicSyntaxTheme
-    { meta { name = "app" }
-    , term { app = \{ dat, apl, arg } -> assoc $ concat [ tk_app, tk_space, apl, tk_space, arg ] }
+    { meta
+      { name = "app" }
+    , term
+      { app = \{ dat, apl, arg } -> assoc $ concat [ tk_app, tk_space, apl, tk_space, arg ] }
     }
 
 judsonSyntaxTheme :: SyntaxTheme
 judsonSyntaxTheme =
-  { meta:
-      { name: "the judson"
+  basicSyntaxTheme
+    { meta
+      { name = "the judson"
       }
-  , term:
-      { var:
-          \{ dat, id } -> id
-      , lam:
-          \{ dat, bnd, bod } ->
-            assoc $ concat [ gideon, tk_space, bnd, tk_space, sundback, tk_space, bod ]
-      , app:
-          \{ dat, apl, arg } ->
-            assoc $ concat [ apl, tk_space, arg ]
-      , let_:
-          \{ dat, bnd, imp, bod } ->
-            assoc $ concat [ whitcomb, tk_space, bnd, tk_space, l, tk_space, imp, tk_space, judson, tk_space, bod ]
-      , hole: \{ dat } -> tk_question
-      , plus : \{ dat, left, right } -> concat [ tk_lparen , tk_space , left , tk_plus , tk_space , tk_rparen ]
+    , term
+      { lam =
+        \{ dat, bnd, bod } ->
+          assoc $ concat [ gideon, tk_space, bnd, tk_space, sundback, tk_space, bod ]
+      , app =
+        \{ dat, apl, arg } ->
+          assoc $ concat [ apl, tk_space, arg ]
+      , let_ =
+        \{ dat, bnd, imp, bod } ->
+          assoc $ concat [ whitcomb, tk_space, bnd, tk_space, l, tk_space, imp, tk_space, judson, tk_space, bod ]
       }
-  }
+    }
   where
   judson = makeStringToken "keyword" "Judson"
 
@@ -127,8 +131,14 @@ tk_question = makeStringToken "" "?"
 tk_app :: Res
 tk_app = makeStringToken "keyword" "app"
 
+tk_lamArgHandle :: Res
+tk_lamArgHandle = makeStringToken "punc punc-lamArgHandle" "▪"
+
 tk_appHandle :: Res
 tk_appHandle = makeStringToken "punc punc-appHandle" "▪"
+
+tk_aplHandle :: Res
+tk_aplHandle = makeStringToken "punc punc-aplHandle" "$"
 
 tk_space :: Res
 tk_space = makeStringToken "space" " "
