@@ -48,6 +48,14 @@ let_bnd imp bod up = Zip { dat: TermData (LetData letData), lefts: [], up, right
 let_imp :: Bind -> Term -> Path -> Path
 let_imp bnd bod up = Zip { dat: TermData (LetData letData), lefts: [ BindSyntax bnd ], up, rights: [ TermSyntax bod ] }
 
+-- | path into plus with clasp at left
+plus_left :: Term -> Path -> Path
+plus_left right up  = Zip { dat: TermData (PlusData plusData), lefts: [], up, rights: [ TermSyntax right ]}
+
+-- | path into plus with clasp at right
+plus_right :: Term -> Path -> Path
+plus_right left up  = Zip { dat: TermData (PlusData plusData), lefts: [ TermSyntax left ], up, rights: []}
+
 -- | path into let with clasp at bod
 let_bod :: Bind -> Term -> Path -> Path
 let_bod bnd imp up = Zip { dat: TermData (LetData letData), lefts: [ TermSyntax imp, BindSyntax bnd ], up, rights: [] }
@@ -69,6 +77,10 @@ casePath ::
       , imp :: { dat :: LetData, bnd :: Bind, imp :: Path, bod :: Term } -> a
       , bod :: { dat :: LetData, bnd :: Bind, imp :: Term, bod :: Path } -> a
       }
+  , plus ::
+      { left :: { dat :: PlusData, left :: Path, right :: Term } -> a
+      , right :: { dat :: PlusData, left :: Term, right :: Path } -> a
+      }
   } ->
   Path ->
   a
@@ -81,6 +93,8 @@ casePath hdl = case _ of
   Zip { dat: TermData (LetData dat), lefts: [], up: bnd, rights: [ TermSyntax imp, TermSyntax bod ] } -> hdl.let_.bnd { dat, bnd, imp, bod }
   Zip { dat: TermData (LetData dat), lefts: [ BindSyntax bnd ], up: imp, rights: [ TermSyntax bod ] } -> hdl.let_.imp { dat, bnd, imp, bod }
   Zip { dat: TermData (LetData dat), lefts: [ TermSyntax imp, BindSyntax bnd ], up: bod, rights: [] } -> hdl.let_.bod { dat, bnd, imp, bod }
+  Zip { dat: TermData (PlusData dat), lefts: [ TermSyntax left ], up: right, rights: [] } -> hdl.plus.right { dat, left, right}
+  Zip { dat: TermData (PlusData dat), lefts: [], up: left, rights: [ TermSyntax right ] } -> hdl.plus.left { dat, left, right}
   path -> unsafeThrow $ "malformed path: " <> show path
 
 -- instances
@@ -111,6 +125,7 @@ instance ppPath :: PP.PP Path where
             , imp: \let_ -> go ((PP.paren <<< PP.words) [ PP.pp "let", PP.pp let_.bnd, PP.pp "=", doc, PP.pp "in", PP.pp let_.bod ]) let_.imp
             , bod: \let_ -> go ((PP.paren <<< PP.words) [ PP.pp "let", PP.pp let_.bnd, PP.pp "=", PP.pp let_.imp, PP.pp "in", PP.pp let_.bod ]) let_.bod
             }
+        , plus : { left : \_ -> PP.pp "+", right: \_ -> PP.pp "+" }
         }
 
 -- useful for debugging

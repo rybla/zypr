@@ -773,6 +773,21 @@ calculateQuery input = do
           { nClasps: 2
           , change
           }
+  else if input.string == "+" then do
+    change <-
+      Right
+        <$> case input.ixClasp of
+            -- clasp at left
+            0 -> pure $ Path.plus_left hole Top
+            -- clasp at right
+            1 -> pure $ Path.plus_right hole Top
+            -- bad clasp index
+            _ -> throwError "clasp index out of bounds while calculating query"
+    pure
+      $ Just
+          { nClasps: 2
+          , change
+          }
   else do
     let
       id = idFromString input.string

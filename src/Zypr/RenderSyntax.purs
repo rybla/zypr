@@ -7,6 +7,7 @@ import Zypr.Location
 import Zypr.Path
 import Zypr.Syntax
 import Zypr.SyntaxTheme
+
 import Data.Array (concat, concatMap, intercalate, length, mapWithIndex, replicate, zip)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
@@ -22,6 +23,7 @@ import React.DOM as DOM
 import React.DOM.Props as Props
 import React.SyntheticEvent (stopPropagation)
 import Text.PP as PP
+import Undefined (undefined)
 import Zypr.EditorEffect (runEditorEffect, setLocation)
 
 type RenderArgs
@@ -211,6 +213,7 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
                         AppData _ -> "term-app"
                         LetData _ -> "term-let"
                         HoleData _ -> "term-hole"
+                        PlusData _ -> "term-plus"
                     ]
                   BindData datBind ->
                     concat
@@ -278,6 +281,8 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
                 else
                   dat.id
           ]
+        -- plus
+        TermData (PlusData dat) /\ [ left, right ] -> args.thm.term.plus { dat, left, right }
         _ ->
           unsafeThrow
             $ "renderSyntaxData: malformed term:"

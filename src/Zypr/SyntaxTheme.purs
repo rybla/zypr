@@ -20,6 +20,7 @@ type SyntaxTheme
         , app :: { dat :: AppData, apl :: Res, arg :: Res, apl_isApp :: Boolean, isApl :: Boolean } -> Res
         , let_ :: { dat :: LetData, bnd :: Res, imp :: Res, bod :: Res, isAss :: Boolean } -> Res
         , hole :: { dat :: HoleData } -> Res
+        , plus :: { dat :: PlusData, left :: Res, right :: Res } -> Res
         }
     }
 
@@ -54,6 +55,7 @@ basicSyntaxTheme =
           \{ dat, bnd, imp, bod, isAss } ->
             assocIf isAss $ concat [ tk_let, tk_space, bnd, tk_space, tk_assign, tk_space, imp, tk_space, tk_in, tk_space, bod ]
       , hole: \{ dat } -> tk_question
+      , plus : \{ dat, left, right } -> concat [ tk_lparen , left , tk_space , tk_plus , tk_space , right, tk_rparen ]
       }
   }
 
@@ -75,6 +77,7 @@ emojiSyntaxTheme =
           \{ dat, bnd, imp, bod } ->
             assoc $ concat [ tk_zipper, tk_space, bnd, tk_space, tk_zipper, tk_space, imp, tk_space, tk_zipper, tk_space, bod ]
       , hole: \{ dat } -> tk_question
+      , plus : \{ dat, left, right } -> concat [ tk_lparen , tk_space , left , tk_plus , tk_space , tk_rparen ]
       }
   }
 
@@ -103,6 +106,7 @@ judsonSyntaxTheme =
           \{ dat, bnd, imp, bod } ->
             assoc $ concat [ whitcomb, tk_space, bnd, tk_space, l, tk_space, imp, tk_space, judson, tk_space, bod ]
       , hole: \{ dat } -> tk_question
+      , plus : \{ dat, left, right } -> concat [ tk_lparen , tk_space , left , tk_plus , tk_space , tk_rparen ]
       }
   }
   where
@@ -153,6 +157,9 @@ tk_assign = makeStringToken "keyword" "="
 
 tk_zipper :: Res
 tk_zipper = makeStringToken "keyword emoji" "🖇️"
+
+tk_plus :: Res
+tk_plus = makeStringToken "keyword" "+"
 
 assoc :: Res -> Res
 assoc res = concat [ tk_lparen, res, tk_rparen ]

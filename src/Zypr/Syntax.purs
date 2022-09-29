@@ -23,6 +23,7 @@ data Term
   | App { dat :: AppData, apl :: Term, arg :: Term }
   | Let { dat :: LetData, bnd :: Bind, imp :: Term, bod :: Term }
   | Hole { dat :: HoleData }
+  | Plus { dat :: PlusData, left:: Term, right:: Term}
 
 data TermData
   = VarData VarData
@@ -30,6 +31,7 @@ data TermData
   | AppData AppData
   | LetData LetData
   | HoleData HoleData
+  | PlusData PlusData
 
 type VarData
   = { id :: Id }
@@ -51,6 +53,9 @@ data Bind
 
 type BindData
   = { id :: Id }
+
+type PlusData
+  = {indent :: Boolean}
 
 type Id
   = String
@@ -116,6 +121,9 @@ bnd id = Bind (bindData id)
 bindData :: Id -> BindData
 bindData id = { id }
 
+plusData :: PlusData
+plusData = { indent: false }
+
 -- GenSyntax
 type GenSyntax
   = { dat :: SyntaxData, syns :: Array Syntax }
@@ -128,6 +136,7 @@ toGenSyntax = case _ of
     App app -> { dat: TermData (AppData app.dat), syns: [ TermSyntax app.apl, TermSyntax app.arg ] }
     Let let_ -> { dat: TermData (LetData let_.dat), syns: [ BindSyntax let_.bnd, TermSyntax let_.imp, TermSyntax let_.bod ] }
     Hole hole -> { dat: TermData (HoleData hole.dat), syns: [] }
+    Plus plus -> {dat: TermData (PlusData plus.dat), syns: [ TermSyntax plus.left, TermSyntax plus.right]}
   BindSyntax (Bind dat) -> { dat: BindData dat, syns: [] }
 
 fromGenSyntax :: GenSyntax -> Syntax
@@ -136,6 +145,7 @@ fromGenSyntax = case _ of
   { dat: TermData (LamData dat), syns: [ BindSyntax bnd, TermSyntax bod ] } -> TermSyntax $ Lam { dat, bnd, bod }
   { dat: TermData (AppData dat), syns: [ TermSyntax apl, TermSyntax arg ] } -> TermSyntax $ App { dat, apl, arg }
   { dat: TermData (LetData dat), syns: [ BindSyntax bnd, TermSyntax imp, TermSyntax bod ] } -> TermSyntax $ Let { dat, bnd, imp, bod }
+  { dat: TermData (PlusData dat), syns: [ TermSyntax left, TermSyntax right ]} -> TermSyntax $ Plus { dat, left, right }
   { dat: BindData dat, syns: [] } -> BindSyntax $ Bind dat
   gterm -> unsafeThrow $ "malformed GenSyntax: " <> show gterm
 
@@ -175,6 +185,7 @@ instance ppTerm :: PP.PP Term where
     App app -> (PP.paren <<< PP.words) [ PP.pp app.apl, PP.pp app.arg ]
     Let let_ -> (PP.paren <<< PP.words) [ PP.pp "let", PP.pp let_.bnd, PP.pp "=", PP.pp let_.imp, PP.pp "in", PP.pp let_.bod ]
     Hole hole -> PP.pp "?"
+    Plus plus -> (PP.paren <<< PP.words) [ PP.pp plus.left, PP.pp "+", PP.pp plus.right ]
 
 -- instances for TermData
 derive instance genericTermData :: Generic TermData _
