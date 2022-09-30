@@ -50,15 +50,17 @@ renderMenu this _state =
                   )
                   syntaxThemes
             }
-        , createLeafElement menuItemButtonClass
-            { title: "intro"
+        , createLeafElement menuItemDropdownClass
+            { title: "docs"
             , thisEditor: this
-            , effect: runEditorEffect this toggleIntroVisible
-            }
-        , createLeafElement menuItemButtonClass
-            { title: "help"
-            , thisEditor: this
-            , effect: runEditorEffect this toggleHelpVisible
+            , options:
+                [ { label: "intro"
+                  , onClick: EditorEffect.toggleIntroVisible
+                  }
+                , { label: "help"
+                  , onClick: EditorEffect.toggleHelpVisible
+                  }
+                ]
             }
         , DOM.a
             [ Props.className "menu-item"
