@@ -2,7 +2,6 @@ module Zypr.KeyboardEventHandler where
 
 import Prelude
 import Zypr.Key
-
 import Control.Monad.State (get)
 import Data.Array (elem)
 import Data.Foldable (or, sequence_)
@@ -75,6 +74,7 @@ handleKey key
   | key == key_paste = EditorEffect.paste
   -- special keys
   | key == key_Backspace = EditorEffect.backspace
+  | key == key_CtrlBackspace = EditorEffect.backspaceSuper
   | key == key_Space = EditorEffect.space
   | key == key_Enter = EditorEffect.enter
   -- query

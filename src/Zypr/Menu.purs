@@ -7,7 +7,7 @@ import Effect (Effect)
 import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getProps, getState, modifyState)
 import React.DOM as DOM
 import React.DOM.Props as Props
-import Zypr.EditorEffect (EditorEffect, runEditorEffect)
+import Zypr.EditorEffect (EditorEffect, runEditorEffect, toggleHelpVisible, toggleIntroVisible)
 import Zypr.EditorEffect as EditorEffect
 import Zypr.Example.Applications as Applications
 import Zypr.Example.Lambdas as Lambdas
@@ -23,9 +23,9 @@ renderMenu this _state =
             -- [ DOM.text "(z y▪p▪r)"]
             -- [ DOM.text "[zypr]" ]
             [ DOM.text "|#|zypr|#|" ]
-        , createLeafElement menuItemClass
-            { thisEditor: this
-            , title: "examples"
+        , createLeafElement menuItemDropdownClass
+            { title: "examples"
+            , thisEditor: this
             , options:
                 [ { label: "Lambdas.zypr"
                   , onClick: EditorEffect.setTerm Lambdas.term
@@ -38,9 +38,9 @@ renderMenu this _state =
                   }
                 ]
             }
-        , createLeafElement menuItemClass
-            { thisEditor: this
-            , title: "syntax"
+        , createLeafElement menuItemDropdownClass
+            { title: "syntax"
+            , thisEditor: this
             , options:
                 map
                   ( \thm ->
@@ -49,6 +49,16 @@ renderMenu this _state =
                       }
                   )
                   syntaxThemes
+            }
+        , createLeafElement menuItemButtonClass
+            { title: "intro"
+            , thisEditor: this
+            , effect: runEditorEffect this toggleIntroVisible
+            }
+        , createLeafElement menuItemButtonClass
+            { title: "help"
+            , thisEditor: this
+            , effect: runEditorEffect this toggleHelpVisible
             }
         , DOM.a
             [ Props.className "menu-item"
@@ -60,55 +70,92 @@ renderMenu this _state =
         ]
   ]
 
-type MenuItemProps
+-- MenuItemDropdown 
+type MenuItemDropdownProps
   = { title :: String
     , options :: Array { label :: String, onClick :: EditorEffect Unit }
     , thisEditor :: EditorThis
     }
 
-type MenuItemState
+type MenuItemDropdownState
   = { open :: Boolean }
 
-type MenuItemGiven
-  = { state :: MenuItemState, render :: Effect ReactElement }
+type MenuItemDropdownGiven
+  = { state :: MenuItemDropdownState, render :: Effect ReactElement }
 
-menuItemClass :: ReactClass MenuItemProps
-menuItemClass = component "menu-item" menuItemComponent
+menuItemDropdownClass :: ReactClass MenuItemDropdownProps
+menuItemDropdownClass = component "menu-item" menuItemDropdownComponent
 
-menuItemComponent ::
-  ReactThis MenuItemProps MenuItemState ->
-  Effect MenuItemGiven
-menuItemComponent this = do
+menuItemDropdownComponent ::
+  ReactThis MenuItemDropdownProps MenuItemDropdownState ->
+  Effect MenuItemDropdownGiven
+menuItemDropdownComponent this = do
   props <- getProps this
   let
     render state =
       DOM.div
-        [ Props.className $ "menu-item "
+        [ Props.className $ "menu-item menu-item-dropdown "
             <> if state.open then "open" else "closed"
         ]
-        $ [ DOM.div
-              [ Props.className $ "menu-item-title"
-              , Props.onClick \_event ->
-                  modifyState this _ { open = not state.open }
-              ]
-              [ DOM.text props.title ]
-          , DOM.div
-              [ Props.className $ "menu-item-options " ]
-              $ map
-                  ( \opt ->
-                      DOM.div
-                        [ Props.className "menu-item-option"
-                        , Props.onClick \event -> do
-                            runEditorEffect props.thisEditor opt.onClick
-                            modifyState this _ { open = false }
-                        ]
-                        [ DOM.text opt.label ]
-                  )
-                  props.options
-          ]
+        [ DOM.div
+            [ Props.className $ "menu-item-title"
+            , Props.onClick \_event ->
+                modifyState this _ { open = not state.open }
+            ]
+            [ DOM.text props.title ]
+        , DOM.div
+            [ Props.className $ "menu-item-options " ]
+            $ map
+                ( \opt ->
+                    DOM.div
+                      [ Props.className "menu-item-option"
+                      , Props.onClick \_event -> do
+                          runEditorEffect props.thisEditor opt.onClick
+                          modifyState this _ { open = false }
+                      ]
+                      [ DOM.text opt.label ]
+                )
+                props.options
+        ]
   pure
     { state:
         { open: false
         }
+    , render: render <$> getState this
+    }
+
+-- MenuItemButton 
+type MenuItemButtonProps
+  = { title :: String
+    , thisEditor :: EditorThis
+    , effect :: Effect Unit
+    }
+
+type MenuItemButtonState
+  = {}
+
+type MenuItemButtonGiven
+  = { state :: MenuItemButtonState, render :: Effect ReactElement }
+
+menuItemButtonClass :: ReactClass MenuItemButtonProps
+menuItemButtonClass = component "menu-item" menuItemButtonComponent
+
+menuItemButtonComponent ::
+  ReactThis MenuItemButtonProps MenuItemButtonState ->
+  Effect MenuItemButtonGiven
+menuItemButtonComponent this = do
+  props <- getProps this
+  let
+    render state =
+      DOM.div
+        [ Props.className $ "menu-item menu-item-dropdown" ]
+        [ DOM.div
+            [ Props.className $ "menu-item-title"
+            , Props.onClick \_event -> props.effect
+            ]
+            [ DOM.text props.title ]
+        ]
+  pure
+    { state: {}
     , render: render <$> getState this
     }

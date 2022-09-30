@@ -25,6 +25,8 @@ type EditorState
     , clipboard :: Clipboard
     , console :: Array ConsoleItem
     , consoleVisible :: Boolean
+    , introVisible :: Boolean
+    , helpVisible :: Boolean
     }
 
 data EditorMode

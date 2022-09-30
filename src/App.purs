@@ -46,6 +46,8 @@ appComponent this =
               , clipboard: Nothing
               , console: []
               , consoleVisible: false
+              , introVisible: false
+              , helpVisible: false
               }
           }
       ]

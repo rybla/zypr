@@ -26,6 +26,8 @@ import Zypr.Example.YCombinator as YCombinator
 import Zypr.KeyboardEventHandler (keyboardEventHandler)
 import Zypr.Menu (renderMenu)
 import Zypr.Path (Path(..))
+import Zypr.Static.Help (helpRes)
+import Zypr.Static.Intro (introRes)
 import Zypr.Syntax (Term)
 import Zypr.SyntaxTheme (Res)
 
@@ -84,9 +86,22 @@ renderPopout this state =
   in
     [ DOM.div [ Props.className "popout" ]
         $ concat
-            [ case state.clipboard of
+            [ if state.introVisible then
+                renderPopoutItem this state "intro"
+                  (EditorEffect.modifyIntroVisible \_ -> false)
+                  [ DOM.div [ Props.className "docs docs-intro" ] introRes ]
+              else
+                []
+            , if state.helpVisible then
+                renderPopoutItem this state "help"
+                  (EditorEffect.modifyHelpVisible \_ -> false)
+                  [ DOM.div [ Props.className "docs docs-help" ] helpRes ]
+              else
+                []
+            , case state.clipboard of
                 Just cb ->
                   renderPopoutItem this state "clipboard"
+                    EditorEffect.clearClipboard
                     [ DOM.div [ Props.className "clipboard-value" ]
                         $ case cb of
                             Left term -> renderClipboardTerm args term
@@ -96,14 +111,14 @@ renderPopout this state =
             ]
     ]
 
-renderPopoutItem :: EditorThis -> EditorState -> String -> Res -> Res
-renderPopoutItem this state label res =
+renderPopoutItem :: EditorThis -> EditorState -> String -> EditorEffect Unit -> Res -> Res
+renderPopoutItem this state label closeEffect res =
   [ DOM.div [ Props.className "popout-item" ]
       $ [ DOM.div [ Props.className "popout-item-label" ]
             [ DOM.text label
             , DOM.div
                 [ Props.className "popout-item-clear"
-                , Props.onClick \_event -> runEditorEffect this EditorEffect.clearClipboard
+                , Props.onClick \_event -> runEditorEffect this closeEffect
                 ]
                 [ DOM.text "✕" ]
             ]

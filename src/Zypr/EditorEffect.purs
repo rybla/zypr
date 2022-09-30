@@ -194,6 +194,18 @@ step f = do
 toggleConsoleVisible :: EditorEffect Unit
 toggleConsoleVisible = modify_ \state -> state { consoleVisible = not state.consoleVisible }
 
+toggleIntroVisible :: EditorEffect Unit
+toggleIntroVisible = modifyIntroVisible not
+
+modifyIntroVisible :: (Boolean -> Boolean) -> EditorEffect Unit
+modifyIntroVisible f = modify_ \state -> state { introVisible = f state.introVisible }
+
+toggleHelpVisible :: EditorEffect Unit
+toggleHelpVisible = modifyHelpVisible not
+
+modifyHelpVisible :: (Boolean -> Boolean) -> EditorEffect Unit
+modifyHelpVisible f = modify_ \state -> state { helpVisible = f state.helpVisible }
+
 setMode :: EditorMode -> EditorEffect Unit
 setMode mode = do
   modify_ _ { mode = mode }
