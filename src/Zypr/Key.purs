@@ -115,6 +115,12 @@ key_ShiftTab = (defaultKey "Tab") { shift = true }
 key_Space :: Key
 key_Space = defaultKey " "
 
+key_CtrlSpace :: Key
+key_CtrlSpace = key_Space { ctrl = true }
+
+key_ShiftCtrlSpace :: Key
+key_ShiftCtrlSpace = key_Space { ctrl = true, shift = true }
+
 key_ToggleConsoleVisible :: Key
 key_ToggleConsoleVisible = (defaultKey "`") { ctrl = true }
 

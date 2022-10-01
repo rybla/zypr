@@ -205,6 +205,11 @@ renderWithIndent res indentationLevel indented
   | indented = renderIndent indentationLevel res
   | otherwise = res
 
+isAtApl :: Path -> Boolean
+isAtApl = case _ of
+  Zip { dat: TermData (AppData _), lefts: [], rights: [ _ ] } -> true
+  _ -> false
+
 -- only render `SyntaxData` at this `Location`, using pre-rendered children 
 renderSyntaxData :: RenderArgs -> Location -> Array Res -> Int -> Res
 renderSyntaxData args loc@{ syn } ress indentationLevel =
@@ -240,7 +245,12 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
                 setLocation loc
         ] case dat /\ ress of
         -- term-var
-        TermData (VarData dat) /\ [] -> args.thm.term.var { dat, id: [ DOM.text dat.id ] }
+        TermData (VarData dat) /\ [] ->
+          args.thm.term.var
+            { dat
+            , id: [ DOM.text dat.id ]
+            , isApl: isAtApl loc.path
+            }
         -- term-lam
         TermData (LamData dat) /\ [ bnd, bod ] ->
           args.thm.term.lam
@@ -263,6 +273,7 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
                 case syns of
                   [ _, TermSyntax (Lam _) ] -> true
                   _ -> false
+            , isApl: isAtApl loc.path
             }
         -- term-app
         TermData (AppData dat) /\ [ apl, arg ] ->
@@ -274,16 +285,12 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
                 case syns of
                   [ TermSyntax (App _), _ ] -> true
                   _ -> false
-            , isApl:
-                case loc.path of
-                  Top -> true
-                  Zip { dat: TermData (AppData _), lefts: [], rights: [ _ ] } -> true
-                  Zip _ -> false
+            , isApl: isAtApl loc.path
             , isAss:
                 case loc.path of
                   Top -> false
-                  Zip { dat: TermData (AppData _), lefts: [ _ ], rights: [] } -> true
-                  _ -> false
+                  Zip { dat: TermData (AppData _), lefts: [], rights: [ _ ] } -> false -- isApl
+                  _ -> true
             }
         -- term-let
         TermData (LetData dat) /\ [ bnd, imp, bod ] ->
@@ -298,12 +305,17 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
                   renderWithIndent bod indentationLevel' dat.indent_bod
             , isAss:
                 case loc.path of
-                  -- apl or arg
-                  Zip { dat: TermData (AppData _) } -> true
+                  Zip { dat: TermData (AppData _) } -> true -- isApl or isArg
+                  Zip { dat: TermData (PlusData _) } -> true -- isPlusLeft or isPlusRight
                   _ -> false
+            , isApl: isAtApl loc.path
             }
         -- term-hole 
-        TermData (HoleData dat) /\ [] -> args.thm.term.hole { dat }
+        TermData (HoleData dat) /\ [] ->
+          args.thm.term.hole
+            { dat
+            , isApl: isAtApl loc.path
+            }
         -- term-plus
         TermData (PlusData dat) /\ [ left, right ] ->
           args.thm.term.plus
@@ -312,11 +324,10 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
             , right
             , isAss:
                 case loc.path of
-                  Top -> false
-                  Zip { dat: TermData (LamData _), lefts: [ _ ] } -> false -- right of lam
-                  Zip { dat: TermData (LetData _) } -> false -- of let
-                  Zip { dat: TermData (PlusData _), lefts: [], rights: [ _ ] } -> false -- left of plus
-                  _ -> true
+                  Zip { dat: TermData (AppData _) } -> true -- isApl or isArg
+                  Zip { dat: TermData (PlusData _), lefts: [], rights: [ _ ] } -> true -- isPlusLeft
+                  _ -> false
+            , isApl: isAtApl loc.path
             }
         -- bind
         BindData dat /\ [] ->

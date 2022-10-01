@@ -187,6 +187,7 @@ step f = do
     CursorMode cursor -> do
       location <- f cursor.location
       setMode $ CursorMode cursor { location = location }
+      clearQuery
     SelectMode select -> do
       locationEnd <- f select.locationEnd
       setMode $ SelectMode select { locationEnd = locationEnd }

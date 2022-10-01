@@ -75,6 +75,8 @@ handleKey key
   -- special keys
   | key == key_Backspace = EditorEffect.backspace
   | key == key_CtrlBackspace = EditorEffect.backspaceSuper
+  | key == key_CtrlSpace = EditorEffect.stepNextHole
+  | key == key_ShiftCtrlSpace = EditorEffect.stepPrevHole
   | key == key_Space = EditorEffect.space
   | key == key_Enter = EditorEffect.enter
   -- query

@@ -149,7 +149,7 @@ body {
 .term {}
 
 .term-var {
-  padding: 0 2px;
+  /* padding: 0 2px; */
   color: rgb(0, 82, 0);
 }
 
@@ -159,7 +159,8 @@ body {
 
 .term-let {}
 
-.term-hole {
+.term-hole>.hole {
+  display: inline;
   /* background-color: rgb(199, 0, 0); */
   /* color: white; */
   font-weight: bold;
@@ -216,48 +217,6 @@ body {
   /* box-decoration-break: clone; */
 }
 
-
-/* .cursor>.syntax {
-  background-color: rgb(216, 216, 255);
-  box-shadow:
-    0 2px 0 0 blue,
-    -2px 0 0 0 blue,
-    2px 0 0 0 blue;
-  box-decoration-break: clone;
-}
-
-.selectStart>.syntax {
-  background-color: rgb(216, 216, 255);
-  box-shadow:
-    -2px 0 0 0 blue,
-    2px 0 0 0 blue;
-  box-decoration-break: clone;
-}
-
-.selectEnd>.syntax {
-  box-shadow:
-    -2px 0 0 0 blue,
-    2px 0 0 0 blue,
-    0 -2px 0 0 blue;
-  box-decoration-break: slice;
-
-  background-color: white;
-}
-
-
-.cursor>.term-hole {}
-
-.selectStart>.term-hole {}
-
-.selectEnd>.term-hole {
-  box-shadow:
-    0 -2px 0 0 blue inset,
-    -2px 0 0 0 red inset,
-    2px 0 0 0 red inset,
-    0 0 0 2px red inset;
-} */
-
-
 /* token */
 
 .token {
@@ -269,9 +228,17 @@ body {
   font-weight: bold;
 }
 
+.token.keyword-mapsto {
+  padding: 0 2px;
+}
+
+.token.keyword-lambda {
+  padding: 0 2px;
+}
+
 .token.punc {
   /* font-weight: lighter; */
-  color: gray;
+  color: rgb(160, 196, 178);
 }
 
 .token.punc.appHandle {}
@@ -354,7 +321,8 @@ body {
   background-repeat: repeat;
 
   border-radius: 10px 2px / 10px;
-  margin-left: 2px;
+  margin-left: 4px;
+  padding: 0 4px;
 }
 
 .query-output-path {

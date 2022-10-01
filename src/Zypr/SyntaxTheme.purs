@@ -15,12 +15,12 @@ type SyntaxTheme
         { name :: String
         }
     , term ::
-        { var :: { dat :: VarData, id :: Res } -> Res
-        , lam :: { dat :: LamData, bnd :: Res, bod :: Res, isAss :: Boolean, bod_isLam :: Boolean, isLamBod :: Boolean } -> Res
+        { var :: { dat :: VarData, id :: Res, isApl :: Boolean } -> Res
+        , lam :: { dat :: LamData, bnd :: Res, bod :: Res, isAss :: Boolean, bod_isLam :: Boolean, isLamBod :: Boolean, isApl :: Boolean } -> Res
         , app :: { dat :: AppData, apl :: Res, arg :: Res, apl_isApp :: Boolean, isApl :: Boolean, isAss :: Boolean } -> Res
-        , let_ :: { dat :: LetData, bnd :: Res, imp :: Res, bod :: Res, isAss :: Boolean } -> Res
-        , hole :: { dat :: HoleData } -> Res
-        , plus :: { dat :: PlusData, left :: Res, right :: Res, isAss :: Boolean } -> Res
+        , let_ :: { dat :: LetData, bnd :: Res, imp :: Res, bod :: Res, isAss :: Boolean, isApl :: Boolean } -> Res
+        , hole :: { dat :: HoleData, isApl :: Boolean } -> Res
+        , plus :: { dat :: PlusData, left :: Res, right :: Res, isAss :: Boolean, isApl :: Boolean } -> Res
         }
     }
 
@@ -39,39 +39,39 @@ basicSyntaxTheme =
       }
   , term:
       { var:
-          \{ dat, id } -> id
+          \{ dat, id, isApl } -> appHandleIf isApl id
       , lam:
-          \{ dat, bnd, bod, isAss, isLamBod, bod_isLam } ->
-            assocIf isAss $ concat
-              $ if isLamBod && bod_isLam then
-                  [ bnd, tk_lamArgHandle, bod ]
-                else if not isLamBod && bod_isLam then
-                  [ tk_lambda, tk_space, bnd, tk_lamArgHandle, bod ]
-                else if isLamBod && not bod_isLam then
-                  [ bnd, tk_space, tk_mapsto, tk_space, bod ]
-                else
-                  [ tk_lambda, tk_space, bnd, tk_space, tk_mapsto, tk_space, bod ]
+          \{ dat, bnd, bod, isAss, isLamBod, bod_isLam, isApl } ->
+            assocIf isAss <<< appHandleIf isApl
+              $ concat
+                  if isLamBod && bod_isLam then
+                    [ tk_lamArgHandle, bnd, bod ]
+                  else if not isLamBod && bod_isLam then
+                    [ tk_lambda, tk_lamArgHandle, bnd, bod ]
+                  else if isLamBod && not bod_isLam then
+                    [ tk_lamArgHandle, bnd, tk_mapsto, bod ]
+                  else
+                    [ tk_lambda, bnd, tk_mapsto, bod ]
       , app:
           \{ dat, apl, arg, apl_isApp, isApl, isAss } ->
             -- sep = if apl_isApp then [] else [ tk_space ]
             -- wrap = if isApl then assocIf isAss <<< (tk_aplHandle <> _) <<< (_ <> tk_appHandle) else assocIf isAss <<< (tk_aplHandle <> _)
             -- wrap = assocIf isAss <<< (_ <> tk_appHandle)
             -- assocIf isAss $ concat $ [ apl, tk_appHandle, arg ]
-            assocIf isAss
-              if isApl && apl_isApp then
-                concat [ apl, arg, tk_appHandle ]
-              else if isApl && not apl_isApp then
-                concat [ apl, tk_space, arg, tk_appHandle ]
-              else
-                concat [ apl, tk_space, arg ]
+            assocIf isAss <<< appHandleIf isApl
+              $ concat [ apl, arg ]
       , let_:
-          \{ dat, bnd, imp, bod, isAss } ->
-            assocIf isAss $ concat [ tk_let, tk_space, bnd, tk_space, tk_assign, tk_space, imp, tk_space, tk_in, tk_space, bod ]
+          \{ dat, bnd, imp, bod, isAss, isApl } ->
+            assocIf isAss <<< appHandleIf isApl
+              $ concat [ tk_let, tk_space, bnd, tk_space, tk_assign, tk_space, imp, tk_space, tk_in, tk_space, bod ]
       , hole:
-          \{ dat } -> tk_question
+          \{ dat, isApl } ->
+            appHandleIf isApl
+              $ res_hole
       , plus:
-          \{ dat, left, right, isAss } ->
-            assocIf isAss $ concat [ left, tk_space, tk_plus, tk_space, right ]
+          \{ dat, left, right, isAss, isApl } ->
+            assocIf isAss <<< appHandleIf isApl
+              $ concat [ left, tk_space, tk_plus, tk_space, right ]
       }
   }
 
@@ -131,6 +131,10 @@ judsonSyntaxTheme =
 
   sundback = makeStringToken "keyword" "Sundback"
 
+-- React Elements
+res_hole :: Res
+res_hole = [ DOM.div [ Props.className "hole" ] tk_question ]
+
 -- Tokens
 tk_question :: Res
 tk_question = makeStringToken "" "?"
@@ -183,6 +187,9 @@ assoc res = concat [ tk_lparen, res, tk_rparen ]
 
 assocIf :: Boolean -> Res -> Res
 assocIf b res = if b then assoc res else res
+
+appHandleIf :: Boolean -> Res -> Res
+appHandleIf b res = if b then res <> tk_appHandle else res
 
 makeStringToken :: String -> String -> Res
 makeStringToken className str = makeToken className [ DOM.text str ]
