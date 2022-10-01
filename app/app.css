@@ -256,36 +256,46 @@ body {
 
 /* query */
 
-@keyframes example {
+
+@keyframes scroll-background {
   0% {
-    background-color: red;
+    background-position: 0% 0%;
   }
-
-  50% {
-    background-color: yellow
-  }
-
-  /* 80% {
-    background-color: blue
-  } */
 
   100% {
-    background-color: purple
+    background-position: 100% 100%;
   }
 }
 
+
 .query-output {
   display: inline;
-  /* background-color: rgb(247, 255, 140); */
   background-color: rgb(255, 199, 94);
   box-shadow: 0 0 0 2px blue;
   border-radius: 6px;
 
-  animation-name: example;
-  animation-duration: 2s;
+  background: linear-gradient(45deg,
+      #CC99C9,
+      #9EC1CF,
+      #9EE09E,
+      #FDFD97,
+      #FEB144,
+      #FF6663,
+      #FEB144,
+      #FDFD97,
+      #9EE09E,
+      #9EC1CF,
+      #CC99C9,
+      #9EC1CF,
+      #9EE09E);
+  background-size: 1100% 1100%;
+
+  animation-name: scroll-background;
+  animation-duration: 4s;
   animation-play-state: running;
   animation-iteration-count: infinite;
-  animation-direction: alternate;
+  animation-direction: normal;
+  animation-timing-function: linear;
 }
 
 .query-output-term-new {
