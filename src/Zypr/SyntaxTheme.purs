@@ -42,7 +42,7 @@ basicSyntaxTheme =
           \{ dat, id, isApl } -> appHandleIf isApl id
       , lam:
           \{ dat, bnd, bod, isAss, isLamBod, bod_isLam, isApl } ->
-            assocIf isAss <<< appHandleIf isApl
+            appHandleIf isApl <<< assocIf isAss
               $ concat
                   if isLamBod && bod_isLam then
                     [ tk_lamArgHandle, bnd, bod ]
@@ -58,11 +58,11 @@ basicSyntaxTheme =
             -- wrap = if isApl then assocIf isAss <<< (tk_aplHandle <> _) <<< (_ <> tk_appHandle) else assocIf isAss <<< (tk_aplHandle <> _)
             -- wrap = assocIf isAss <<< (_ <> tk_appHandle)
             -- assocIf isAss $ concat $ [ apl, tk_appHandle, arg ]
-            assocIf isAss <<< appHandleIf isApl
+            appHandleIf isApl <<< assocIf isAss
               $ concat [ apl, arg ]
       , let_:
           \{ dat, bnd, imp, bod, isAss, isApl } ->
-            assocIf isAss <<< appHandleIf isApl
+            appHandleIf isApl <<< assocIf isAss
               $ concat [ tk_let, tk_space, bnd, tk_space, tk_assign, tk_space, imp, tk_space, tk_in, tk_space, bod ]
       , hole:
           \{ dat, isApl } ->
@@ -70,7 +70,7 @@ basicSyntaxTheme =
               $ res_hole
       , plus:
           \{ dat, left, right, isAss, isApl } ->
-            assocIf isAss <<< appHandleIf isApl
+            appHandleIf isApl <<< assocIf isAss
               $ concat [ left, tk_space, tk_plus, tk_space, right ]
       }
   }
