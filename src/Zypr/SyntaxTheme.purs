@@ -45,10 +45,10 @@ basicSyntaxTheme =
             assocIf isAss $ concat
               $ if isLamBod && bod_isLam then
                   [ bnd, tk_lamArgHandle, bod ]
-                else if bod_isLam then
+                else if not isLamBod && bod_isLam then
                   [ tk_lambda, tk_space, bnd, tk_lamArgHandle, bod ]
-                else if isLamBod then
-                  [ bnd, tk_lamArgHandle, tk_mapsto, tk_space, bod ]
+                else if isLamBod && not bod_isLam then
+                  [ bnd, tk_space, tk_mapsto, tk_space, bod ]
                 else
                   [ tk_lambda, tk_space, bnd, tk_space, tk_mapsto, tk_space, bod ]
       , app:
@@ -56,7 +56,14 @@ basicSyntaxTheme =
             -- sep = if apl_isApp then [] else [ tk_space ]
             -- wrap = if isApl then assocIf isAss <<< (tk_aplHandle <> _) <<< (_ <> tk_appHandle) else assocIf isAss <<< (tk_aplHandle <> _)
             -- wrap = assocIf isAss <<< (_ <> tk_appHandle)
-            assocIf isAss $ concat $ [ apl, tk_appHandle, arg ]
+            -- assocIf isAss $ concat $ [ apl, tk_appHandle, arg ]
+            assocIf isAss
+              if isApl && apl_isApp then
+                concat [ apl, arg, tk_appHandle ]
+              else if isApl && not apl_isApp then
+                concat [ apl, tk_space, arg, tk_appHandle ]
+              else
+                concat [ apl, tk_space, arg ]
       , let_:
           \{ dat, bnd, imp, bod, isAss } ->
             assocIf isAss $ concat [ tk_let, tk_space, bnd, tk_space, tk_assign, tk_space, imp, tk_space, tk_in, tk_space, bod ]
