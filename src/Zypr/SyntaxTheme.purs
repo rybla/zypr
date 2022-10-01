@@ -139,10 +139,10 @@ tk_app :: Res
 tk_app = makeStringToken "keyword" "app"
 
 tk_lamArgHandle :: Res
-tk_lamArgHandle = makeStringToken "punc punc-lamArgHandle" "▪"
+tk_lamArgHandle = makeStringToken "punc punc-lamArgHandle" "●"
 
 tk_appHandle :: Res
-tk_appHandle = makeStringToken "punc punc-appHandle" "▪"
+tk_appHandle = makeStringToken "punc punc-appHandle" "●"
 
 tk_aplHandle :: Res
 tk_aplHandle = makeStringToken "punc punc-aplHandle" "$"

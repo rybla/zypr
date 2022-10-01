@@ -123,7 +123,7 @@ renderLocationSyntax args loc indentationLevel =
 
 renderCursor :: RenderArgs -> CursorMode -> Int -> Res
 renderCursor args cursor il =
-  [ DOM.div [ Props.className "select" ] case args.mb_query of
+  [ DOM.div [ Props.className "cursor" ] case args.mb_query of
       Nothing -> renderLocationSyntax args cursor.location il
       Just query -> case query.mb_output of
         -- since no query output, nothing to display
@@ -252,6 +252,7 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
                 case loc.path of
                   -- apl or arg
                   Zip { dat: TermData (AppData _) } -> true
+                  Zip { dat: TermData (PlusData _) } -> true
                   Top -> false
                   _ -> false
             , isLamBod:

@@ -47,6 +47,7 @@ body {
 .menu {
   margin: 0;
   padding: 6px;
+  padding-bottom: 0;
 
   font-size: 10pt;
 
@@ -59,12 +60,13 @@ body {
   display: inline-block;
   vertical-align: center;
   text-align: left;
+  margin-bottom: 6px;
 }
 
 .menu-title,
 .menu-item-title {
   padding: 2px 6px;
-  border-radius: 6px;
+  border-radius: 10px 2px / 10px;
 }
 
 .menu-title {
@@ -99,7 +101,7 @@ body {
 .menu-item-options {
   position: absolute;
 
-  border-radius: 6px;
+  border-radius: 10px 2px / 10px;
   margin-top: 4px;
 
   background-color: tan;
@@ -116,7 +118,7 @@ body {
 
 .menu-item-option {
   padding: 2px;
-  border-radius: 6px;
+  border-radius: 10px 2px / 10px;
   cursor: pointer;
 }
 
@@ -131,21 +133,17 @@ body {
   margin: 10px 10px;
   padding: 10px;
   font-size: 12pt;
+  line-height: 18px;
 
   vertical-align: center;
-
-  /* box-shadow: 2px 2px 10px 2px black; */
-  /* box-shadow: 0 0 6px 1px black inset; */
-
-  border-radius: 6px;
-
 }
+
 
 /* syntax */
 
 .syntax {
   display: inline;
-  border-radius: 6px;
+  /* border-radius: 10px 2px / 10px; */
 }
 
 .term {}
@@ -168,6 +166,10 @@ body {
   color: red;
   box-shadow: 0 0 0 2px red inset;
   padding: 0 4px;
+  margin: 0 2px;
+  /* border-radius: 10px 2px / 10px; */
+  /* border-radius: 68% 32% 61% 39% / 42% 26% 74% 58%; */
+  border-radius: 74% 26% 73% 27% / 26% 74% 26% 74%;
 }
 
 .bind {
@@ -180,46 +182,80 @@ body {
 /* select */
 
 
-.select {
-  display: inline;
-}
-
-.selectStart {
-  display: inline;
-}
-
-
+.cursor,
+.selectStart,
 .selectEnd {
   display: inline;
 }
 
-.select>.syntax {
-  box-shadow: 0 0 0 2px blue;
+.cursor,
+.selectStart,
+.selectEnd {
+  /* border-radius: 6px; */
+  border-radius: 10px 2px / 10px;
+  display: inline;
+  box-shadow:
+    2px 0 0 blue,
+    -2px 0 0 blue;
+}
+
+.cursor {
   background-color: rgb(216, 216, 255);
+  /* box-decoration-break: clone; */
+}
+
+
+.selectStart {
+  background-color: rgb(216, 216, 255);
+  /* box-decoration-break: clone; */
+}
+
+
+.selectEnd {
+  background-color: white;
+  /* box-decoration-break: clone; */
+}
+
+
+/* .cursor>.syntax {
+  background-color: rgb(216, 216, 255);
+  box-shadow:
+    0 2px 0 0 blue,
+    -2px 0 0 0 blue,
+    2px 0 0 0 blue;
+  box-decoration-break: clone;
 }
 
 .selectStart>.syntax {
-  box-shadow: 0 0 0 2px blue;
   background-color: rgb(216, 216, 255);
+  box-shadow:
+    -2px 0 0 0 blue,
+    2px 0 0 0 blue;
+  box-decoration-break: clone;
 }
 
 .selectEnd>.syntax {
-  box-shadow: 0 0 0 2px blue;
+  box-shadow:
+    -2px 0 0 0 blue,
+    2px 0 0 0 blue,
+    0 -2px 0 0 blue;
+  box-decoration-break: slice;
+
   background-color: white;
 }
 
 
-.select>.term-hole {
-  box-shadow: 0 0 0 2px blue, 0 0 0 2px red inset;
-}
+.cursor>.term-hole {}
 
-.selectStart>.term-hole {
-  box-shadow: 0 0 0 2px blue, 0 0 0 2px red inset;
-}
+.selectStart>.term-hole {}
 
 .selectEnd>.term-hole {
-  box-shadow: 0 0 0 2px blue, 0 0 0 2px red inset;
-}
+  box-shadow:
+    0 -2px 0 0 blue inset,
+    -2px 0 0 0 red inset,
+    2px 0 0 0 red inset,
+    0 0 0 2px red inset;
+} */
 
 
 /* token */
@@ -263,16 +299,15 @@ body {
   }
 
   100% {
-    background-position: 100% 100%;
+    background-position: 100% 0%;
   }
 }
 
 
 .query-output {
   display: inline;
-  background-color: rgb(255, 199, 94);
-  box-shadow: 0 0 0 2px blue;
-  border-radius: 6px;
+  border-radius: 10px 2px / 10px;
+  padding: 0 6px;
 
   background: linear-gradient(45deg,
       #CC99C9,
@@ -288,7 +323,7 @@ body {
       #CC99C9,
       #9EC1CF,
       #9EE09E);
-  background-size: 1100% 1100%;
+  background-size: 1100% 100%;
 
   animation-name: scroll-background;
   animation-duration: 4s;
@@ -305,9 +340,21 @@ body {
 
 .query-output-term-old {
   display: inline;
-  background-color: rgb(172, 172, 172);
-  border-radius: 6px;
-  margin-left: 10px;
+  /* background-color: rgb(172, 172, 172); */
+
+  /* background-image:
+    linear-gradient(45deg, #808080 25%, white 25%),
+    linear-gradient(-45deg, #808080 25%, white 25%),
+    linear-gradient(45deg, white 75%, #808080 75%),
+    linear-gradient(-45deg, white 75%, #808080 75%); */
+  /* background-size: 5px 5px; */
+  /* background-position: 0 0, 0 10px, 10px -10px, -10px 0px; */
+  background: linear-gradient(90deg, rgb(129, 129, 129) 4px, rgb(189, 189, 189) 4px);
+  background-size: 8px 100%;
+  background-repeat: repeat;
+
+  border-radius: 10px 2px / 10px;
+  margin-left: 2px;
 }
 
 .query-output-path {
@@ -317,8 +364,8 @@ body {
 .query-output-path-term {
   display: inline;
   background-color: white;
-  box-shadow: 0 0 0 2px blue;
-  border-radius: 6px;
+  /* box-shadow: 0 0 0 2px blue; */
+  /* border-radius: 10px 2px / 10px; */
 }
 
 /* footer */
@@ -342,7 +389,7 @@ body {
   padding-top: 0;
   margin-top: 10px;
   width: calc(100% - 20px);
-  border-radius: 6px;
+  border-radius: 10px 2px / 10px;
   font-size: 12pt;
 
   box-shadow: 0 0 4px 1px black;
@@ -368,7 +415,7 @@ body {
 .popout-item-clear {
   display: inline-block;
   padding: 0 4px;
-  border-radius: 6px;
+  border-radius: 10px 2px / 10px;
   margin-left: 10px;
 
   font-style: normal;
@@ -400,7 +447,7 @@ body {
   margin-bottom: 10px;
   padding: 5px;
   background-color: white;
-  border-radius: 6px;
+  border-radius: 10px 2px / 10px;
 }
 
 /* clipboard */
@@ -408,7 +455,7 @@ body {
 .clipboard-value {
   display: inline-block;
   padding: 5px;
-  border-radius: 6px;
+  border-radius: 10px 2px / 10px;
   box-shadow: 0 0 4px 1px black;
   /* border: 1px solid tan; */
   background-color: rgb(255, 238, 215);
@@ -422,7 +469,8 @@ body {
   box-shadow:
     /* 0 0 0 1px rgb(247, 215, 172) inset, */
     0 0 4px 1px black inset;
-  border-radius: 6px;
+  /* border-radius: 10px 2px / 10px; */
+  border-radius: 74% 26% 73% 27% / 26% 74% 26% 74%;
   /* background-color: white; */
   background-color: tan;
 }
@@ -449,7 +497,7 @@ body {
   vertical-align: top;
   padding: 5px 8px;
   background-color: white;
-  border-radius: 6px;
+  border-radius: 10px 2px / 10px;
   margin-right: 10px;
   font-weight: bold;
 }
@@ -473,7 +521,7 @@ body {
   overflow-x: scroll;
   white-space: pre;
 
-  border-radius: 6px;
+  border-radius: 10px 2px / 10px;
 }
 
 .console-item-body-info {
