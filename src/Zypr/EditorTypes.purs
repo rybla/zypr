@@ -21,6 +21,7 @@ type EditorProps
 
 type EditorState
   = { mode :: EditorMode
+    , history :: Array Location
     , syntaxTheme :: SyntaxTheme
     , clipboard :: Clipboard
     , console :: Array ConsoleItem

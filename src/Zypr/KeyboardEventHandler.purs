@@ -72,6 +72,8 @@ handleKey key
   | key == key_copy = EditorEffect.copy
   | key == key_cut = EditorEffect.cut
   | key == key_paste = EditorEffect.paste
+  -- undo
+  | key == key_undo = EditorEffect.undo
   -- special keys
   | key == key_Backspace = EditorEffect.backspace
   | key == key_CtrlBackspace = EditorEffect.backspaceSuper

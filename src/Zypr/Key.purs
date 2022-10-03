@@ -150,3 +150,6 @@ key_cut = (defaultKey "x") { ctrl = true }
 
 key_paste :: Key
 key_paste = (defaultKey "v") { ctrl = true }
+
+key_undo :: Key
+key_undo = (defaultKey "z") { ctrl = true }

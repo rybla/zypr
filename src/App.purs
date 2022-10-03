@@ -42,6 +42,7 @@ appComponent this =
       [ createLeafElement editorClass
           { stateInit:
               { mode: TopMode { term: Lambdas.term }
+              , history: []
               , syntaxTheme: basicSyntaxTheme
               , clipboard: Nothing
               , console: []

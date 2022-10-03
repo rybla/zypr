@@ -7,7 +7,8 @@ import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.Reader (ReaderT, runReaderT)
 import Control.Monad.State (StateT, get, gets, modify, modify_, runStateT)
 import Control.Monad.Writer (WriterT, runWriterT, tell)
-import Data.Array (elem, length, reverse)
+import Data.Array (elem, length, reverse, (:))
+import Data.Array as Array
 import Data.Either (Either(..))
 import Data.Foldable (foldr, sequence_)
 import Data.Maybe (Maybe(..))
@@ -70,6 +71,7 @@ modifyLocation :: (Location -> EditorEffect Location) -> EditorEffect Unit
 modifyLocation f = do
   cursor <- requireCursorMode
   loc' <- f cursor.location
+  pushHistory cursor.location
   setMode $ CursorMode cursor { location = loc' }
 
 stepPrev :: EditorEffect Unit
@@ -281,6 +283,24 @@ enterSelect = do
             }
     SelectMode _ -> pure unit
 
+enterCursor :: EditorEffect Unit
+enterCursor = do
+  state <- get
+  case state.mode of
+    TopMode top ->
+      setMode
+        $ CursorMode
+            { location: { syn: TermSyntax top.term, path: Top }
+            , query: emptyQuery
+            }
+    CursorMode _ -> pure unit
+    SelectMode select ->
+      setMode
+        $ CursorMode
+            { location: select.locationStart
+            , query: emptyQuery
+            }
+
 -- start a query initialized with the var's (at cursor) id
 enterQueryVar :: EditorEffect Unit
 enterQueryVar = do
@@ -321,6 +341,7 @@ modifySyntaxAtCursor :: (Syntax -> EditorEffect Syntax) -> EditorEffect Unit
 modifySyntaxAtCursor f = do
   cursor <- requireCursorMode
   syn' <- f cursor.location.syn
+  pushHistory cursor.location
   setMode
     $ CursorMode cursor { location { syn = syn' } }
 
@@ -330,6 +351,7 @@ modifyTermAtCursor f = do
   case cursor.location.syn of
     TermSyntax term -> do
       term' <- f term
+      pushHistory cursor.location
       setMode $ CursorMode cursor { location { syn = TermSyntax term' } }
     _ -> throwError "requires cursor at a Term"
 
@@ -886,3 +908,23 @@ toggleIndent = do
           { syn: cursor.location.syn
           , path: Zip { dat: dat', lefts, up, rights }
           }
+
+pushHistory :: Location -> EditorEffect Unit
+pushHistory loc =
+  modify_ \state ->
+    state
+      { history = loc : Array.take 10 state.history }
+
+popHistory :: EditorEffect Location
+popHistory = do
+  state <- get
+  case Array.uncons state.history of
+    Just { head: loc, tail: history' } -> do
+      modify_ _ { history = history' }
+      pure loc
+    Nothing -> throwError "Can't go back earlier than the beginning of history."
+
+undo :: EditorEffect Unit
+undo = do
+  loc <- popHistory
+  setLocation loc

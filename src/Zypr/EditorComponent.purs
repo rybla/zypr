@@ -3,6 +3,7 @@ module Zypr.RenderEditor where
 import Prelude
 import Zypr.RenderSyntax
 import Data.Array (concat, intercalate, reverse, (:))
+import Data.Array as Array
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
@@ -170,6 +171,7 @@ renderConsole this state =
                   ]
             ]
           Nothing -> []
+      <> [ stringEditorConsoleInfo $ "history length: " <> show (Array.length state.history) ]
       <> case state.mode of
           TopMode top ->
             [ stringEditorConsoleInfo <<< intercalate "\n"
