@@ -45,11 +45,11 @@ basicSyntaxTheme =
             appHandleIf isApl <<< assocIf isAss
               $ concat
                   if isLamBod && bod_isLam then
-                    [ tk_lamArgHandle, bnd, bod ]
+                    [ tk_lambda, bnd, bod ]
                   else if not isLamBod && bod_isLam then
                     [ tk_lambda, bnd, bod ]
                   else if isLamBod && not bod_isLam then
-                    [ tk_lamArgHandle, bnd, tk_mapsto, bod ]
+                    [ tk_lambda, bnd, tk_mapsto, bod ]
                   else
                     [ tk_lambda, bnd, tk_mapsto, bod ]
       , app:

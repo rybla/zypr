@@ -519,12 +519,13 @@ space = do
   state <- get
   case state.mode of
     CursorMode cursor -> case cursor.location.syn of
-      BindSyntax _ -> pure unit
+      BindSyntax _ -> stepNextHole -- TODO: Henry's idea
       TermSyntax _ ->
         if String.null cursor.query.input.string then
           setQueryInputString " "
         else
-          throwError "Space is not allowed in a query other than as the first char"
+          -- throwError "Space is not allowed in a query other than as the first char"
+          submitQuery -- TODO: Henry's idea
     _ -> throwError "can't space here"
 
 enter :: EditorEffect Unit
