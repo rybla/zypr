@@ -54,10 +54,6 @@ basicSyntaxTheme =
                     [ tk_lambda, bnd, tk_mapsto, bod ]
       , app:
           \{ dat, apl, arg, apl_isApp, isApl, isAss } ->
-            -- sep = if apl_isApp then [] else [ tk_space ]
-            -- wrap = if isApl then assocIf isAss <<< (tk_aplHandle <> _) <<< (_ <> tk_appHandle) else assocIf isAss <<< (tk_aplHandle <> _)
-            -- wrap = assocIf isAss <<< (_ <> tk_appHandle)
-            -- assocIf isAss $ concat $ [ apl, tk_appHandle, arg ]
             appHandleIf isApl <<< assocIf isAss
               $ concat [ apl, arg ]
       , let_:
