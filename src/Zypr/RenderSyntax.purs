@@ -187,15 +187,12 @@ renderQueryOutputTerm args term cursor il =
                 $ renderLocationSyntax args cursor.location il
             ]
 
--- , DOM.div [ Props.className "query-output-term-old" ]
---     $ renderLocationSyntax args cursor.location il
--- ]
 renderQueryOutputPath :: RenderArgs -> Path -> CursorMode -> Int -> Res
 renderQueryOutputPath args path cursor il =
   [ DOM.div [ Props.className "query-output-path" ]
       $ renderLocationPath (args { interactable = false }) { syn: TermSyntax hole, path } il
       $ (\res -> [ DOM.div [ Props.className "query-output-path-term" ] res ])
-      <<< renderLocationSyntax args cursor.location -- properly uses new indentation after wrapping by path
+      <<< renderLocationSyntax args (cursor.location { path = appendPaths cursor.location.path path })
   ]
 
 renderClipboardTerm :: RenderArgs -> Term -> Res
@@ -277,6 +274,13 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
               stopPropagation event
               runEditorEffect args.this do
                 setLocation loc
+        , Props.onMouseOver \event ->
+            when args.interactable do
+              -- requires select mode
+              -- requires mouse is down
+              -- runEditorEffect args.this do
+              --   ?a
+              pure unit
         ] case dat /\ ress of
         -- term-var
         TermData (VarData dat) /\ [] ->
@@ -322,9 +326,8 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
             , isApl: isAtApl loc.path
             , isAss:
                 case loc.path of
-                  Top -> false
-                  Zip { dat: TermData (AppData _), lefts: [], rights: [ _ ] } -> false -- isApl
-                  _ -> true
+                  Zip { dat: TermData (AppData _), lefts: [ _ ], rights: [] } -> true -- isArg
+                  _ -> false
             }
         -- term-let
         TermData (LetData dat) /\ [ bnd, imp, bod ] ->
