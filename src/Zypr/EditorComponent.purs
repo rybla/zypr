@@ -125,7 +125,9 @@ renderPopoutItem this state label closeEffect res =
             [ DOM.text label
             , DOM.div
                 [ Props.className "popout-item-clear"
-                , Props.onClick \_event -> runEditorEffect this closeEffect
+                , Props.onClick \event -> do
+                    stopPropagation event
+                    runEditorEffect this closeEffect
                 ]
                 [ DOM.text "✕" ]
             ]

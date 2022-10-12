@@ -7,6 +7,7 @@ import Effect (Effect)
 import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getProps, getState, modifyState)
 import React.DOM as DOM
 import React.DOM.Props as Props
+import React.SyntheticEvent (stopPropagation)
 import Zypr.EditorEffect (EditorEffect, runEditorEffect, toggleHelpVisible, toggleIntroVisible)
 import Zypr.EditorEffect as EditorEffect
 import Zypr.Example.Applications as Applications
@@ -101,7 +102,8 @@ menuItemDropdownComponent this = do
         ]
         [ DOM.div
             [ Props.className $ "menu-item-title"
-            , Props.onClick \_event ->
+            , Props.onClick \event -> do
+                stopPropagation event
                 modifyState this _ { open = not state.open }
             ]
             [ DOM.text props.title ]
@@ -111,7 +113,8 @@ menuItemDropdownComponent this = do
                 ( \opt ->
                     DOM.div
                       [ Props.className "menu-item-option"
-                      , Props.onClick \_event -> do
+                      , Props.onClick \event -> do
+                          stopPropagation event
                           runEditorEffect props.thisEditor opt.onClick
                           modifyState this _ { open = false }
                       ]
@@ -153,7 +156,9 @@ menuItemButtonComponent this = do
         [ Props.className $ "menu-item menu-item-dropdown" ]
         [ DOM.div
             [ Props.className $ "menu-item-title"
-            , Props.onClick \_event -> props.effect
+            , Props.onClick \event -> do
+                stopPropagation event
+                props.effect
             ]
             [ DOM.text props.title ]
         ]

@@ -34,7 +34,7 @@ import Zypr.SyntaxTheme (SyntaxTheme)
 type EditorEffect a
   = StateT EditorState (ReaderT EditorProps (WriterT (Array String) (ExceptT String Effect))) a
 
-runEditorEffect :: ReactThis EditorProps EditorState -> EditorEffect Unit -> Effect Unit
+runEditorEffect :: forall a. ReactThis EditorProps EditorState -> EditorEffect Unit -> Effect Unit
 runEditorEffect this eff = do
   state <- getState this
   props <- getProps this
