@@ -57,7 +57,7 @@ renderCursorMode args cursor =
 
 renderSelectMode :: RenderArgs -> SelectMode -> Res
 renderSelectMode args select =
-  renderLocationPath args select.locationStart 0 \il1 ->
+  renderLocationPath args {path: select.pathStart, syn: wrapPath select.locationEnd.path select.locationEnd.syn} 0 \il1 ->
     renderSelectStart args
       $ renderLocationPath args select.locationEnd il1 \il2 ->
           renderSelectEnd args
@@ -65,7 +65,7 @@ renderSelectMode args select =
                 { syn: select.locationEnd.syn
                 , path:
                     appendPaths
-                      select.locationStart.path
+                      select.pathStart
                       select.locationEnd.path
                 }
                 il2

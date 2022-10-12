@@ -70,8 +70,9 @@ emptyQuery =
   }
 
 type SelectMode
-  = { locationStart :: Location
+  = { pathStart :: Path
     , locationEnd :: Location
+    , cursorAtTopPath :: Boolean
     }
 
 type Clipboard

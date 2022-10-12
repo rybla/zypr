@@ -196,9 +196,8 @@ renderConsole this state =
           SelectMode select ->
             [ stringEditorConsoleInfo <<< intercalate "\n"
                 $ [ "mode: select"
-                  , "selection start location:"
-                  , "  path: " <> pprint select.locationStart.path
-                  , "  syn: " <> pprint select.locationStart.syn
+                  , "selection start path:"
+                  , "  path: " <> pprint select.pathStart
                   , "selection end location:"
                   , "  path: " <> pprint select.locationEnd.path
                   , "  syn: " <> pprint select.locationEnd.syn

@@ -3,6 +3,7 @@ module Zypr.EditorEffect where
 import Prelude
 import Zypr.EditorTypes
 import Zypr.Syntax
+
 import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.Reader (ReaderT, runReaderT)
 import Control.Monad.State (StateT, get, gets, modify, modify_, runStateT)
@@ -23,7 +24,7 @@ import Zypr.EditorConsole (logEditorConsole, stringEditorConsoleError, stringEdi
 import Zypr.Indent (toggleIndentData)
 import Zypr.Key (Key)
 import Zypr.Key as Key
-import Zypr.Location (Location)
+import Zypr.Location (Location, wrapPath)
 import Zypr.Location as Location
 import Zypr.ModifyString (modifyStringViaKey, modifyStringViaKeyWithResult)
 import Zypr.ModifyString as ModifyString
@@ -89,6 +90,12 @@ stepNext =
       tell [ "step forwards" ]
       pure loc'
     Nothing -> throwError $ "can't step forward at location: " <> show (Location.ppLocation loc)
+
+-- steps the upper part of a selection up one
+stepPrevPath :: EditorEffect Unit
+stepPrevPath = pure unit
+-- get two paths
+-- 
 
 -- skips binds
 stepNextTerm :: EditorEffect Unit
@@ -259,7 +266,7 @@ escapeSelect = do
       tell [ "escape select" ]
       setMode
         $ CursorMode
-            { location: select.locationStart
+            { location: {path : select.pathStart, syn: wrapPath select.locationEnd.path select.locationEnd.syn}
             , query: emptyQuery
             }
     _ -> pure unit
@@ -278,8 +285,9 @@ enterSelect = do
       tell [ "enter select" ]
       setMode
         $ SelectMode
-            { locationStart: cursor.location
+            { pathStart: cursor.location.path
             , locationEnd: { syn: cursor.location.syn, path: Top }
+            , cursorAtTopPath : false
             }
     SelectMode _ -> pure unit
 
@@ -297,7 +305,7 @@ enterCursor = do
     SelectMode select ->
       setMode
         $ CursorMode
-            { location: select.locationStart
+            { location: {path: select.pathStart, syn: wrapPath select.locationEnd.path select.locationEnd.syn}
             , query: emptyQuery
             }
 
@@ -581,7 +589,7 @@ unwrapSelection = do
   setMode
     $ CursorMode
         { location:
-            { path: select.locationStart.path
+            { path: select.pathStart
             , syn: select.locationEnd.syn
             }
         , query: emptyQuery
@@ -609,9 +617,7 @@ cut = do
       setMode
         $ CursorMode
             { location:
-                { path: select.locationStart.path
-                , syn: select.locationEnd.syn
-                }
+                {path: select.pathStart, syn: wrapPath select.locationEnd.path select.locationEnd.syn}
             , query: emptyQuery
             }
     _ -> throwError "can't cut without a cursor or selection"
@@ -879,15 +885,30 @@ arrowleft = do
       | Just _ <- cursor.query.mb_output -> moveQueryIxClaspPrev
     _ -> stepPrev
 
+-- If in selection mode and the selection is empty, moves into cursor mode
+checkIfEmptySelection :: EditorEffect Unit
+checkIfEmptySelection = do
+  state <- get
+  case state.mode of
+    SelectMode select -> if select.locationEnd.path == Top then
+        setMode $ CursorMode
+            { location: {path: select.pathStart, syn: select.locationEnd.syn}
+            , query: emptyQuery
+            }
+        else pure unit
+    _ -> pure unit
+
 shiftArrowright :: EditorEffect Unit
 shiftArrowright = do
   enterSelect
   stepNextTerm
+  checkIfEmptySelection
 
 shiftArrowleft :: EditorEffect Unit
 shiftArrowleft = do
   enterSelect
   stepPrevTerm
+  checkIfEmptySelection
 
 toggleIndent :: EditorEffect Unit
 toggleIndent = do

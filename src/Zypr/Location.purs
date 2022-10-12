@@ -4,10 +4,12 @@ import Data.Tuple.Nested
 import Prelude
 import Zypr.Path
 import Zypr.Syntax
+
 import Data.Array (null, reverse, uncons, unsnoc, (:))
 import Data.Maybe (Maybe(..), maybe)
 import Effect.Exception.Unsafe (unsafeThrow)
 import Text.PP as PP
+import Undefined (undefined)
 
 type Location
   = { syn :: Syntax -- the Syntax at this Location
@@ -166,3 +168,15 @@ stepPrevHole loc = do
   case loc'.syn of
     TermSyntax (Hole _) -> pure loc'
     _ -> stepPrevHole loc'
+
+wrapPath :: Path -> Syntax -> Syntax
+wrapPath Top syn = syn
+wrapPath (Zip {dat, lefts, up, rights}) syn = wrapPath up (wrapOne {dat , lefts, rights} syn)
+
+wrapOne :: { dat :: SyntaxData , lefts :: Array Syntax , rights :: Array Syntax }
+  -> Syntax -> Syntax
+wrapOne {dat, lefts, rights} syn
+  = fromGenSyntax
+    { dat: dat
+      , syns: lefts <> [syn] <> rights
+      }
