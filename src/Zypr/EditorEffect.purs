@@ -3,7 +3,6 @@ module Zypr.EditorEffect where
 import Prelude
 import Zypr.EditorTypes
 import Zypr.Syntax
-
 import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.Reader (ReaderT, runReaderT)
 import Control.Monad.State (StateT, get, gets, modify, modify_, runStateT)
@@ -94,9 +93,9 @@ stepNext =
 -- steps the upper part of a selection up one
 stepPrevPath :: EditorEffect Unit
 stepPrevPath = pure unit
+
 -- get two paths
 -- 
-
 -- skips binds
 stepNextTerm :: EditorEffect Unit
 stepNextTerm = do
@@ -266,7 +265,7 @@ escapeSelect = do
       tell [ "escape select" ]
       setMode
         $ CursorMode
-            { location: {path : select.pathStart, syn: wrapPath select.locationEnd.path select.locationEnd.syn}
+            { location: { path: select.pathStart, syn: wrapPath select.locationEnd.path select.locationEnd.syn }
             , query: emptyQuery
             }
     _ -> pure unit
@@ -287,7 +286,7 @@ enterSelect cursorAtTopPath = do
         $ SelectMode
             { pathStart: cursor.location.path
             , locationEnd: { syn: cursor.location.syn, path: Top }
-            , cursorAtTopPath : cursorAtTopPath
+            , cursorAtTopPath: cursorAtTopPath
             }
     SelectMode _ -> pure unit
 
@@ -305,7 +304,7 @@ enterCursor = do
     SelectMode select ->
       setMode
         $ CursorMode
-            { location: {path: select.pathStart, syn: wrapPath select.locationEnd.path select.locationEnd.syn}
+            { location: { path: select.pathStart, syn: wrapPath select.locationEnd.path select.locationEnd.syn }
             , query: emptyQuery
             }
 
@@ -616,8 +615,7 @@ cut = do
       setClipboard $ Just $ Right select.locationEnd.path
       setMode
         $ CursorMode
-            { location:
-                {path: select.pathStart, syn: wrapPath select.locationEnd.path select.locationEnd.syn}
+            { location: { path: select.pathStart, syn: select.locationEnd.syn }
             , query: emptyQuery
             }
     _ -> throwError "can't cut without a cursor or selection"
@@ -890,12 +888,15 @@ checkIfEmptySelection :: EditorEffect Unit
 checkIfEmptySelection = do
   state <- get
   case state.mode of
-    SelectMode select -> if select.locationEnd.path == Top then
-        setMode $ CursorMode
-            { location: {path: select.pathStart, syn: select.locationEnd.syn}
-            , query: emptyQuery
-            }
-        else pure unit
+    SelectMode select ->
+      if select.locationEnd.path == Top then
+        setMode
+          $ CursorMode
+              { location: { path: select.pathStart, syn: select.locationEnd.syn }
+              , query: emptyQuery
+              }
+      else
+        pure unit
     _ -> pure unit
 
 -- move the top part of selection up in select mode
@@ -903,39 +904,48 @@ stepPathUp :: EditorEffect Unit
 stepPathUp = do
   select <- requireSelectMode
   case popBottomOfPath select.pathStart of
-    Just (bottom /\ path) -> 
-      setMode (SelectMode select {
-        pathStart = path
-        , locationEnd = select.locationEnd {path = wrapOneTopOfPath bottom select.locationEnd.path}
-      })
+    Just (bottom /\ path) ->
+      setMode
+        ( SelectMode
+            select
+              { pathStart = path
+              , locationEnd = select.locationEnd { path = wrapOneTopOfPath bottom select.locationEnd.path }
+              }
+        )
     Nothing -> pure unit
 
 -- move the top part of selection down in select mode
 stepPathDown :: EditorEffect Unit
 stepPathDown = do
   select <- requireSelectMode
-  let bottom /\ path = popTopOfPath select.locationEnd.path
-  setMode (SelectMode select {
-    pathStart = wrapOneBottomOfPath bottom select.pathStart
-    , locationEnd = select.locationEnd {path = path}
-  })
+  let
+    bottom /\ path = popTopOfPath select.locationEnd.path
+  setMode
+    ( SelectMode
+        select
+          { pathStart = wrapOneBottomOfPath bottom select.pathStart
+          , locationEnd = select.locationEnd { path = path }
+          }
+    )
 
 shiftArrowright :: EditorEffect Unit
 shiftArrowright = do
   enterSelect false
   select <- requireSelectMode
-  if select.cursorAtTopPath
-    then stepPathDown
-    else stepNextTerm
+  if select.cursorAtTopPath then
+    stepPathDown
+  else
+    stepNextTerm
   checkIfEmptySelection
 
 shiftArrowleft :: EditorEffect Unit
 shiftArrowleft = do
   enterSelect true
   select <- requireSelectMode
-  if select.cursorAtTopPath
-    then stepPathUp
-    else stepPrevTerm
+  if select.cursorAtTopPath then
+    stepPathUp
+  else
+    stepPrevTerm
   checkIfEmptySelection
 
 toggleIndent :: EditorEffect Unit

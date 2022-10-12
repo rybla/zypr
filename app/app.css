@@ -229,11 +229,13 @@ body {
 }
 
 .token.keyword-mapsto {
-  padding: 0 2px;
+  padding: 0 6px;
 }
 
-.token.keyword-lambda {
-  padding: 0 2px;
+.token.keyword-lambda {}
+
+.token.keyword-plus {
+  padding: 0 6px;
 }
 
 .token.punc {

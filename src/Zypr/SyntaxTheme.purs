@@ -67,7 +67,7 @@ basicSyntaxTheme =
       , plus:
           \{ dat, left, right, isAss, isApl } ->
             appHandleIf isApl <<< assocIf isAss
-              $ concat [ left, tk_space, tk_plus, tk_space, right ]
+              $ concat [ left, tk_plus, right ]
       }
   }
 
@@ -176,7 +176,7 @@ tk_zipper :: Res
 tk_zipper = makeStringToken "keyword emoji" "🖇️"
 
 tk_plus :: Res
-tk_plus = makeStringToken "keyword" "+"
+tk_plus = makeStringToken "keyword keyword-infix keyword-plus" "+"
 
 assoc :: Res -> Res
 assoc res = concat [ tk_lparen, res, tk_rparen ]

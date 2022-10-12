@@ -57,10 +57,15 @@ renderCursorMode args cursor =
 
 renderSelectMode :: RenderArgs -> SelectMode -> Res
 renderSelectMode args select =
-  renderLocationPath args {path: select.pathStart, syn: wrapPath select.locationEnd.path select.locationEnd.syn} 0 \il1 ->
+  -- select.pathStart: path from top to select start
+  renderLocationPath args { path: select.pathStart, syn: wrapPath select.locationEnd.path select.locationEnd.syn } 0 \il1 ->
     renderSelectStart args
-      $ renderLocationPath args select.locationEnd il1 \il2 ->
+      -- select.locationEnd.path: path from select start to select end
+      
+      $ renderLocationPath' args select.pathStart select.locationEnd il1 \il2 ->
           renderSelectEnd args
+            -- select.locationEnd.syn: syntax at select end
+            
             $ renderLocationSyntax args
                 { syn: select.locationEnd.syn
                 , path:
@@ -96,6 +101,35 @@ renderLocationPath args loc topIndentation = case loc.path of
     in
       renderLocationPath args loc' topIndentation \indentationLevel ->
         renderSyntaxData args loc'
+          ( mapWithIndex (\ix kres -> kres (indentationIncrement dat ix))
+              $ concat
+                  ( [ (\loc inc -> renderLocationSyntax args loc (indentationLevel + inc)) <$> sbls.lefts
+                    , [ \inc -> kres (indentationLevel + inc) ]
+                    , (\loc inc -> renderLocationSyntax args loc (indentationLevel + inc)) <$> sbls.rights
+                    ]
+                  )
+          )
+          indentationLevel
+    where
+    sbls = siblings loc
+
+renderLocationPath' :: RenderArgs -> Path -> Location -> Int -> ((Int -> Res) -> Res)
+renderLocationPath' args pathParent loc topIndentation = case loc.path of
+  Top -> \kres -> kres topIndentation
+  Zip { dat, lefts, up, rights } -> \kres ->
+    let
+      loc' = unsafeFromJust $ stepUp loc -- TODO: replace with fromGenSyntax and up
+    in
+      renderLocationPath' args pathParent loc' topIndentation \indentationLevel ->
+        renderSyntaxData args
+          -- at the top of loc', render as if at pathParent; for proper parens
+          ( loc'
+              { path =
+                case loc'.path of
+                  Top -> pathParent
+                  _ -> loc'.path
+              }
+          )
           ( mapWithIndex (\ix kres -> kres (indentationIncrement dat ix))
               $ concat
                   ( [ (\loc inc -> renderLocationSyntax args loc (indentationLevel + inc)) <$> sbls.lefts
@@ -261,9 +295,9 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
             , isAss:
                 case loc.path of
                   -- apl or arg
+                  Top -> false
                   Zip { dat: TermData (AppData _) } -> true
                   Zip { dat: TermData (PlusData _) } -> true
-                  Top -> false
                   _ -> false
             , isLamBod:
                 case loc.path of
