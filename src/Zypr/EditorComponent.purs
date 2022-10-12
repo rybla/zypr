@@ -122,16 +122,15 @@ renderPopoutItem :: EditorThis -> EditorState -> String -> EditorEffect Unit -> 
 renderPopoutItem this state label closeEffect res =
   [ DOM.div [ Props.className "popout-item" ]
       $ [ DOM.div [ Props.className "popout-item-label" ]
-            [ DOM.text label
-            , DOM.div
+            [ DOM.div
                 [ Props.className "popout-item-clear"
                 , Props.onClick \event -> do
                     stopPropagation event
                     runEditorEffect this closeEffect
                 ]
                 [ DOM.text "✕" ]
+            , DOM.text label
             ]
-        , DOM.br'
         , DOM.div [ Props.className "popout-item-body" ] res
         ]
   ]
