@@ -12,6 +12,7 @@ import Effect.Exception.Unsafe (unsafeThrow)
 import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getProps, getState)
 import React.DOM as DOM
 import React.DOM.Props as Props
+import React.SyntheticEvent (stopPropagation)
 import Text.PP (pprint)
 import Web.Event.Event (EventType(..))
 import Web.Event.EventTarget (addEventListener, eventListener)
@@ -47,7 +48,12 @@ editorComponent this = do
   render :: EditorState -> ReactElement
   render state =
     DOM.div
-      [ Props.className "editor" ]
+      [ Props.className "editor"
+      , Props.onClick \event -> do
+          stopPropagation event
+          -- TODO: close menus (this is harder cuz they have their own components)
+          runEditorEffect this EditorEffect.escape
+      ]
       $ concat
           [ renderMenu this state
           , renderProgram this state
