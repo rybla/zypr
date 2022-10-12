@@ -69,9 +69,8 @@ renderSelectMode args select =
             $ renderLocationSyntax args
                 { syn: select.locationEnd.syn
                 , path:
-                    appendPaths
-                      select.pathStart
-                      select.locationEnd.path
+                    -- technically not necessary: appendPaths select.pathStart
+                    select.locationEnd.path
                 }
                 il2
 
@@ -326,8 +325,8 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
             , isApl: isAtApl loc.path
             , isAss:
                 case loc.path of
-                  Zip { dat: TermData (AppData _), lefts: [ _ ], rights: [] } -> true -- isArg
-                  _ -> false
+                  Zip { dat: TermData (AppData _), lefts: [], rights: [ _ ] } -> false
+                  _ -> true -- otherwise, always need parens as handle to entire app
             }
         -- term-let
         TermData (LetData dat) /\ [ bnd, imp, bod ] ->
