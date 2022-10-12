@@ -180,3 +180,24 @@ wrapOne {dat, lefts, rights} syn
     { dat: dat
       , syns: lefts <> [syn] <> rights
       }
+
+wrapOneBottomOfPath :: { dat :: SyntaxData , lefts :: Array Syntax , rights :: Array Syntax }
+  -> Path -> Path
+wrapOneBottomOfPath {dat, lefts, rights} path = Zip {dat, lefts, rights, up: path}
+
+wrapOneTopOfPath :: { dat :: SyntaxData , lefts :: Array Syntax , rights :: Array Syntax }
+  -> Path -> Path
+wrapOneTopOfPath {dat, lefts, rights} Top = Zip {dat, lefts, rights, up: Top}
+wrapOneTopOfPath toWrap (Zip pieces)
+  = Zip pieces {up = wrapOneTopOfPath toWrap pieces.up}
+
+popTopOfPath :: Path
+  -> { dat :: SyntaxData , lefts :: Array Syntax , rights :: Array Syntax } /\ Path
+popTopOfPath (Zip {dat, lefts, rights, up: Top}) = {dat, lefts, rights} /\ Top
+popTopOfPath (Zip pieces) = let top /\ up' = popTopOfPath pieces.up in top /\ Zip pieces {up = up'}
+popTopOfPath _ = unsafeThrow "tried to pop top of empty path"
+
+popBottomOfPath :: Path
+  -> Maybe ({ dat :: SyntaxData , lefts :: Array Syntax , rights :: Array Syntax } /\ Path)
+popBottomOfPath (Zip {dat, lefts, rights, up}) = Just $ {dat, lefts, rights} /\ up
+popBottomOfPath Top = Nothing

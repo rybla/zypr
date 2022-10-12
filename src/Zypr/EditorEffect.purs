@@ -24,7 +24,7 @@ import Zypr.EditorConsole (logEditorConsole, stringEditorConsoleError, stringEdi
 import Zypr.Indent (toggleIndentData)
 import Zypr.Key (Key)
 import Zypr.Key as Key
-import Zypr.Location (Location, wrapPath)
+import Zypr.Location (Location, popBottomOfPath, popTopOfPath, wrapOneBottomOfPath, wrapOneTopOfPath, wrapPath)
 import Zypr.Location as Location
 import Zypr.ModifyString (modifyStringViaKey, modifyStringViaKeyWithResult)
 import Zypr.ModifyString as ModifyString
@@ -271,8 +271,8 @@ escapeSelect = do
             }
     _ -> pure unit
 
-enterSelect :: EditorEffect Unit
-enterSelect = do
+enterSelect :: Boolean -> EditorEffect Unit
+enterSelect cursorAtTopPath = do
   state <- get
   case state.mode of
     TopMode top ->
@@ -287,7 +287,7 @@ enterSelect = do
         $ SelectMode
             { pathStart: cursor.location.path
             , locationEnd: { syn: cursor.location.syn, path: Top }
-            , cursorAtTopPath : false
+            , cursorAtTopPath : cursorAtTopPath
             }
     SelectMode _ -> pure unit
 
@@ -898,16 +898,44 @@ checkIfEmptySelection = do
         else pure unit
     _ -> pure unit
 
+-- move the top part of selection up in select mode
+stepPathUp :: EditorEffect Unit
+stepPathUp = do
+  select <- requireSelectMode
+  case popBottomOfPath select.pathStart of
+    Just (bottom /\ path) -> 
+      setMode (SelectMode select {
+        pathStart = path
+        , locationEnd = select.locationEnd {path = wrapOneTopOfPath bottom select.locationEnd.path}
+      })
+    Nothing -> pure unit
+
+-- move the top part of selection down in select mode
+stepPathDown :: EditorEffect Unit
+stepPathDown = do
+  select <- requireSelectMode
+  let bottom /\ path = popTopOfPath select.locationEnd.path
+  setMode (SelectMode select {
+    pathStart = wrapOneBottomOfPath bottom select.pathStart
+    , locationEnd = select.locationEnd {path = path}
+  })
+
 shiftArrowright :: EditorEffect Unit
 shiftArrowright = do
-  enterSelect
-  stepNextTerm
+  enterSelect false
+  select <- requireSelectMode
+  if select.cursorAtTopPath
+    then stepPathDown
+    else stepNextTerm
   checkIfEmptySelection
 
 shiftArrowleft :: EditorEffect Unit
 shiftArrowleft = do
-  enterSelect
-  stepPrevTerm
+  enterSelect true
+  select <- requireSelectMode
+  if select.cursorAtTopPath
+    then stepPathUp
+    else stepPrevTerm
   checkIfEmptySelection
 
 toggleIndent :: EditorEffect Unit
