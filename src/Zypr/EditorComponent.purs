@@ -49,7 +49,7 @@ editorComponent this = do
   render state =
     DOM.div
       [ Props.className "editor"
-      , Props.onClick \event -> do
+      , Props.onMouseDown \event -> do
           stopPropagation event
           -- TODO: close menus (this is harder cuz they have their own components)
           runEditorEffect this EditorEffect.escape

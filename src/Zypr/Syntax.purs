@@ -13,9 +13,29 @@ data Syntax
   = TermSyntax Term
   | BindSyntax Bind
 
+isTerm :: Syntax -> Maybe Term
+isTerm = case _ of
+  TermSyntax dat -> Just dat
+  _ -> Nothing
+
+isBind :: Syntax -> Maybe Bind
+isBind = case _ of
+  BindSyntax dat -> Just dat
+  _ -> Nothing
+
 data SyntaxData
   = TermData TermData
   | BindData BindData
+
+isTermData :: SyntaxData -> Maybe TermData
+isTermData = case _ of
+  TermData dat -> Just dat
+  _ -> Nothing
+
+isBindData :: SyntaxData -> Maybe BindData
+isBindData = case _ of
+  BindData dat -> Just dat
+  _ -> Nothing
 
 data Term
   = Var { dat :: VarData }

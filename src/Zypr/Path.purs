@@ -1,11 +1,15 @@
 module Zypr.Path where
 
 import Prelude
+import Zypr.Syntax
+import Data.Array ((:))
+import Data.Array as Array
 import Data.Generic.Rep (class Generic)
+import Data.Maybe (Maybe(..))
 import Data.Show.Generic (genericShow)
 import Effect.Exception.Unsafe (unsafeThrow)
 import Text.PP as PP
-import Zypr.Syntax
+import Undefined (undefined)
 
 data Path
   = Top
@@ -128,26 +132,60 @@ instance ppPath :: PP.PP Path where
         , plus: { left: \_ -> PP.pp "+", right: \_ -> PP.pp "+" }
         }
 
+{-
 -- useful for debugging
--- instance ppPath :: PP.PP Path where
---   pp = case _ of
---     Top -> PP.pp "Top"
---     Zip { dat, lefts, up, rights } ->
---       PP.words
---         [ PP.pp "Zip["
---         , PP.pp $ "dat = "
---             <> case dat of
---                 TermData (VarData varDat) -> "<var: " <> varDat.id <> ">"
---                 TermData (LamData _) -> "<lam>"
---                 TermData (AppData _) -> "<app>"
---                 TermData (LetData _) -> "<let>"
---                 TermData (HoleData _) -> "<hole>"
---                 BindData bndDat -> "<bind: " <> bndDat.id <> ">"
---         , PP.pp ","
---         , PP.pp "lefts = " <> PP.ppArray lefts
---         , PP.pp ","
---         , PP.pp "up = " <> PP.pp up
---         , PP.pp ","
---         , PP.pp "rights = " <> PP.ppArray rights
---         , PP.pp "]"
---         ]
+instance ppPath :: PP.PP Path where
+  pp = case _ of
+    Top -> PP.pp "Top"
+    Zip { dat, lefts, up, rights } ->
+      PP.words
+        [ PP.pp "Zip["
+        , PP.pp $ "dat = "
+            <> case dat of
+                TermData (VarData varDat) -> "<var: " <> varDat.id <> ">"
+                TermData (LamData _) -> "<lam>"
+                TermData (AppData _) -> "<app>"
+                TermData (LetData _) -> "<let>"
+                TermData (HoleData _) -> "<hole>"
+                BindData bndDat -> "<bind: " <> bndDat.id <> ">"
+        , PP.pp ","
+        , PP.pp "lefts = " <> PP.ppArray lefts
+        , PP.pp ","
+        , PP.pp "up = " <> PP.pp up
+        , PP.pp ","
+        , PP.pp "rights = " <> PP.ppArray rights
+        , PP.pp "]"
+        ]
+-}
+{-
+-- TODO: just use diffPath
+
+-- checks if p1 is a parent of p2 i.e. the clasp of p1 is a parent of the clasp
+-- of p2
+isAbovePath :: Path -> Path -> Boolean
+isAbovePath p1 p2 = undefined
+
+-- checks if p1 is a parent of p2 i.e. the clasp of p1 is a child of the clasp
+-- of p2 
+isBelowPath :: Path -> Path -> Boolean
+isBelowPath p1 p2 = isAbovePath p2 p1
+-}
+-- given that the clasp of p1 is an ancestor of the clasp of p2, calculates the
+-- path from the clasp of p1 to the clasp of p2
+diffPath :: Path -> Path -> Maybe Path
+diffPath p1 p2 = go p2 []
+  where
+  go :: Path -> Array Path -> Maybe Path
+  go p ps
+    | p1 == p = appendArrayPaths ps
+
+  -- dat, lefts, up, rights
+  go (Zip z) ps = go z.up (Zip z { up = Top } : ps)
+
+  go _ _ = Nothing -- not in parent/child relationship
+
+appendArrayPaths :: Array Path -> Maybe Path
+appendArrayPaths ps = case Array.uncons ps of
+  Nothing -> Nothing
+  Just { head: p, tail: [] } -> Just p
+  Just { head: p, tail: ps' } -> appendPaths p <$> appendArrayPaths ps'

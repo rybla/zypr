@@ -15,8 +15,10 @@ import Data.Maybe (Maybe(..))
 import Data.String as String
 import Data.Tuple.Nested ((/\))
 import Effect (Effect)
+import Effect.Class (liftEffect)
 import Effect.Exception.Unsafe (unsafeThrow)
 import React (ReactThis, getProps, getState, modifyState)
+import React.SyntheticEvent (SyntheticMouseEvent, stopPropagation)
 import Text.PP (pprint)
 import Text.PP as PP
 import Zypr.EditorConsole (logEditorConsole, stringEditorConsoleError, stringEditorConsoleLog)
@@ -27,7 +29,7 @@ import Zypr.Location (Location, popBottomOfPath, popTopOfPath, wrapOneBottomOfPa
 import Zypr.Location as Location
 import Zypr.ModifyString (modifyStringViaKey, modifyStringViaKeyWithResult)
 import Zypr.ModifyString as ModifyString
-import Zypr.Path (Path(..))
+import Zypr.Path (Path(..), appendPaths, diffPath)
 import Zypr.Path as Path
 import Zypr.SyntaxTheme (SyntaxTheme)
 
@@ -987,3 +989,87 @@ undo :: EditorEffect Unit
 undo = do
   loc <- popHistory
   setLocation loc
+
+selectOnMouseEnter :: Location -> SyntheticMouseEvent -> EditorEffect Unit
+selectOnMouseEnter loc event = do
+  select <- do
+    state <- get
+    case state.mode of
+      CursorMode cursor ->
+        pure
+          { pathStart: cursor.location.path
+          , locationEnd: cursor.location
+          , cursorAtTopPath: false
+          }
+      SelectMode select -> pure select
+      TopMode top ->
+        pure
+          { pathStart: Top
+          , locationEnd: { path: Top, syn: TermSyntax top.term }
+          , cursorAtTopPath: false
+          }
+  if select.cursorAtTopPath then do
+    -- cursor is at select.pathStart
+    if loc.path == select.pathStart then do
+      -- empty selection
+      liftEffect (stopPropagation event)
+      -- TODO: escapeSelect
+      pure unit
+    else if loc.path == select.pathStart then do
+      -- same selection
+      liftEffect (stopPropagation event)
+      pure unit
+    else do
+      -- if isAbovePath loc.path select.pathStart then do
+      --   -- the clasp of loc.path is an ancestor of the clasp of select.pathStart
+      --   liftEffect (stopPropagation event)
+      --   pure unit
+      -- else if isBelowPath loc.path select.pathStart then do
+      --   -- the clasp of loc.path is a descendant of the clasp of
+      --   -- select.pathStart
+      --   liftEffect (stopPropagation event)
+      --   pure unit
+      -- else
+      --   pure unit -- can't select to here
+      liftEffect (stopPropagation event)
+      pure unit
+  else do
+    -- cursor is at select.locationEnd
+    if loc.path == select.locationEnd.path then do
+      -- empty selection
+      liftEffect (stopPropagation event)
+      -- TODO: escapeSelect
+      -- escapeSelect
+      pure unit
+    else if loc.path == appendPaths select.pathStart select.locationEnd.path then do
+      -- same selection 
+      liftEffect (stopPropagation event)
+      pure unit
+    else do
+      tell [ "---------------------------------------------------------------" ]
+      tell [ "loc.path                = " <> pprint loc.path ]
+      tell [ "select.pathStart        = " <> pprint select.pathStart ]
+      tell [ "select.locationEnd.path = " <> pprint select.locationEnd.path ]
+      tell [ "select.<total path>     = " <> pprint (appendPaths select.pathStart select.locationEnd.path) ]
+      -- if isAbovePath loc.path select.pathStart then do
+      --   -- the clasp of loc.path is an ancestor of the clasp of select.pathStart
+      --   liftEffect (stopPropagation event)
+      --   pure unit
+      -- else if isBelowPath loc.path select.pathStart then do
+      --   -- the clasp of loc.path is a descendant of the clasp of
+      --   -- select.pathStart
+      --   liftEffect (stopPropagation event)
+      --   setMode $ SelectMode select { locationEnd = loc }
+      -- else
+      --   pure unit -- can't select to here
+      case diffPath select.pathStart loc.path of
+        Just pathEnd -> do
+          tell [ "setting select.pathEnd = " <> pprint pathEnd ]
+          liftEffect (stopPropagation event)
+          setMode $ SelectMode select { locationEnd = loc { path = pathEnd } }
+        Nothing -> case diffPath loc.path select.pathStart of
+          Just pathStart -> do
+            liftEffect (stopPropagation event)
+            pure unit -- TODO: handle when loc.path above
+          Nothing -> pure unit
+      pure unit

@@ -1,29 +1,24 @@
 module Zypr.RenderSyntax where
 
-import Data.Tuple.Nested
 import Prelude
-import Zypr.EditorTypes
-import Zypr.Location
-import Zypr.Path
-import Zypr.Syntax
-import Zypr.SyntaxTheme
-import Data.Array (concat, concatMap, intercalate, length, mapWithIndex, replicate, zip)
+import Data.Array (concat, intercalate, length, mapWithIndex, replicate)
 import Data.Either (Either(..))
-import Data.Maybe (Maybe(..))
-import Data.String (joinWith)
-import Data.String as String
-import Data.String.CodeUnits as String
-import Debug as Debug
-import Effect (Effect)
+import Data.Int (toNumber)
+import Data.Maybe (Maybe(..), isJust)
+import Data.String (null) as String
+import Data.Tuple.Nested ((/\))
+import Effect.Console as Console
 import Effect.Exception.Unsafe (unsafeThrow)
-import Partial.Unsafe (unsafeCrashWith)
-import React (ReactThis, getState)
 import React.DOM as DOM
 import React.DOM.Props as Props
 import React.SyntheticEvent (stopPropagation)
-import Text.PP as PP
-import Undefined (undefined)
-import Zypr.EditorEffect (runEditorEffect, setLocation)
+import React.SyntheticEvent as SyntheticEvent
+import Zypr.EditorEffect as EditorEffect
+import Zypr.EditorTypes (CursorMode, EditorMode(..), EditorState, EditorThis, Query, SelectMode, TopMode)
+import Zypr.Location (Location, children, siblings, stepUp, wrapPath)
+import Zypr.Path (Path(..), appendPaths)
+import Zypr.Syntax (Syntax(..), SyntaxData(..), Term(..), TermData(..), hole, isTerm, isTermData, toGenSyntax)
+import Zypr.SyntaxTheme (Res, SyntaxTheme)
 
 type RenderArgs
   = { this :: EditorThis
@@ -68,9 +63,7 @@ renderSelectMode args select =
             
             $ renderLocationSyntax args
                 { syn: select.locationEnd.syn
-                , path:
-                    -- technically not necessary: appendPaths select.pathStart
-                    select.locationEnd.path
+                , path: appendPaths select.pathStart select.locationEnd.path
                 }
                 il2
 
@@ -121,25 +114,18 @@ renderLocationPath' args pathParent loc topIndentation = case loc.path of
     in
       renderLocationPath' args pathParent loc' topIndentation \indentationLevel ->
         renderSyntaxData args
-          -- at the top of loc', render as if at pathParent; for proper parens
-          ( loc'
-              { path =
-                case loc'.path of
-                  Top -> pathParent
-                  _ -> loc'.path
-              }
-          )
+          (loc' { path = appendPaths pathParent loc'.path })
           ( mapWithIndex (\ix kres -> kres (indentationIncrement dat ix))
               $ concat
-                  ( [ (\loc inc -> renderLocationSyntax args loc (indentationLevel + inc)) <$> sbls.lefts
+                  ( [ (\loc'' inc -> renderLocationSyntax args loc'' (indentationLevel + inc)) <$> sbls.lefts
                     , [ \inc -> kres (indentationLevel + inc) ]
-                    , (\loc inc -> renderLocationSyntax args loc (indentationLevel + inc)) <$> sbls.rights
+                    , (\loc'' inc -> renderLocationSyntax args loc'' (indentationLevel + inc)) <$> sbls.rights
                     ]
                   )
           )
           indentationLevel
     where
-    sbls = siblings loc
+    sbls = siblings loc { path = appendPaths pathParent loc.path }
 
 -- only render `Syntax` at this `Location`
 renderLocationSyntax :: RenderArgs -> Location -> Int -> Res
@@ -268,18 +254,25 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
                       , if String.null datBind.id then [ "bind-empty" ] else []
                       ]
               ]
-        , Props.onClick \event ->
+        -- , Props.onClick \event ->
+        --     when args.interactable do
+        --       stopPropagation event
+        --       runEditorEffect args.this do
+        --         setLocation loc
+        , Props.onMouseDown \event ->
             when args.interactable do
               stopPropagation event
-              runEditorEffect args.this do
-                setLocation loc
-        , Props.onMouseOver \event ->
-            when args.interactable do
-              -- requires select mode
-              -- requires mouse is down
-              -- runEditorEffect args.this do
-              --   ?a
-              pure unit
+              EditorEffect.runEditorEffect args.this do
+                EditorEffect.setLocation loc
+        , Props.onMouseMove \event -> do
+            buttons <- SyntheticEvent.buttons event
+            when
+              ( args.interactable
+                  && (buttons == toNumber 1)
+                  && isJust (isTerm loc.syn)
+              ) do
+              EditorEffect.runEditorEffect args.this do
+                EditorEffect.selectOnMouseEnter loc event
         ] case dat /\ ress of
         -- term-var
         TermData (VarData dat) /\ [] ->

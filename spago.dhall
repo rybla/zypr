@@ -9,6 +9,7 @@
   , "exceptions"
   , "foldable-traversable"
   , "identity"
+  , "integers"
   , "lists"
   , "maybe"
   , "partial"
