@@ -626,20 +626,35 @@ cut = do
 paste :: EditorEffect Unit
 paste = do
   state <- get
-  cursor <- requireCursorMode
-  case cursor.location.syn of
-    TermSyntax _ -> do
-      case state.clipboard of
-        -- replace term at cursor
-        Just (Left term') -> do
-          tell [ "paste term: " <> pprint term' ]
-          replaceTermAtCursor term'
-        -- wrap around term at cursor 
-        Just (Right path) -> do
-          tell [ "paste selection: " <> pprint path ]
-          wrapTermAtCursor path
-        Nothing -> throwError "can't paste with empty clipboard"
-    _ -> throwError "can't paste at a non-Term"
+  case state.mode of
+    CursorMode cursor -> case cursor.location.syn of
+      TermSyntax _ -> do
+        case state.clipboard of
+          -- replace term at cursor
+          Just (Left term') -> do
+            tell [ "paste term: " <> pprint term' ]
+            replaceTermAtCursor term'
+          -- wrap around term at cursor 
+          Just (Right path) -> do
+            tell [ "paste selection: " <> pprint path ]
+            wrapTermAtCursor path
+          Nothing -> throwError "can't paste with empty clipboard"
+      _ -> throwError "can't paste at a non-Term"
+    SelectMode select -> case state.clipboard of
+      Just (Right path) -> do
+        tell [ "paste selection: " <> pprint path ]
+        setMode
+          $ CursorMode
+              { location:
+                  -- replaces select.locationEnd.path with path
+                  { path: select.pathStart <> path
+                  , syn: select.locationEnd.syn
+                  }
+              , query: emptyQuery
+              }
+      Just (Left _) -> throwError "can't paste term into a selection"
+      Nothing -> throwError "can't paste with empty clipboard"
+    _ -> throwError "can't paste at top"
 
 replaceTermAtCursor :: Term -> EditorEffect Unit
 replaceTermAtCursor term = do
