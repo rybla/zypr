@@ -840,21 +840,18 @@ calculateQuery input = do
           { nClasps: 2
           , change
           }
-  else if input.string == "+" then do
-    change <-
-      Right
-        <$> case input.ixClasp of
-            -- clasp at left
-            0 -> pure $ Path.plus_left hole Top
-            -- clasp at right
-            1 -> pure $ Path.plus_right hole Top
-            -- bad clasp index
-            _ -> throwError "clasp index out of bounds while calculating query"
-    pure
-      $ Just
-          { nClasps: 2
-          , change
-          }
+  else if input.string == "+" then
+    makeInfixCase Plus
+  else if input.string == "-" then
+    makeInfixCase Minus
+  else if input.string == "*" then
+    makeInfixCase Times
+  else if input.string == "/" then
+    makeInfixCase Divide
+  else if input.string == "^" then
+    makeInfixCase Power
+  else if input.string == "%" then
+    makeInfixCase Mod
   else do
     let
       id = idFromString input.string
@@ -862,6 +859,23 @@ calculateQuery input = do
       $ Just
           { nClasps: 0
           , change: Left (var id)
+          }
+  where
+  makeInfixCase :: InfixOp -> EditorEffect (Maybe QueryOutput)
+  makeInfixCase op = do
+    change <-
+      Right
+        <$> case input.ixClasp of
+            -- clasp at left
+            0 -> pure $ Path.infix_left hole op Top
+            -- clasp at right
+            1 -> pure $ Path.infix_right hole op Top
+            -- bad clasp index
+            _ -> throwError "clasp index out of bounds while calculating query"
+    pure
+      $ Just
+          { nClasps: 2
+          , change
           }
 
 -- submit query

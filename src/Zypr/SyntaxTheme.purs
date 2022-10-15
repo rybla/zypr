@@ -20,7 +20,7 @@ type SyntaxTheme
         , app :: { dat :: AppData, apl :: Res, arg :: Res, apl_isApp :: Boolean, isApl :: Boolean, isAss :: Boolean } -> Res
         , let_ :: { dat :: LetData, bnd :: Res, imp :: Res, bod :: Res, isAss :: Boolean, isApl :: Boolean } -> Res
         , hole :: { dat :: HoleData, isApl :: Boolean } -> Res
-        , plus :: { dat :: PlusData, left :: Res, right :: Res, isAss :: Boolean, isApl :: Boolean } -> Res
+        , infix :: { dat :: InfixData, left :: Res, right :: Res, isAss :: Boolean, isApl :: Boolean } -> Res
         }
     }
 
@@ -64,10 +64,10 @@ basicSyntaxTheme =
           \{ dat, isApl } ->
             appHandleIf isApl
               $ res_hole
-      , plus:
+      , infix:
           \{ dat, left, right, isAss, isApl } ->
             appHandleIf isApl <<< assocIf isAss
-              $ concat [ left, tk_plus, right ]
+              $ concat [ left, tk_infix dat.infixOp, right ]
       }
   }
 
@@ -141,11 +141,8 @@ tk_app = makeStringToken "keyword" "app"
 tk_lamArgHandle :: Res
 tk_lamArgHandle = makeStringToken "punc punc-lamArgHandle" "•"
 
-tk_appHandle :: Res
-tk_appHandle = makeStringToken "punc punc-appHandle" "•"
-
 tk_aplHandle :: Res
-tk_aplHandle = makeStringToken "punc punc-aplHandle" "$"
+tk_aplHandle = makeStringToken "punc punc-appHandle" "•"
 
 tk_space :: Res
 tk_space = makeStringToken "space" " "
@@ -175,8 +172,16 @@ tk_assign = makeStringToken "keyword" "="
 tk_zipper :: Res
 tk_zipper = makeStringToken "keyword emoji" "🖇️"
 
-tk_plus :: Res
-tk_plus = makeStringToken "keyword keyword-infix keyword-plus" "+"
+tk_infix :: InfixOp -> Res
+tk_infix =
+  makeStringToken "keyword keyword-infix"
+    <<< case _ of
+        Plus -> "+"
+        Minus -> "-"
+        Times -> "*"
+        Divide -> "/"
+        Power -> "^"
+        Mod -> "%"
 
 assoc :: Res -> Res
 assoc res = concat [ tk_lparen, res, tk_rparen ]
@@ -185,7 +190,7 @@ assocIf :: Boolean -> Res -> Res
 assocIf b res = if b then assoc res else res
 
 appHandleIf :: Boolean -> Res -> Res
-appHandleIf b res = if b then res <> tk_appHandle else res
+appHandleIf b res = if b then res <> tk_aplHandle else res
 
 makeStringToken :: String -> String -> Res
 makeStringToken className str = makeToken className [ DOM.text str ]

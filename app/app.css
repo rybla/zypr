@@ -181,6 +181,9 @@ body {
 .cursor {
   border-radius: 4px;
   display: inline;
+  box-decoration-break: slice;
+  -webkit-box-decoration-break: slice;
+
   box-shadow: -2px 0 0 blue, 2px 0 0 blue;
 }
 
@@ -195,6 +198,9 @@ body {
 .selectEnd {
   border-radius: 4px;
   display: inline;
+  box-decoration-break: slice;
+  -webkit-box-decoration-break: slice;
+
   /* box-shadow: -2px 0 0 orange, 2px 0 0 orange; */
   box-shadow: -2px 0 0 blue, 2px 0 0 blue;
 }
@@ -203,13 +209,11 @@ body {
 .selectStart {
   /* background-color: rgb(255, 233, 194); */
   background-color: rgb(216, 216, 255);
-  /* box-decoration-break: clone; */
 }
 
 
 .selectEnd {
   background-color: white;
-  /* box-decoration-break: clone; */
 }
 
 /* token */
@@ -229,7 +233,7 @@ body {
 
 .token.keyword-lambda {}
 
-.token.keyword-plus {
+.token.keyword-infix {
   padding: 0 6px;
 }
 

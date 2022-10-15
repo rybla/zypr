@@ -19,8 +19,8 @@ import Zypr.EditorEffect as EditorEffect
 import Zypr.EditorTypes (CursorMode, EditorMode(..), EditorState, EditorThis, Query, SelectMode, TopMode)
 import Zypr.Location (Location, children, siblings, stepUp, wrapPath)
 import Zypr.Path (Path(..))
-import Zypr.Syntax (Syntax(..), SyntaxData(..), Term(..), TermData(..), hole, isTerm, isTermData, toGenSyntax)
-import Zypr.SyntaxTheme (Res, SyntaxTheme)
+import Zypr.Syntax (Syntax(..), SyntaxData(..), Term(..), TermData(..), AppData, hole, isTerm, isTermData, toGenSyntax)
+import Zypr.SyntaxTheme (Res, SyntaxTheme, tk_aplHandle)
 import Zypr.UnsafeNativeEventTarget as UnsafeNativeEventTarget
 
 type RenderArgs
@@ -197,8 +197,15 @@ renderClipboardPath args path =
       $ renderLocationPath (args { interactable = false })
           { path, syn: TermSyntax hole }
           0
-      $ \_ -> [ DOM.div [ Props.className "clipboard-clasp" ] [] ] -- TODO: suspicious
+      -- $ \_ -> [ DOM.div [ Props.className "clipboard-clasp" ] [] ] -- TODO: if is apl, then needs an aplHandle
+      
+      $ \_ -> case path of
+          -- TODO: this breaks SyntaxTheme abstraction
+          Zip { dat: TermData (AppData _), lefts: [], rights: [ _ ] } -> renderClasp <> tk_aplHandle
+          _ -> renderClasp
   ]
+  where
+  renderClasp = [ DOM.div [ Props.className "clipboard-clasp" ] [] ]
 
 renderSelectStart :: RenderArgs -> Res -> Res
 renderSelectStart args res =
@@ -249,7 +256,7 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
                         AppData _ -> "term-app"
                         LetData _ -> "term-let"
                         HoleData _ -> "term-hole"
-                        PlusData _ -> "term-plus"
+                        InfixData _ -> "term-infix"
                     ]
                   BindData datBind ->
                     concat
@@ -293,7 +300,7 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
                   -- apl or arg
                   Top -> false
                   Zip { dat: TermData (AppData _) } -> true
-                  Zip { dat: TermData (PlusData _) } -> true
+                  Zip { dat: TermData (InfixData _) } -> true
                   _ -> false
             , isLamBod:
                 case loc.path of
@@ -335,7 +342,7 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
             , isAss:
                 case loc.path of
                   Zip { dat: TermData (AppData _) } -> true -- isApl or isArg
-                  Zip { dat: TermData (PlusData _) } -> true -- isPlusLeft or isPlusRight
+                  Zip { dat: TermData (InfixData _) } -> true -- isInfixLeft or isInfixRight
                   _ -> false
             , isApl: isAtApl loc.path
             }
@@ -345,17 +352,18 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
             { dat
             , isApl: isAtApl loc.path
             }
-        -- term-plus
-        TermData (PlusData dat) /\ [ left, right ] ->
-          args.thm.term.plus
+        -- term-infix
+        TermData (InfixData dat) /\ [ left, right ] ->
+          args.thm.term.infix
             { dat
             , left
             , right
             , isAss:
-                case loc.path of
-                  Zip { dat: TermData (AppData _) } -> true -- isApl or isArg
-                  Zip { dat: TermData (PlusData _), lefts: [], rights: [ _ ] } -> true -- isPlusLeft
-                  _ -> false
+                -- case loc.path of
+                --   Zip { dat: TermData (AppData _) } -> true -- isApl or isArg
+                --   Zip { dat: TermData (InfixData _), lefts: [], rights: [ _ ] } -> true -- isInfixLeft
+                --   _ -> false
+                true -- for the sake of demo'ing assoc
             , isApl: isAtApl loc.path
             }
         -- bind

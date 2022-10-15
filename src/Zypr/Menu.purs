@@ -23,7 +23,7 @@ renderMenu this _state =
             -- [ DOM.text "(⛓️ ▪ zypr) " ]
             -- [ DOM.text "(z y▪p▪r)"]
             -- [ DOM.text "[zypr]" ]
-            [ DOM.text "|#|zypr|#|" ]
+            [ DOM.text "•[zypr]•" ]
         , createLeafElement menuItemDropdownClass
             { title: "examples"
             , thisEditor: this
@@ -39,6 +39,7 @@ renderMenu this _state =
                   }
                 ]
             }
+        {- TODO: tmp disabled alt syntax themes
         , createLeafElement menuItemDropdownClass
             { title: "syntax"
             , thisEditor: this
@@ -51,6 +52,7 @@ renderMenu this _state =
                   )
                   syntaxThemes
             }
+        -}
         , createLeafElement menuItemDropdownClass
             { title: "docs"
             , thisEditor: this
