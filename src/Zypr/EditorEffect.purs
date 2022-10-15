@@ -12,15 +12,21 @@ import Data.Array as Array
 import Data.Either (Either(..))
 import Data.Foldable (foldr, sequence_)
 import Data.Maybe (Maybe(..), isJust)
+import Data.Show.Generic (genericShow)
 import Data.String as String
 import Data.Tuple.Nested ((/\))
+import Debug as Debug
 import Effect (Effect)
 import Effect.Class (liftEffect)
+import Effect.Class.Console as Console
 import Effect.Exception.Unsafe (unsafeThrow)
+import HTML (navigator_clipboard_writeText)
 import React (ReactThis, getProps, getState, modifyState)
 import React.SyntheticEvent (SyntheticMouseEvent, stopPropagation)
 import Text.PP (pprint)
 import Text.PP as PP
+import Web.HTML (window)
+import Web.HTML.Window (navigator)
 import Zypr.EditorConsole (logEditorConsole, stringEditorConsoleError, stringEditorConsoleLog)
 import Zypr.Indent (toggleIndentData)
 import Zypr.Key (Key)
@@ -576,11 +582,15 @@ copy = do
     CursorMode cursor -> case cursor.location.syn of
       TermSyntax term -> do
         tell [ "copy term: " <> pprint term ]
+        -- TODO: add to real clipboard
+        liftEffect $ navigator_clipboard_writeText (genericShow term)
         setClipboard $ Just $ Left term
       _ -> throwError "can't copy a non-term"
     SelectMode select -> do
       tell [ "copy selection: " <> pprint select.locationEnd.path ]
       setClipboard $ Just $ Right select.locationEnd.path
+      -- Debug.traceM select
+      liftEffect $ navigator_clipboard_writeText (genericShow select.locationEnd.path)
       escapeSelect
     _ -> throwError "can't copy without a cursor or selection"
 

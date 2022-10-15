@@ -22,7 +22,7 @@ keyboardEventHandler this event = do
     key = Key.fromEvent event
   when (shouldPreventDefault key) do
     preventDefault event
-  Console.log $ "key down: " <> show key
+  -- Console.log $ "key down: " <> show key
   runEditorEffect this $ handleKey key
 
 shouldPreventDefault :: Key.Key -> Boolean

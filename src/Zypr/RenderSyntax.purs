@@ -8,7 +8,6 @@ import Data.Int (toNumber)
 import Data.Maybe (Maybe(..), isJust)
 import Data.String (null) as String
 import Data.Tuple.Nested ((/\))
-import Debug as Debug
 import Effect.Console as Console
 import Effect.Exception.Unsafe (unsafeThrow)
 import React.DOM as DOM
@@ -56,22 +55,20 @@ renderCursorMode args cursor =
 
 renderSelectMode :: RenderArgs -> SelectMode -> Res
 renderSelectMode args select =
-  Debug.trace ("select.locationEnd.path = " <> pprint select.locationEnd.path) \_ ->
-    Debug.trace ("select.locationEnd.syn = " <> pprint select.locationEnd.syn) \_ ->
-      -- select.pathStart: path from top to select start
-      renderLocationPath args { path: select.pathStart, syn: wrapPath select.locationEnd.path select.locationEnd.syn } 0 \il1 ->
-        renderSelectStart args
-          -- select.locationEnd.path: path from select start to select end
-          
-          $ renderLocationPath' args select.pathStart select.locationEnd il1 \il2 ->
-              renderSelectEnd args
-                -- select.locationEnd.syn: syntax at select end
-                
-                $ renderLocationSyntax args
-                    { syn: select.locationEnd.syn
-                    , path: select.pathStart <> select.locationEnd.path
-                    }
-                    il2
+  -- select.pathStart: path from top to select start
+  renderLocationPath args { path: select.pathStart, syn: wrapPath select.locationEnd.path select.locationEnd.syn } 0 \il1 ->
+    renderSelectStart args
+      -- select.locationEnd.path: path from select start to select end
+      
+      $ renderLocationPath' args select.pathStart select.locationEnd il1 \il2 ->
+          renderSelectEnd args
+            -- select.locationEnd.syn: syntax at select end
+            
+            $ renderLocationSyntax args
+                { syn: select.locationEnd.syn
+                , path: select.pathStart <> select.locationEnd.path
+                }
+                il2
 
 -- Given what node I am (SyntaxData) and what child I am (Int), how much should I be indented
 indentationIncrement :: SyntaxData -> Int -> Int
