@@ -582,14 +582,12 @@ copy = do
     CursorMode cursor -> case cursor.location.syn of
       TermSyntax term -> do
         tell [ "copy term: " <> pprint term ]
-        -- TODO: add to real clipboard
         liftEffect $ navigator_clipboard_writeText (genericShow term)
         setClipboard $ Just $ Left term
       _ -> throwError "can't copy a non-term"
     SelectMode select -> do
       tell [ "copy selection: " <> pprint select.locationEnd.path ]
       setClipboard $ Just $ Right select.locationEnd.path
-      -- Debug.traceM select
       liftEffect $ navigator_clipboard_writeText (genericShow select.locationEnd.path)
       escapeSelect
     _ -> throwError "can't copy without a cursor or selection"
@@ -620,11 +618,13 @@ cut = do
     CursorMode cursor -> case cursor.location.syn of
       TermSyntax term -> do
         tell [ "cut term: " <> pprint term ]
+        liftEffect $ navigator_clipboard_writeText (genericShow term)
         setClipboard $ Just $ Left term
         modifyTermAtCursor \_ -> pure hole
       _ -> throwError "can't cut a non-term"
     SelectMode select -> do
       tell [ "cut selection: " <> pprint select.locationEnd.path ]
+      liftEffect $ navigator_clipboard_writeText (genericShow select.locationEnd.path)
       setClipboard $ Just $ Right select.locationEnd.path
       setMode
         $ CursorMode
