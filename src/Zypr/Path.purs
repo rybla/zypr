@@ -21,12 +21,18 @@ data Path
     }
 
 -- | append the first path above the second path
-appendPaths :: Path -> Path -> Path
-appendPaths path1 path2 = case path2 of
+appendPath :: Path -> Path -> Path
+appendPath path1 path2 = case path2 of
   Top -> path1
   Zip { dat, lefts, up, rights } ->
     Zip
-      { dat, lefts, up: appendPaths path1 up, rights }
+      { dat, lefts, up: appendPath path1 up, rights }
+
+instance Semigroup Path where 
+  append = appendPath 
+
+instance Monoid Path where 
+  mempty = Top 
 
 -- | path into lam with clasp at bnd
 lam_bnd :: Term -> Path -> Path
@@ -177,15 +183,17 @@ diffPath p1 p2 = go p2 []
   where
   go :: Path -> Array Path -> Maybe Path
   go p ps
-    | p1 == p = appendArrayPaths ps
+    | p1 == p = Just $ Array.foldr append mempty  ps
 
   -- dat, lefts, up, rights
   go (Zip z) ps = go z.up (Zip z { up = Top } : ps)
 
   go _ _ = Nothing -- not in parent/child relationship
 
+{- DEPRECATED
 appendArrayPaths :: Array Path -> Maybe Path
 appendArrayPaths ps = case Array.uncons ps of
   Nothing -> Nothing
   Just { head: p, tail: [] } -> Just p
-  Just { head: p, tail: ps' } -> appendPaths p <$> appendArrayPaths ps'
+  Just { head: p, tail: ps' } -> (p <> _) <$> appendArrayPaths ps'
+-}

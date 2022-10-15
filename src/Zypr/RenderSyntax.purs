@@ -3,22 +3,26 @@ module Zypr.RenderSyntax where
 import Prelude
 import Data.Array (concat, intercalate, length, mapWithIndex, replicate)
 import Data.Either (Either(..))
+import Data.Foldable as Array
 import Data.Int (toNumber)
 import Data.Maybe (Maybe(..), isJust)
 import Data.String (null) as String
 import Data.Tuple.Nested ((/\))
+import Debug as Debug
 import Effect.Console as Console
 import Effect.Exception.Unsafe (unsafeThrow)
 import React.DOM as DOM
 import React.DOM.Props as Props
 import React.SyntheticEvent (stopPropagation)
 import React.SyntheticEvent as SyntheticEvent
+import Text.PP (pprint)
 import Zypr.EditorEffect as EditorEffect
 import Zypr.EditorTypes (CursorMode, EditorMode(..), EditorState, EditorThis, Query, SelectMode, TopMode)
 import Zypr.Location (Location, children, siblings, stepUp, wrapPath)
-import Zypr.Path (Path(..), appendPaths)
+import Zypr.Path (Path(..))
 import Zypr.Syntax (Syntax(..), SyntaxData(..), Term(..), TermData(..), hole, isTerm, isTermData, toGenSyntax)
 import Zypr.SyntaxTheme (Res, SyntaxTheme)
+import Zypr.UnsafeNativeEventTarget as UnsafeNativeEventTarget
 
 type RenderArgs
   = { this :: EditorThis
@@ -52,20 +56,22 @@ renderCursorMode args cursor =
 
 renderSelectMode :: RenderArgs -> SelectMode -> Res
 renderSelectMode args select =
-  -- select.pathStart: path from top to select start
-  renderLocationPath args { path: select.pathStart, syn: wrapPath select.locationEnd.path select.locationEnd.syn } 0 \il1 ->
-    renderSelectStart args
-      -- select.locationEnd.path: path from select start to select end
-      
-      $ renderLocationPath' args select.pathStart select.locationEnd il1 \il2 ->
-          renderSelectEnd args
-            -- select.locationEnd.syn: syntax at select end
-            
-            $ renderLocationSyntax args
-                { syn: select.locationEnd.syn
-                , path: appendPaths select.pathStart select.locationEnd.path
-                }
-                il2
+  Debug.trace ("select.locationEnd.path = " <> pprint select.locationEnd.path) \_ ->
+    Debug.trace ("select.locationEnd.syn = " <> pprint select.locationEnd.syn) \_ ->
+      -- select.pathStart: path from top to select start
+      renderLocationPath args { path: select.pathStart, syn: wrapPath select.locationEnd.path select.locationEnd.syn } 0 \il1 ->
+        renderSelectStart args
+          -- select.locationEnd.path: path from select start to select end
+          
+          $ renderLocationPath' args select.pathStart select.locationEnd il1 \il2 ->
+              renderSelectEnd args
+                -- select.locationEnd.syn: syntax at select end
+                
+                $ renderLocationSyntax args
+                    { syn: select.locationEnd.syn
+                    , path: select.pathStart <> select.locationEnd.path
+                    }
+                    il2
 
 -- Given what node I am (SyntaxData) and what child I am (Int), how much should I be indented
 indentationIncrement :: SyntaxData -> Int -> Int
@@ -114,7 +120,7 @@ renderLocationPath' args pathParent loc topIndentation = case loc.path of
     in
       renderLocationPath' args pathParent loc' topIndentation \indentationLevel ->
         renderSyntaxData args
-          (loc' { path = appendPaths pathParent loc'.path })
+          (loc' { path = pathParent <> loc'.path })
           ( mapWithIndex (\ix kres -> kres (indentationIncrement dat ix))
               $ concat
                   ( [ (\loc'' inc -> renderLocationSyntax args loc'' (indentationLevel + inc)) <$> sbls.lefts
@@ -125,7 +131,7 @@ renderLocationPath' args pathParent loc topIndentation = case loc.path of
           )
           indentationLevel
     where
-    sbls = siblings loc { path = appendPaths pathParent loc.path }
+    sbls = siblings loc { path = pathParent <> loc.path }
 
 -- only render `Syntax` at this `Location`
 renderLocationSyntax :: RenderArgs -> Location -> Int -> Res
@@ -177,7 +183,7 @@ renderQueryOutputPath args path cursor il =
   [ DOM.div [ Props.className "query-output-path" ]
       $ renderLocationPath (args { interactable = false }) { syn: TermSyntax hole, path } il
       $ (\res -> [ DOM.div [ Props.className "query-output-path-term" ] res ])
-      <<< renderLocationSyntax args (cursor.location { path = appendPaths cursor.location.path path })
+      <<< renderLocationSyntax args (cursor.location { path = cursor.location.path <> path })
   ]
 
 renderClipboardTerm :: RenderArgs -> Term -> Res
@@ -254,11 +260,6 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
                       , if String.null datBind.id then [ "bind-empty" ] else []
                       ]
               ]
-        -- , Props.onClick \event ->
-        --     when args.interactable do
-        --       stopPropagation event
-        --       runEditorEffect args.this do
-        --         setLocation loc
         , Props.onMouseDown \event ->
             when args.interactable do
               stopPropagation event
@@ -267,12 +268,14 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
         , Props.onMouseMove \event -> do
             buttons <- SyntheticEvent.buttons event
             when
-              ( args.interactable
-                  && (buttons == toNumber 1)
-                  && isJust (isTerm loc.syn)
+              ( Array.and
+                  [ args.interactable
+                  , buttons == toNumber 1
+                  , isJust (isTerm loc.syn)
+                  ]
               ) do
               EditorEffect.runEditorEffect args.this do
-                EditorEffect.selectOnMouseEnter loc event
+                EditorEffect.selectMouse loc event
         ] case dat /\ ress of
         -- term-var
         TermData (VarData dat) /\ [] ->

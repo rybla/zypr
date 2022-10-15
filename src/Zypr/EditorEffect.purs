@@ -11,7 +11,7 @@ import Data.Array (elem, length, reverse, (:))
 import Data.Array as Array
 import Data.Either (Either(..))
 import Data.Foldable (foldr, sequence_)
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), isJust)
 import Data.String as String
 import Data.Tuple.Nested ((/\))
 import Effect (Effect)
@@ -29,7 +29,7 @@ import Zypr.Location (Location, popBottomOfPath, popTopOfPath, wrapOneBottomOfPa
 import Zypr.Location as Location
 import Zypr.ModifyString (modifyStringViaKey, modifyStringViaKeyWithResult)
 import Zypr.ModifyString as ModifyString
-import Zypr.Path (Path(..), appendPaths, diffPath)
+import Zypr.Path (Path(..), diffPath)
 import Zypr.Path as Path
 import Zypr.SyntaxTheme (SyntaxTheme)
 
@@ -653,7 +653,7 @@ wrapTermAtCursor path = do
     TermSyntax _ -> do
       tell [ "wrap term at cursor with path: " <> pprint path ]
       pure
-        $ { path: Path.appendPaths loc.path path
+        $ { path: loc.path <> path
           , syn: loc.syn
           }
     _ -> throwError "can't wrap a path around a non-Term"
@@ -990,17 +990,20 @@ undo = do
   loc <- popHistory
   setLocation loc
 
-selectOnMouseEnter :: Location -> SyntheticMouseEvent -> EditorEffect Unit
-selectOnMouseEnter loc event = do
+selectMouse :: Location -> SyntheticMouseEvent -> EditorEffect Unit
+selectMouse loc event = do
   select <- do
     state <- get
     case state.mode of
       CursorMode cursor ->
-        pure
-          { pathStart: cursor.location.path
-          , locationEnd: cursor.location
-          , cursorAtTopPath: false
-          }
+        if isJust $ isTerm $ cursor.location.syn then
+          pure
+            { pathStart: cursor.location.path
+            , locationEnd: cursor.location
+            , cursorAtTopPath: false
+            }
+        else
+          throwError "can't select from non-term"
       SelectMode select -> pure select
       TopMode top ->
         pure
@@ -1008,12 +1011,80 @@ selectOnMouseEnter loc event = do
           , locationEnd: { path: Top, syn: TermSyntax top.term }
           , cursorAtTopPath: false
           }
+  if not $ isJust $ isTerm loc.syn then do
+    -- can't select here, so propogate
+    pure unit
+  else if loc.path == select.pathStart then do
+    -- empty selection
+    -- TODO: should `escapeSelect` here, but that causes jitters somehow...
+    liftEffect (stopPropagation event)
+    pure unit
+  else do
+    let
+      pathStart_pathEnd = select.pathStart <> select.locationEnd.path
+    if select.cursorAtTopPath then do
+      case diffPath loc.path (pathStart_pathEnd) of
+        Just pathEnd -> do
+          -- select.pathStart is above select.pathStart <>
+          -- select.locationEnd.path, so update select.pathStart (and
+          -- adjust select.locationEnd to accomodate)
+          liftEffect (stopPropagation event)
+          setMode
+            $ SelectMode
+                select
+                  { pathStart = loc.path
+                  , locationEnd = select.locationEnd { path = pathEnd }
+                  }
+        Nothing -> case diffPath (pathStart_pathEnd) loc.path of
+          Just pathEnd -> do
+            -- pathStart_pathEnd is above loc.path, so
+            -- cursor is now at bottom path
+            liftEffect (stopPropagation event)
+            setMode
+              $ SelectMode
+                  { pathStart: pathStart_pathEnd
+                  , locationEnd: loc { path = pathEnd }
+                  , cursorAtTopPath: false
+                  }
+          Nothing -> do
+            -- can't select here, so let propogate
+            pure unit
+    else if not select.cursorAtTopPath then do
+      case diffPath select.pathStart loc.path of
+        Just pathEnd -> do
+          -- select.pathStart is above loc.path, so update locationEnd
+          liftEffect (stopPropagation event)
+          setMode
+            $ SelectMode
+                select
+                  { locationEnd = loc { path = pathEnd } }
+        Nothing -> case diffPath loc.path select.pathStart of
+          Just pathEnd -> do
+            -- loc.path is above pathStart, so cursor is now at top path
+            liftEffect (stopPropagation event)
+            setMode
+              $ SelectMode
+                  { pathStart: loc.path
+                  , locationEnd:
+                      { path: pathEnd
+                      , syn: wrapPath select.locationEnd.path select.locationEnd.syn
+                      }
+                  , cursorAtTopPath: true
+                  }
+          Nothing -> do
+            -- can't select here, so let propogate
+            pure unit
+    else
+      -- can't select here, so let propogate
+      pure unit
+
+{-
   if select.cursorAtTopPath then do
     -- cursor is at select.pathStart
     if loc.path == select.pathStart then do
       -- empty selection
       liftEffect (stopPropagation event)
-      -- TODO: escapeSelect
+      escapeSelect
       pure unit
     else if loc.path == select.pathStart then do
       -- same selection
@@ -1038,19 +1109,18 @@ selectOnMouseEnter loc event = do
     if loc.path == select.locationEnd.path then do
       -- empty selection
       liftEffect (stopPropagation event)
-      -- TODO: escapeSelect
-      -- escapeSelect
+      escapeSelect
       pure unit
-    else if loc.path == appendPaths select.pathStart select.locationEnd.path then do
+    else if loc.path == appendPath select.pathStart select.locationEnd.path then do
       -- same selection 
       liftEffect (stopPropagation event)
       pure unit
     else do
-      tell [ "---------------------------------------------------------------" ]
-      tell [ "loc.path                = " <> pprint loc.path ]
-      tell [ "select.pathStart        = " <> pprint select.pathStart ]
-      tell [ "select.locationEnd.path = " <> pprint select.locationEnd.path ]
-      tell [ "select.<total path>     = " <> pprint (appendPaths select.pathStart select.locationEnd.path) ]
+      -- tell [ "---------------------------------------------------------------" ]
+      -- tell [ "loc.path                = " <> pprint loc.path ]
+      -- tell [ "select.pathStart        = " <> pprint select.pathStart ]
+      -- tell [ "select.locationEnd.path = " <> pprint select.locationEnd.path ]
+      -- tell [ "select.<total path>     = " <> pprint (select.pathStart <> select.locationEnd.path) ]
       -- if isAbovePath loc.path select.pathStart then do
       --   -- the clasp of loc.path is an ancestor of the clasp of select.pathStart
       --   liftEffect (stopPropagation event)
@@ -1071,5 +1141,7 @@ selectOnMouseEnter loc event = do
           Just pathStart -> do
             liftEffect (stopPropagation event)
             pure unit -- TODO: handle when loc.path above
-          Nothing -> pure unit
-      pure unit
+          Nothing -> do
+            -- can't select here
+            pure unit
+-}
