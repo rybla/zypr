@@ -581,6 +581,7 @@ copy = do
     SelectMode select -> do
       tell [ "copy selection: " <> pprint select.locationEnd.path ]
       setClipboard $ Just $ Right select.locationEnd.path
+      escapeSelect
     _ -> throwError "can't copy without a cursor or selection"
 
 unwrapSelection :: EditorEffect Unit
@@ -999,7 +1000,7 @@ selectMouse loc event = do
         if isJust $ isTerm $ cursor.location.syn then
           pure
             { pathStart: cursor.location.path
-            , locationEnd: cursor.location
+            , locationEnd: cursor.location { path = Top }
             , cursorAtTopPath: false
             }
         else
@@ -1014,11 +1015,6 @@ selectMouse loc event = do
   if not $ isJust $ isTerm loc.syn then do
     -- can't select here, so propogate
     pure unit
-  else if loc.path == select.pathStart then do
-    -- empty selection
-    -- TODO: should `escapeSelect` here, but that causes jitters somehow...
-    liftEffect (stopPropagation event)
-    pure unit
   else do
     let
       pathStart_pathEnd = select.pathStart <> select.locationEnd.path
@@ -1029,6 +1025,7 @@ selectMouse loc event = do
           -- select.locationEnd.path, so update select.pathStart (and
           -- adjust select.locationEnd to accomodate)
           liftEffect (stopPropagation event)
+          tell [ "here 4" ]
           setMode
             $ SelectMode
                 select
@@ -1040,6 +1037,7 @@ selectMouse loc event = do
             -- pathStart_pathEnd is above loc.path, so
             -- cursor is now at bottom path
             liftEffect (stopPropagation event)
+            tell [ "here 3" ]
             setMode
               $ SelectMode
                   { pathStart: pathStart_pathEnd
@@ -1054,6 +1052,7 @@ selectMouse loc event = do
         Just pathEnd -> do
           -- select.pathStart is above loc.path, so update locationEnd
           liftEffect (stopPropagation event)
+          tell [ "here 2" ]
           setMode
             $ SelectMode
                 select
@@ -1062,6 +1061,13 @@ selectMouse loc event = do
           Just pathEnd -> do
             -- loc.path is above pathStart, so cursor is now at top path
             liftEffect (stopPropagation event)
+            tell [ "here 1" ]
+            tell [ "loc.path           = " <> pprint loc.path ]
+            tell [ "select.pathStart   = " <> pprint select.pathStart ]
+            tell [ "pathEnd            = " <> pprint pathEnd ]
+            tell [ "select.locEnd.path = " <> pprint select.locationEnd.path ]
+            tell [ "select.locEnd.syn  = " <> pprint select.locationEnd.syn ]
+            tell [ "wrapPath locEnd... = " <> pprint (wrapPath select.locationEnd.path select.locationEnd.syn) ]
             setMode
               $ SelectMode
                   { pathStart: loc.path
