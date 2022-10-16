@@ -409,6 +409,7 @@ unwrap = do
         App { apl } -> pure apl
         Lam { bod } -> pure bod
         Let { bod } -> pure bod
+        If { thn } -> pure thn
         _ -> pure hole
     SelectMode _ -> unwrapSelection
     _ -> throwError "can't unwrap here"
@@ -423,6 +424,7 @@ unwrap' = do
         App { arg } -> pure arg
         Lam { bod } -> pure bod
         Let { bod } -> pure bod
+        If { thn } -> pure thn
         _ -> pure hole
     SelectMode _ -> unwrapSelection
     _ -> throwError "can't unwrap' here "
@@ -835,6 +837,23 @@ calculateQuery input = do
     pure
       $ Just
           { nClasps: 2
+          , change
+          }
+  else if input.string == "if" then do
+    change <-
+      Right
+        <$> case input.ixClasp of
+            -- clasp at cnd
+            2 -> pure $ Path.if_cnd hole hole Top
+            -- clasp at thn
+            0 -> pure $ Path.if_thn hole hole Top
+            -- clasp at els
+            1 -> pure $ Path.if_els hole hole Top
+            -- bad clasp index 
+            _ -> throwError "clasp index out of bounds while calculating query"
+    pure
+      $ Just
+          { nClasps: 3
           , change
           }
   else if input.string == "+" then

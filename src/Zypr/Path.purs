@@ -58,6 +58,18 @@ let_bnd imp bod up = Zip { dat: TermData (LetData letData), lefts: [], up, right
 let_imp :: Bind -> Term -> Path -> Path
 let_imp bnd bod up = Zip { dat: TermData (LetData letData), lefts: [ BindSyntax bnd ], up, rights: [ TermSyntax bod ] }
 
+-- path into if with clasp at cnd
+if_cnd :: Term -> Term -> Path -> Path 
+if_cnd thn els up = Zip { dat: TermData (IfData ifData), lefts: [], up, rights: [TermSyntax thn, TermSyntax els  ] }
+
+-- path into if with clasp at thn
+if_thn :: Term -> Term -> Path -> Path 
+if_thn cnd els up = Zip { dat: TermData (IfData ifData), lefts: [ TermSyntax cnd ], up, rights: [TermSyntax els  ] }
+
+-- path into if with clasp at els
+if_els :: Term -> Term -> Path -> Path 
+if_els cnd thn up = Zip { dat: TermData (IfData ifData), lefts: [ TermSyntax thn,  TermSyntax cnd ], up, rights: [ ] }
+
 -- | path into infix with clasp at left
 infix_left :: Term -> InfixOp -> Path -> Path
 infix_left right op up = Zip { dat: TermData (InfixData (infixData op)), lefts: [], up, rights: [ TermSyntax right ] }
@@ -87,6 +99,11 @@ casePath ::
       , imp :: { dat :: LetData, bnd :: Bind, imp :: Path, bod :: Term } -> a
       , bod :: { dat :: LetData, bnd :: Bind, imp :: Term, bod :: Path } -> a
       }
+  , if_ ::
+      { cnd :: { dat :: IfData, cnd :: Path, thn :: Term, els :: Term } -> a
+      , thn :: { dat :: IfData, cnd :: Term, thn :: Path, els :: Term } -> a
+      , els :: { dat :: IfData, cnd :: Term, thn :: Term, els :: Path } -> a
+      }
   , infix ::
       { left :: { dat :: InfixData, left :: Path, right :: Term } -> a
       , right :: { dat :: InfixData, left :: Term, right :: Path } -> a
@@ -103,6 +120,9 @@ casePath hdl = case _ of
   Zip { dat: TermData (LetData dat), lefts: [], up: bnd, rights: [ TermSyntax imp, TermSyntax bod ] } -> hdl.let_.bnd { dat, bnd, imp, bod }
   Zip { dat: TermData (LetData dat), lefts: [ BindSyntax bnd ], up: imp, rights: [ TermSyntax bod ] } -> hdl.let_.imp { dat, bnd, imp, bod }
   Zip { dat: TermData (LetData dat), lefts: [ TermSyntax imp, BindSyntax bnd ], up: bod, rights: [] } -> hdl.let_.bod { dat, bnd, imp, bod }
+  Zip { dat: TermData (IfData dat), lefts: [], up: cnd, rights: [ TermSyntax thn, TermSyntax els ]  } -> hdl.if_.cnd { dat, cnd, thn, els  }
+  Zip { dat: TermData (IfData dat), lefts: [ TermSyntax cnd ], up: thn, rights: [ TermSyntax els ]  } -> hdl.if_.thn { dat, cnd, thn, els  }
+  Zip { dat: TermData (IfData dat), lefts: [ TermSyntax thn, TermSyntax cnd ], up: els, rights: [ ]  } -> hdl.if_.els { dat, cnd, thn, els  }
   Zip { dat: TermData (InfixData dat), lefts: [ TermSyntax left ], up: right, rights: [] } -> hdl.infix.right { dat, left, right }
   Zip { dat: TermData (InfixData dat), lefts: [], up: left, rights: [ TermSyntax right ] } -> hdl.infix.left { dat, left, right }
   path -> unsafeThrow $ "malformed path: " <> show path
@@ -134,6 +154,11 @@ instance ppPath :: PP.PP Path where
             { bnd: \let_ -> go ((PP.paren <<< PP.words) [ PP.pp "let", doc, PP.pp "=", PP.pp let_.imp, PP.pp "in", PP.pp let_.bod ]) let_.bnd
             , imp: \let_ -> go ((PP.paren <<< PP.words) [ PP.pp "let", PP.pp let_.bnd, PP.pp "=", doc, PP.pp "in", PP.pp let_.bod ]) let_.imp
             , bod: \let_ -> go ((PP.paren <<< PP.words) [ PP.pp "let", PP.pp let_.bnd, PP.pp "=", PP.pp let_.imp, PP.pp "in", PP.pp let_.bod ]) let_.bod
+            }
+        , if_:
+            { cnd: \if_ -> go ((PP.paren <<< PP.words) [ PP.pp "if", doc, PP.pp "then", PP.pp if_.thn, PP.pp "else", PP.pp if_.els ]) if_.cnd
+            , thn: \if_ -> go ((PP.paren <<< PP.words) [ PP.pp "if", PP.pp if_.thn, PP.pp "then", doc, PP.pp "else", PP.pp if_.els ]) if_.thn
+            , els: \if_ -> go ((PP.paren <<< PP.words) [ PP.pp "if", PP.pp if_.thn, PP.pp "then", PP.pp if_.thn, PP.pp "else", doc ]) if_.els
             }
         , infix: { left: \_ -> PP.pp "+", right: \_ -> PP.pp "+" }
         }

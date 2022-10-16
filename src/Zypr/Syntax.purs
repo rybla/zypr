@@ -42,6 +42,7 @@ data Term
   | Lam { dat :: LamData, bnd :: Bind, bod :: Term }
   | App { dat :: AppData, apl :: Term, arg :: Term }
   | Let { dat :: LetData, bnd :: Bind, imp :: Term, bod :: Term }
+  | If { dat :: IfData, cnd :: Term, thn :: Term, els :: Term }
   | Hole { dat :: HoleData }
   | Infix { dat :: InfixData, left :: Term, right :: Term }
 
@@ -50,6 +51,7 @@ data TermData
   | LamData LamData
   | AppData AppData
   | LetData LetData
+  | IfData IfData
   | HoleData HoleData
   | InfixData InfixData
 
@@ -64,6 +66,9 @@ type AppData
 
 type LetData
   = { indent_imp :: Boolean, indent_bod :: Boolean }
+
+type IfData
+  = { indent_thn :: Boolean, indent_els :: Boolean }
 
 type HoleData
   = {}
@@ -146,6 +151,9 @@ let_ id imp bod =
 letData :: LetData
 letData = { indent_imp: false, indent_bod: true }
 
+ifData :: IfData
+ifData = { indent_thn: true, indent_els: true }
+
 hole :: Term
 hole = Hole { dat: holeData }
 
@@ -172,6 +180,7 @@ toGenSyntax = case _ of
     Lam lam -> { dat: TermData (LamData lam.dat), syns: [ BindSyntax lam.bnd, TermSyntax lam.bod ] }
     App app -> { dat: TermData (AppData app.dat), syns: [ TermSyntax app.apl, TermSyntax app.arg ] }
     Let let_ -> { dat: TermData (LetData let_.dat), syns: [ BindSyntax let_.bnd, TermSyntax let_.imp, TermSyntax let_.bod ] }
+    If if_ -> { dat: TermData (IfData if_.dat), syns: [ TermSyntax if_.cnd, TermSyntax if_.thn, TermSyntax if_.els ] }
     Hole hole -> { dat: TermData (HoleData hole.dat), syns: [] }
     Infix infx -> { dat: TermData (InfixData infx.dat), syns: [ TermSyntax infx.left, TermSyntax infx.right ] }
   BindSyntax (Bind dat) -> { dat: BindData dat, syns: [] }
@@ -182,6 +191,7 @@ fromGenSyntax = case _ of
   { dat: TermData (LamData dat), syns: [ BindSyntax bnd, TermSyntax bod ] } -> TermSyntax $ Lam { dat, bnd, bod }
   { dat: TermData (AppData dat), syns: [ TermSyntax apl, TermSyntax arg ] } -> TermSyntax $ App { dat, apl, arg }
   { dat: TermData (LetData dat), syns: [ BindSyntax bnd, TermSyntax imp, TermSyntax bod ] } -> TermSyntax $ Let { dat, bnd, imp, bod }
+  { dat: TermData (IfData dat), syns: [ TermSyntax cnd, TermSyntax thn, TermSyntax els ] } -> TermSyntax $ If { dat, cnd, thn, els }
   { dat: TermData (InfixData dat), syns: [ TermSyntax left, TermSyntax right ] } -> TermSyntax $ Infix { dat, left, right }
   { dat: BindData dat, syns: [] } -> BindSyntax $ Bind dat
   gterm -> unsafeThrow $ "malformed GenSyntax: " <> show gterm
@@ -221,6 +231,7 @@ instance ppTerm :: PP.PP Term where
     Lam lam -> (PP.paren <<< PP.words) [ PP.pp "fun", PP.pp lam.bnd, PP.pp "=>", PP.pp lam.bod ]
     App app -> (PP.paren <<< PP.words) [ PP.pp app.apl, PP.pp app.arg ]
     Let let_ -> (PP.paren <<< PP.words) [ PP.pp "let", PP.pp let_.bnd, PP.pp "=", PP.pp let_.imp, PP.pp "in", PP.pp let_.bod ]
+    If if_ -> (PP.paren <<< PP.words) [ PP.pp "if", PP.pp if_.cnd, PP.pp "then", PP.pp if_.thn, PP.pp "else", PP.pp if_.els ]
     Hole hole -> PP.pp "?"
     Infix infx -> (PP.paren <<< PP.words) [ PP.pp infx.left, PP.pp "+", PP.pp infx.right ]
 

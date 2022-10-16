@@ -19,6 +19,7 @@ type SyntaxTheme
         , lam :: { dat :: LamData, bnd :: Res, bod :: Res, isAss :: Boolean, bod_isLam :: Boolean, isLamBod :: Boolean, isApl :: Boolean } -> Res
         , app :: { dat :: AppData, apl :: Res, arg :: Res, apl_isApp :: Boolean, isApl :: Boolean, isAss :: Boolean } -> Res
         , let_ :: { dat :: LetData, bnd :: Res, imp :: Res, bod :: Res, isAss :: Boolean, isApl :: Boolean } -> Res
+        , if_ :: { dat :: IfData, cnd :: Res, thn :: Res, els :: Res, isAss :: Boolean, isApl :: Boolean } -> Res
         , hole :: { dat :: HoleData, isApl :: Boolean } -> Res
         , infix :: { dat :: InfixData, left :: Res, right :: Res, isAss :: Boolean, isApl :: Boolean } -> Res
         }
@@ -60,6 +61,10 @@ basicSyntaxTheme =
           \{ dat, bnd, imp, bod, isAss, isApl } ->
             appHandleIf isApl <<< assocIf isAss
               $ concat [ tk_let, tk_space, bnd, tk_space, tk_assign, tk_space, imp, tk_space, tk_in, tk_space, bod ]
+      , if_:
+          \{ dat, cnd, thn, els, isAss, isApl } ->
+            appHandleIf isApl <<< assocIf isAss
+              $ concat [ tk_if, tk_space, cnd, tk_space, tk_then, thn, tk_space, tk_else, tk_space, els ]
       , hole:
           \{ dat, isApl } ->
             appHandleIf isApl
@@ -165,6 +170,15 @@ tk_let = makeStringToken "token-keyword token-keyword-let" "let"
 
 tk_in :: Res
 tk_in = makeStringToken "token-keyword token-keyword-in" "in"
+
+tk_if :: Res
+tk_if = makeStringToken "token-keyword token-keyword-if" "if"
+
+tk_then :: Res
+tk_then = makeStringToken "token-keyword token-keyword-if" "then"
+
+tk_else :: Res
+tk_else = makeStringToken "token-keyword token-keyword-if" "else"
 
 tk_assign :: Res
 tk_assign = makeStringToken "token-keyword" "="

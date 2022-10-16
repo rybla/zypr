@@ -19,7 +19,7 @@ import Zypr.EditorEffect as EditorEffect
 import Zypr.EditorTypes (CursorMode, EditorMode(..), EditorState, EditorThis, Query, SelectMode, TopMode)
 import Zypr.Location (Location, children, siblings, stepUp, wrapPath)
 import Zypr.Path (Path(..))
-import Zypr.Syntax (AppData, InfixOp(..), Syntax(..), SyntaxData(..), Term(..), TermData(..), hole, isTerm, isTermData, toGenSyntax)
+import Zypr.Syntax (AppData, InfixOp(..), Syntax(..), SyntaxData(..), Term(..), TermData(..), IfData, hole, isTerm, isTermData, toGenSyntax)
 import Zypr.SyntaxTheme (Res, SyntaxTheme, tk_aplHandle)
 import Zypr.UnsafeNativeEventTarget as UnsafeNativeEventTarget
 
@@ -255,6 +255,7 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
                         LamData _ -> "term-lam"
                         AppData _ -> "term-app"
                         LetData _ -> "term-let"
+                        IfData _ -> "term-if"
                         HoleData _ -> "term-hole"
                         InfixData _ -> "term-infix"
                     ]
@@ -293,8 +294,7 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
           args.thm.term.lam
             { dat
             , bnd
-            , bod:
-                renderWithIndent bod indentationLevel dat.indent_bod
+            , bod: renderWithIndent bod indentationLevel dat.indent_bod
             , isAss:
                 case loc.path of
                   -- apl or arg
@@ -334,11 +334,21 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
             { dat
             , bnd: bnd
             , imp: renderWithIndent imp indentationLevel dat.indent_imp
-            , bod:
-                let
-                  indentationLevel' = if indentationLevel > 0 then indentationLevel else -1
-                in
-                  renderWithIndent bod indentationLevel' dat.indent_bod
+            , bod: renderWithIndent bod (indentationLevel - 1) dat.indent_bod
+            , isAss:
+                case loc.path of
+                  Zip { dat: TermData (AppData _) } -> true -- isApl or isArg
+                  Zip { dat: TermData (InfixData _) } -> true -- isInfixLeft or isInfixRight
+                  _ -> false
+            , isApl: isAtApl loc.path
+            }
+        -- term-if
+        TermData (IfData dat) /\ [ cnd, thn, els ] ->
+          args.thm.term.if_
+            { dat
+            , cnd: renderWithIndent cnd indentationLevel false
+            , thn: renderWithIndent thn indentationLevel dat.indent_thn
+            , els: renderWithIndent els indentationLevel dat.indent_els
             , isAss:
                 case loc.path of
                   Zip { dat: TermData (AppData _) } -> true -- isApl or isArg
