@@ -38,8 +38,9 @@ renderMenu this _state =
                   , "reorder_lets" /\ Demo.reorder_lets
                   , "scratch_example" /\ Demo.scratch_example
                   , "tylr_user_study_example" /\ Demo.tylr_user_study_example
-                  , "reorder_constlist" /\ Demo.reorder_conslist
+                  , "reorder_conslist" /\ Demo.reorder_conslist
                   , "manipulate_args" /\ Demo.manipulate_args
+                  , "add_fun_arg" /\ Demo.add_fun_arg
                   , "lambdas" /\ Lambdas.term
                   , "applications" /\ Applications.term
                   , "ycombinator" /\ YCombinator.term
