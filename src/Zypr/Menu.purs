@@ -3,6 +3,7 @@ module Zypr.Menu where
 import Prelude
 import Zypr.EditorTypes
 import Data.Array (concat)
+import Data.Tuple.Nested ((/\))
 import Effect (Effect)
 import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getProps, getState, modifyState)
 import React.DOM as DOM
@@ -11,9 +12,10 @@ import React.SyntheticEvent (stopPropagation)
 import Zypr.EditorEffect (EditorEffect, runEditorEffect, toggleHelpVisible, toggleIntroVisible)
 import Zypr.EditorEffect as EditorEffect
 import Zypr.Example.Applications as Applications
+import Zypr.Example.Demo as Demo
 import Zypr.Example.Lambdas as Lambdas
 import Zypr.Example.YCombinator as YCombinator
-import Zypr.SyntaxTheme (Res, basicSyntaxTheme, syntaxThemes)
+import Zypr.SyntaxTheme (Res, appSyntaxTheme, basicSyntaxTheme, syntaxThemes)
 
 renderMenu :: EditorThis -> EditorState -> Res
 renderMenu this _state =
@@ -28,18 +30,21 @@ renderMenu this _state =
             { title: "examples"
             , thisEditor: this
             , options:
-                [ { label: "Lambdas.zypr"
-                  , onClick: EditorEffect.setTerm Lambdas.term
-                  }
-                , { label: "Applications.zypr"
-                  , onClick: EditorEffect.setTerm Applications.term
-                  }
-                , { label: "YCombinator.zypr"
-                  , onClick: EditorEffect.setTerm YCombinator.term
-                  }
-                ]
+                map
+                  ( \(label /\ term) ->
+                      { label: label <> ".💾", onClick: EditorEffect.setTerm term }
+                  )
+                  [ "reorder_applications" /\ Demo.reorder_apps
+                  , "reorder_lets" /\ Demo.reorder_lets
+                  , "scratch_example" /\ Demo.scratch_example
+                  , "tylr_user_study_example" /\ Demo.tylr_user_study_example
+                  , "reorder_constlist" /\ Demo.reorder_conslist
+                  , "manipulate_args" /\ Demo.manipulate_args
+                  , "lambdas" /\ Lambdas.term
+                  , "applications" /\ Applications.term
+                  , "ycombinator" /\ YCombinator.term
+                  ]
             }
-        {- TODO: tmp disabled alt syntax themes
         , createLeafElement menuItemDropdownClass
             { title: "syntax"
             , thisEditor: this
@@ -50,9 +55,10 @@ renderMenu this _state =
                       , onClick: EditorEffect.setSyntaxTheme thm
                       }
                   )
-                  syntaxThemes
+                  -- TODO: tmp disabled alt syntax themes
+                  -- syntaxThemes
+                  [ basicSyntaxTheme, appSyntaxTheme ]
             }
-        -}
         , createLeafElement menuItemDropdownClass
             { title: "docs"
             , thisEditor: this

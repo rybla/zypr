@@ -53,6 +53,10 @@ editorComponent this = do
           stopPropagation event
           -- TODO: close menus (this is harder cuz they have their own components)
           runEditorEffect this EditorEffect.escape
+      , Props.onMouseUp \event -> do
+          stopPropagation event
+          runEditorEffect this do
+            EditorEffect.escapeEmptySelect
       ]
       $ concat
           [ renderMenu this state

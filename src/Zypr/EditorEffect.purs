@@ -5,9 +5,9 @@ import Zypr.EditorTypes
 import Zypr.Syntax
 import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.Reader (ReaderT, runReaderT)
-import Control.Monad.State (StateT, get, gets, modify, modify_, runStateT)
+import Control.Monad.State (StateT, get, modify_, runStateT)
 import Control.Monad.Writer (WriterT, runWriterT, tell)
-import Data.Array (elem, length, reverse, (:))
+import Data.Array (elem, length, (:))
 import Data.Array as Array
 import Data.Either (Either(..))
 import Data.Foldable (foldr, sequence_)
@@ -15,18 +15,13 @@ import Data.Maybe (Maybe(..), isJust)
 import Data.Show.Generic (genericShow)
 import Data.String as String
 import Data.Tuple.Nested ((/\))
-import Debug as Debug
 import Effect (Effect)
 import Effect.Class (liftEffect)
-import Effect.Class.Console as Console
-import Effect.Exception.Unsafe (unsafeThrow)
 import HTML (navigator_clipboard_writeText)
 import React (ReactThis, getProps, getState, modifyState)
 import React.SyntheticEvent (SyntheticMouseEvent, stopPropagation)
 import Text.PP (pprint)
 import Text.PP as PP
-import Web.HTML (window)
-import Web.HTML.Window (navigator)
 import Zypr.EditorConsole (logEditorConsole, stringEditorConsoleError, stringEditorConsoleLog)
 import Zypr.Indent (toggleIndentData)
 import Zypr.Key (Key)
@@ -588,8 +583,8 @@ copy = do
     SelectMode select -> do
       tell [ "copy selection: " <> pprint select.locationEnd.path ]
       setClipboard $ Just $ Right select.locationEnd.path
+      -- escapeSelect -- TODO: this isn't what text does, so probably not right?
       liftEffect $ navigator_clipboard_writeText (genericShow select.locationEnd.path)
-      escapeSelect
     _ -> throwError "can't copy without a cursor or selection"
 
 unwrapSelection :: EditorEffect Unit
@@ -648,7 +643,9 @@ paste = do
           Just (Right path) -> do
             tell [ "paste selection: " <> pprint path ]
             wrapTermAtCursor path
-          Nothing -> throwError "can't paste with empty clipboard"
+          -- TODO: check to see if there's a generic rep in the real clipboard
+          Nothing -> do
+            throwError "can't paste with empty clipboard"
       _ -> throwError "can't paste at a non-Term"
     SelectMode select -> case state.clipboard of
       Just (Right path) -> do
@@ -854,6 +851,8 @@ calculateQuery input = do
     makeInfixCase Mod
   else if input.string == "::" then
     makeInfixCase Cons
+  else if input.string == "," then
+    makeInfixCase Comma
   else do
     let
       id = idFromString input.string
@@ -1032,6 +1031,16 @@ undo = do
   loc <- popHistory
   setLocation loc
 
+-- check if empty selection
+-- if so, then escape to cursor mode
+escapeEmptySelect :: EditorEffect Unit
+escapeEmptySelect = do
+  select <- requireSelectMode
+  if select.locationEnd.path == Top then
+    escapeSelect
+  else
+    throwError "bail escapeEmptySelect"
+
 selectMouse :: Location -> SyntheticMouseEvent -> EditorEffect Unit
 selectMouse loc event = do
   select <- do
@@ -1066,7 +1075,6 @@ selectMouse loc event = do
           -- select.locationEnd.path, so update select.pathStart (and
           -- adjust select.locationEnd to accomodate)
           liftEffect (stopPropagation event)
-          tell [ "here 4" ]
           setMode
             $ SelectMode
                 select
@@ -1078,7 +1086,6 @@ selectMouse loc event = do
             -- pathStart_pathEnd is above loc.path, so
             -- cursor is now at bottom path
             liftEffect (stopPropagation event)
-            tell [ "here 3" ]
             setMode
               $ SelectMode
                   { pathStart: pathStart_pathEnd
@@ -1093,7 +1100,6 @@ selectMouse loc event = do
         Just pathEnd -> do
           -- select.pathStart is above loc.path, so update locationEnd
           liftEffect (stopPropagation event)
-          tell [ "here 2" ]
           setMode
             $ SelectMode
                 select
@@ -1102,6 +1108,8 @@ selectMouse loc event = do
           Just pathEnd -> do
             -- loc.path is above pathStart, so cursor is now at top path
             liftEffect (stopPropagation event)
+            {-
+            -- TODO: debug
             tell [ "here 1" ]
             tell [ "loc.path           = " <> pprint loc.path ]
             tell [ "select.pathStart   = " <> pprint select.pathStart ]
@@ -1109,6 +1117,7 @@ selectMouse loc event = do
             tell [ "select.locEnd.path = " <> pprint select.locationEnd.path ]
             tell [ "select.locEnd.syn  = " <> pprint select.locationEnd.syn ]
             tell [ "wrapPath locEnd... = " <> pprint (wrapPath select.locationEnd.path select.locationEnd.syn) ]
+            -}
             setMode
               $ SelectMode
                   { pathStart: loc.path

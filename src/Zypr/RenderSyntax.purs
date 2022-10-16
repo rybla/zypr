@@ -364,10 +364,9 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
                 --   Zip { dat: TermData (InfixData _), lefts: [], rights: [ _ ] } -> true -- isInfixLeft
                 --   _ -> false
                 -- true -- for the sake of demo'ing assoc
-                case dat.infixOp of
-                  Cons -> case loc.path of
-                    Zip { dat: TermData (InfixData _), lefts: [ _ ], rights: [] } -> false -- is RHS of Cons
-                    _ -> true
+                case dat.infixOp /\ loc.path of
+                  Cons /\ Zip { dat: TermData (InfixData { infixOp: Cons }), lefts: [ _ ], rights: [] } -> false -- is RHS of Cons
+                  Comma /\ Zip { dat: TermData (InfixData { infixOp: Comma }), lefts: [ _ ], rights: [] } -> false -- is RHS of Comma
                   _ -> true
             , isApl: isAtApl loc.path
             }

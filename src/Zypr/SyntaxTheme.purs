@@ -95,7 +95,7 @@ appSyntaxTheme =
     { meta
       { name = "app" }
     , term
-      { app = \{ dat, apl, arg } -> assoc $ concat [ tk_app, tk_space, apl, tk_space, arg ] }
+      { app = \args -> basicSyntaxTheme.term.app args { isAss = true } }
     }
 
 judsonSyntaxTheme :: SyntaxTheme
@@ -183,6 +183,7 @@ tk_infix =
         Power -> "^"
         Mod -> "%"
         Cons -> "::"
+        Comma -> ","
 
 assoc :: Res -> Res
 assoc res = concat [ tk_lparen, res, tk_rparen ]

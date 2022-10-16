@@ -85,6 +85,7 @@ data InfixOp
   | Power
   | Mod
   | Cons
+  | Comma
 
 derive instance genericInfixOp :: Generic InfixOp _
 
