@@ -1,11 +1,12 @@
 module Zypr.SyntaxTheme where
 
 import Prelude
+import Zypr.Syntax
 import Data.Array (concat)
 import React (ReactElement)
 import React.DOM as DOM
 import React.DOM.Props as Props
-import Zypr.Syntax
+import Text.PP as PP
 
 type Res
   = Array ReactElement
@@ -64,7 +65,7 @@ basicSyntaxTheme =
       , if_:
           \{ dat, cnd, thn, els, isAss, isApl } ->
             appHandleIf isApl <<< assocIf isAss
-              $ concat [ tk_if, tk_space, cnd, tk_space, tk_then, thn, tk_space, tk_else, tk_space, els ]
+              $ concat [ tk_if, tk_space, cnd, tk_space, tk_then, tk_space, thn, tk_space, tk_else, tk_space, els ]
       , hole:
           \{ dat, isApl } ->
             appHandleIf isApl
@@ -189,15 +190,7 @@ tk_zipper = makeStringToken "token-keyword emoji" "🖇️"
 tk_infix :: InfixOp -> Res
 tk_infix =
   makeStringToken "token-keyword token-keyword-infix"
-    <<< case _ of
-        Plus -> "+"
-        Minus -> "-"
-        Times -> "*"
-        Divide -> "/"
-        Power -> "^"
-        Mod -> "%"
-        Cons -> "::"
-        Comma -> ","
+    <<< PP.pprint
 
 assoc :: Res -> Res
 assoc res = concat [ tk_lparen, res, tk_rparen ]

@@ -6,6 +6,7 @@
   , "debug"
   , "effect"
   , "either"
+  , "enums"
   , "exceptions"
   , "foldable-traversable"
   , "identity"

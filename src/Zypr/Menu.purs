@@ -41,6 +41,7 @@ renderMenu this _state =
                   , "reorder_conslist" /\ Demo.reorder_conslist
                   , "manipulate_args" /\ Demo.manipulate_args
                   , "add_fun_arg" /\ Demo.add_fun_arg
+                  , "mergesort" /\ Demo.mergesort
                   , "lambdas" /\ Lambdas.term
                   , "applications" /\ Applications.term
                   , "ycombinator" /\ YCombinator.term

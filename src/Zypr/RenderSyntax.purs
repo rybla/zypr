@@ -19,7 +19,7 @@ import Zypr.EditorEffect as EditorEffect
 import Zypr.EditorTypes (CursorMode, EditorMode(..), EditorState, EditorThis, Query, SelectMode, TopMode)
 import Zypr.Location (Location, children, siblings, stepUp, wrapPath)
 import Zypr.Path (Path(..))
-import Zypr.Syntax (AppData, InfixOp(..), Syntax(..), SyntaxData(..), Term(..), TermData(..), IfData, hole, isTerm, isTermData, toGenSyntax)
+import Zypr.Syntax (AppData, BindData, IfData, InfixOp(..), Syntax(..), SyntaxData(..), Term(..), TermData(..), InfixData, hole, isTerm, isTermData, toGenSyntax)
 import Zypr.SyntaxTheme (Res, SyntaxTheme, tk_aplHandle)
 import Zypr.UnsafeNativeEventTarget as UnsafeNativeEventTarget
 
@@ -43,20 +43,20 @@ initRenderArgs this state =
 
 -- render modes
 renderTopMode :: RenderArgs -> TopMode -> Res
-renderTopMode args top = renderLocationSyntax args loc 0
+renderTopMode args top = renderLocationSyntax args loc initialIndentationLevel
   where
   loc :: Location
   loc = { syn: TermSyntax top.term, path: Top }
 
 renderCursorMode :: RenderArgs -> CursorMode -> Res
 renderCursorMode args cursor =
-  renderLocationPath args cursor.location 0
+  renderLocationPath args cursor.location initialIndentationLevel
     $ renderCursor args cursor
 
 renderSelectMode :: RenderArgs -> SelectMode -> Res
 renderSelectMode args select =
   -- select.pathStart: path from top to select start
-  renderLocationPath args { path: select.pathStart, syn: wrapPath select.locationEnd.path select.locationEnd.syn } 0 \il1 ->
+  renderLocationPath args { path: select.pathStart, syn: wrapPath select.locationEnd.path select.locationEnd.syn } initialIndentationLevel \il1 ->
     renderSelectStart args
       -- select.locationEnd.path: path from select start to select end
       
@@ -70,22 +70,38 @@ renderSelectMode args select =
                 }
                 il2
 
+initialIndentationLevel :: Int
+initialIndentationLevel = 0
+
 -- Given what node I am (SyntaxData) and what child I am (Int), how much should I be indented
 indentationIncrement :: SyntaxData -> Int -> Int
-indentationIncrement (TermData (LamData lamData)) 1 = 1
+indentationIncrement (TermData (VarData _)) _ = 0
 
-indentationIncrement (TermData (AppData appData)) 0 = 0
+indentationIncrement (TermData (LamData _)) 0 = 0
 
-indentationIncrement (TermData (AppData appData)) 1 = 1
+indentationIncrement (TermData (LamData _)) 1 = 1
 
-indentationIncrement (TermData (LetData letData)) 0 = 1
+indentationIncrement (TermData (AppData _)) 0 = 0
 
-indentationIncrement (TermData (LetData letData)) 1 = 1
+indentationIncrement (TermData (AppData _)) _ = 1
 
-indentationIncrement (TermData (LetData letData)) 2 = 0
+indentationIncrement (TermData (LetData _)) 0 = 0
 
-indentationIncrement _ _ = 0
+indentationIncrement (TermData (LetData _)) 1 = 1
 
+indentationIncrement (TermData (LetData _)) 2 = 0
+
+indentationIncrement (TermData (IfData _)) _ = 1
+
+indentationIncrement (TermData (InfixData _)) _ = 1
+
+indentationIncrement (TermData (HoleData _)) _ = 0
+
+indentationIncrement (BindData _) _ = 0
+
+indentationIncrement dat i = unsafeThrow $ "impossible: SyntaxData = " <> show dat <> ", i = " <> show i
+
+-- indentationIncrement _ _ = 1
 -- render the surrounding `Path`, and inject a `Res` at the `Top` 
 renderLocationPath :: RenderArgs -> Location -> Int -> ((Int -> Res) -> Res)
 renderLocationPath args loc topIndentation = case loc.path of
@@ -188,7 +204,7 @@ renderClipboardTerm args term =
   [ DOM.div [ Props.className "clipboard-term" ]
       $ renderLocationSyntax (args { interactable = false })
           { syn: TermSyntax term, path: Top }
-          0
+          initialIndentationLevel
   ]
 
 renderClipboardPath :: RenderArgs -> Path -> Res
@@ -196,7 +212,7 @@ renderClipboardPath args path =
   [ DOM.div [ Props.className "clipboard-path" ]
       $ renderLocationPath (args { interactable = false })
           { path, syn: TermSyntax hole }
-          0
+          initialIndentationLevel
       -- $ \_ -> [ DOM.div [ Props.className "clipboard-clasp" ] [] ] -- TODO: if is apl, then needs an aplHandle
       
       $ \_ -> case path of
@@ -346,7 +362,7 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
         TermData (IfData dat) /\ [ cnd, thn, els ] ->
           args.thm.term.if_
             { dat
-            , cnd: renderWithIndent cnd indentationLevel false
+            , cnd: cnd
             , thn: renderWithIndent thn indentationLevel dat.indent_thn
             , els: renderWithIndent els indentationLevel dat.indent_els
             , isAss:

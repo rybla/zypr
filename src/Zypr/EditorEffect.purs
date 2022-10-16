@@ -10,6 +10,7 @@ import Control.Monad.Writer (WriterT, runWriterT, tell)
 import Data.Array (elem, length, (:))
 import Data.Array as Array
 import Data.Either (Either(..))
+import Data.Enum (enumFromTo, fromEnum)
 import Data.Foldable (foldr, sequence_)
 import Data.Maybe (Maybe(..), isJust)
 import Data.Show.Generic (genericShow)
@@ -856,31 +857,23 @@ calculateQuery input = do
           { nClasps: 3
           , change
           }
-  else if input.string == "+" then
-    makeInfixCase Plus
-  else if input.string == "-" then
-    makeInfixCase Minus
-  else if input.string == "*" then
-    makeInfixCase Times
-  else if input.string == "/" then
-    makeInfixCase Divide
-  else if input.string == "^" then
-    makeInfixCase Power
-  else if input.string == "%" then
-    makeInfixCase Mod
-  else if input.string == "::" then
-    makeInfixCase Cons
-  else if input.string == "," then
-    makeInfixCase Comma
-  else do
-    let
-      id = idFromString input.string
-    pure
-      $ Just
-          { nClasps: 0
-          , change: Left (var id)
-          }
+  else case makeInfixCases input.string of
+    Just res -> res
+    Nothing -> do
+      let
+        id = idFromString input.string
+      pure
+        $ Just
+            { nClasps: 0
+            , change: Left (var id)
+            }
   where
+  makeInfixCases :: String -> Maybe (EditorEffect (Maybe QueryOutput))
+  makeInfixCases str =
+    makeInfixCase
+      <$> Array.find (\(inop :: InfixOp) -> str == PP.pprint inop)
+          (enumFromTo bottom top)
+
   makeInfixCase :: InfixOp -> EditorEffect (Maybe QueryOutput)
   makeInfixCase op = do
     change <-

@@ -2,6 +2,9 @@ module Zypr.Syntax where
 
 import Prelude
 import Data.Array as Array
+import Data.Bounded.Generic (genericBottom, genericTop)
+import Data.Enum (class BoundedEnum, class Enum, cardinality)
+import Data.Enum.Generic (genericCardinality, genericFromEnum, genericPred, genericSucc, genericToEnum)
 import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe(..))
 import Data.Show.Generic (genericShow)
@@ -91,10 +94,31 @@ data InfixOp
   | Mod
   | Cons
   | Comma
+  | Eq
+  | NEq
+  | Lt
+  | Le
+  | Gt
+  | Ge
 
 derive instance genericInfixOp :: Generic InfixOp _
 
 derive instance eqInfixOp :: Eq InfixOp
+
+derive instance ordInfixOp :: Ord InfixOp
+
+instance boundedInfixOp :: Bounded InfixOp where
+  bottom = genericBottom
+  top = genericTop
+
+instance enumInfixOp :: Enum InfixOp where
+  succ x = genericSucc x
+  pred x = genericPred x
+
+instance boundedEnumInfixOp :: BoundedEnum InfixOp where
+  cardinality = genericCardinality
+  toEnum x = genericToEnum x
+  fromEnum x = genericFromEnum x
 
 instance showInfixOp :: Show InfixOp where
   show x = genericShow x
@@ -234,6 +258,23 @@ instance ppTerm :: PP.PP Term where
     If if_ -> (PP.paren <<< PP.words) [ PP.pp "if", PP.pp if_.cnd, PP.pp "then", PP.pp if_.thn, PP.pp "else", PP.pp if_.els ]
     Hole hole -> PP.pp "?"
     Infix infx -> (PP.paren <<< PP.words) [ PP.pp infx.left, PP.pp "+", PP.pp infx.right ]
+
+instance ppInfixOp :: PP.PP InfixOp where
+  pp = case _ of
+    Plus -> PP.pp "+"
+    Minus -> PP.pp "-"
+    Times -> PP.pp "*"
+    Divide -> PP.pp "/"
+    Power -> PP.pp "^"
+    Mod -> PP.pp "%"
+    Cons -> PP.pp "::"
+    Comma -> PP.pp ","
+    Eq -> PP.pp "=="
+    NEq -> PP.pp "!="
+    Lt -> PP.pp "<"
+    Le -> PP.pp "<="
+    Gt -> PP.pp ">"
+    Ge -> PP.pp ">="
 
 -- instances for TermData
 derive instance genericTermData :: Generic TermData _
