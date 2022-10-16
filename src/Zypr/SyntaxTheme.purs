@@ -71,6 +71,15 @@ basicSyntaxTheme =
       }
   }
 
+appSyntaxTheme :: SyntaxTheme
+appSyntaxTheme =
+  basicSyntaxTheme
+    { meta
+      { name = "parenthesized partial applications" }
+    , term
+      { app = \args -> basicSyntaxTheme.term.app args { isAss = true } }
+    }
+
 emojiSyntaxTheme :: SyntaxTheme
 emojiSyntaxTheme =
   basicSyntaxTheme
@@ -87,15 +96,6 @@ emojiSyntaxTheme =
         \{ dat, bnd, imp, bod } ->
           assoc $ concat [ tk_zipper, tk_space, bnd, tk_space, tk_zipper, tk_space, imp, tk_space, tk_zipper, tk_space, bod ]
       }
-    }
-
-appSyntaxTheme :: SyntaxTheme
-appSyntaxTheme =
-  basicSyntaxTheme
-    { meta
-      { name = "app" }
-    , term
-      { app = \args -> basicSyntaxTheme.term.app args { isAss = true } }
     }
 
 judsonSyntaxTheme :: SyntaxTheme

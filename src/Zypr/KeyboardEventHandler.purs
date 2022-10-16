@@ -61,8 +61,7 @@ handleKey key
   -- select movement
   | key == key_ShiftArrowLeft = EditorEffect.shiftArrowleft
   | key == key_ShiftArrowRight = EditorEffect.shiftArrowright
-  -- enter, escape
-  | key == key_Period = EditorEffect.enterSelect false
+  -- escape
   | key == key_Escape = EditorEffect.escape
   -- tab to next/prev hole
   | key == key_Tab = EditorEffect.toggleIndent
