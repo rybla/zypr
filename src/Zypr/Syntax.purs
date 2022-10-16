@@ -84,6 +84,7 @@ data InfixOp
   | Divide
   | Power
   | Mod
+  | Cons
 
 derive instance genericInfixOp :: Generic InfixOp _
 

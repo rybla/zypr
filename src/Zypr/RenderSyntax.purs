@@ -19,7 +19,7 @@ import Zypr.EditorEffect as EditorEffect
 import Zypr.EditorTypes (CursorMode, EditorMode(..), EditorState, EditorThis, Query, SelectMode, TopMode)
 import Zypr.Location (Location, children, siblings, stepUp, wrapPath)
 import Zypr.Path (Path(..))
-import Zypr.Syntax (Syntax(..), SyntaxData(..), Term(..), TermData(..), AppData, hole, isTerm, isTermData, toGenSyntax)
+import Zypr.Syntax (AppData, InfixOp(..), Syntax(..), SyntaxData(..), Term(..), TermData(..), hole, isTerm, isTermData, toGenSyntax)
 import Zypr.SyntaxTheme (Res, SyntaxTheme, tk_aplHandle)
 import Zypr.UnsafeNativeEventTarget as UnsafeNativeEventTarget
 
@@ -363,7 +363,12 @@ renderSyntaxData args loc@{ syn } ress indentationLevel =
                 --   Zip { dat: TermData (AppData _) } -> true -- isApl or isArg
                 --   Zip { dat: TermData (InfixData _), lefts: [], rights: [ _ ] } -> true -- isInfixLeft
                 --   _ -> false
-                true -- for the sake of demo'ing assoc
+                -- true -- for the sake of demo'ing assoc
+                case dat.infixOp of
+                  Cons -> case loc.path of
+                    Zip { dat: TermData (InfixData _), lefts: [ _ ], rights: [] } -> false -- is RHS of Cons
+                    _ -> true
+                  _ -> true
             , isApl: isAtApl loc.path
             }
         -- bind

@@ -223,30 +223,30 @@ body {
   white-space: pre;
 }
 
-.token.keyword {
+.token-keyword {
   font-weight: bold;
 }
 
-.token.keyword-mapsto {
+.token-keyword-mapsto {
   padding: 0 6px;
 }
 
-.token.keyword-lambda {}
+.token-keyword-lambda {}
 
-.token.keyword-infix {
+.token-keyword-infix {
   padding: 0 6px;
 }
 
-.token.punc {
+.token-punc {
   /* font-weight: lighter; */
-  color: rgb(160, 196, 178);
+  /* color: rgb(160, 196, 178); */
+  /* color: red; */
+  color: rgb(140, 140, 140);
 }
 
-.token.punc.appHandle {}
+.token-punc-appHandle {}
 
-.token.punc.aplHandle {}
-
-.token.emoji {
+.token-emoji {
   /* background-color: black; */
   /* font-size: 200%; */
 }

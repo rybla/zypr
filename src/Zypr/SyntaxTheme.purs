@@ -117,15 +117,15 @@ judsonSyntaxTheme =
       }
     }
   where
-  judson = makeStringToken "keyword" "Judson"
+  judson = makeStringToken "token-keyword" "Judson"
 
-  l = makeStringToken "keyword" "L."
+  l = makeStringToken "token-keyword" "L."
 
-  whitcomb = makeStringToken "keyword" "Whitcomb"
+  whitcomb = makeStringToken "token-keyword" "Whitcomb"
 
-  gideon = makeStringToken "keyword" "Gideon"
+  gideon = makeStringToken "token-keyword" "Gideon"
 
-  sundback = makeStringToken "keyword" "Sundback"
+  sundback = makeStringToken "token-keyword" "Sundback"
 
 -- React Elements
 res_hole :: Res
@@ -136,45 +136,45 @@ tk_question :: Res
 tk_question = makeStringToken "" "?"
 
 tk_app :: Res
-tk_app = makeStringToken "keyword" "app"
+tk_app = makeStringToken "token-keyword" "app"
 
 tk_lamArgHandle :: Res
-tk_lamArgHandle = makeStringToken "punc punc-lamArgHandle" "•"
+tk_lamArgHandle = makeStringToken "token-punc punc-lamArgHandle" "•"
 
 tk_aplHandle :: Res
-tk_aplHandle = makeStringToken "punc punc-appHandle" "•"
+tk_aplHandle = makeStringToken "token-punc punc-appHandle" "•"
 
 tk_space :: Res
-tk_space = makeStringToken "space" " "
+tk_space = makeStringToken "token-punc space" " "
 
 tk_lparen :: Res
-tk_lparen = makeStringToken "punc punc-paren punc-lparen" "("
+tk_lparen = makeStringToken "token-punc token-punc-paren token-punc-lparen" "("
 
 tk_rparen :: Res
-tk_rparen = makeStringToken "punc punc-paren punc-rparen rparen" ")"
+tk_rparen = makeStringToken "token-punc token-punc-paren token-punc-rparen" ")"
 
 tk_lambda :: Res
-tk_lambda = makeStringToken "keyword keyword-lambda" "λ"
+tk_lambda = makeStringToken "token-keyword token-keyword-lambda" "λ"
 
 tk_mapsto :: Res
--- tk_mapsto = makeStringToken "keyword keyword-mapsto" "⇒"
-tk_mapsto = makeStringToken "keyword keyword-mapsto" "↦"
+-- tk_mapsto = makeStringToken "token-keyword token-keyword-mapsto" "⇒"
+tk_mapsto = makeStringToken "token-keyword token-keyword-mapsto" "↦"
 
 tk_let :: Res
-tk_let = makeStringToken "keyword keyword-let" "let"
+tk_let = makeStringToken "token-keyword token-keyword-let" "let"
 
 tk_in :: Res
-tk_in = makeStringToken "keyword keyword-in" "in"
+tk_in = makeStringToken "token-keyword token-keyword-in" "in"
 
 tk_assign :: Res
-tk_assign = makeStringToken "keyword" "="
+tk_assign = makeStringToken "token-keyword" "="
 
 tk_zipper :: Res
-tk_zipper = makeStringToken "keyword emoji" "🖇️"
+tk_zipper = makeStringToken "token-keyword emoji" "🖇️"
 
 tk_infix :: InfixOp -> Res
 tk_infix =
-  makeStringToken "keyword keyword-infix"
+  makeStringToken "token-keyword token-keyword-infix"
     <<< case _ of
         Plus -> "+"
         Minus -> "-"
@@ -182,6 +182,7 @@ tk_infix =
         Divide -> "/"
         Power -> "^"
         Mod -> "%"
+        Cons -> "::"
 
 assoc :: Res -> Res
 assoc res = concat [ tk_lparen, res, tk_rparen ]

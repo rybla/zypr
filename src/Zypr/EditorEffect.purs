@@ -852,6 +852,8 @@ calculateQuery input = do
     makeInfixCase Power
   else if input.string == "%" then
     makeInfixCase Mod
+  else if input.string == "::" then
+    makeInfixCase Cons
   else do
     let
       id = idFromString input.string
