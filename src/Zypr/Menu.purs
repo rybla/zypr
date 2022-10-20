@@ -40,7 +40,8 @@ renderMenu this _state =
                   , "tylr_user_study_example" /\ Demo.tylr_user_study_example
                   , "reorder_conslist" /\ Demo.reorder_conslist
                   , "manipulate_args" /\ Demo.manipulate_args
-                  , "add_fun_arg" /\ Demo.add_fun_arg
+                  , "add_mul_infix_assoc" /\ Demo.add_mul_assoc_infix
+                  , "add_mul_prefix_assoc" /\ Demo.add_mul_assoc_prefix
                   , "mergesort" /\ Demo.mergesort
                   , "lambdas" /\ Lambdas.term
                   , "applications" /\ Applications.term
