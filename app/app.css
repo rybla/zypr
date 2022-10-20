@@ -241,10 +241,16 @@ body {
   /* font-weight: lighter; */
   /* color: rgb(160, 196, 178); */
   /* color: red; */
+  /* color: rgb(140, 140, 140); */
+}
+
+.token-punc-paren {
   color: rgb(140, 140, 140);
 }
 
-.token-punc-appHandle {}
+.punc-appHandle {
+  color: rgb(176, 176, 176);
+}
 
 .token-emoji {
   /* background-color: black; */
