@@ -2,6 +2,7 @@ module Zypr.Menu where
 
 import Prelude
 import Zypr.EditorTypes
+
 import Data.Array (concat)
 import Data.Tuple.Nested ((/\))
 import Effect (Effect)
@@ -32,17 +33,18 @@ renderMenu this _state =
             , options:
                 map
                   ( \(label /\ term) ->
-                      { label: label <> ".💾", onClick: EditorEffect.setTerm term }
+                      { label: "💾 " <> label, onClick: EditorEffect.setTerm term }
                   )
-                  [ "reorder_applications" /\ Demo.reorder_apps
+                  [ "scratch_example" /\ Demo.scratch_example
+                  , "minus_infix_assoc" /\ Demo.reassoc_minus
+                  , "mergesort" /\ Demo.mergesort
+                  , "reorder_applications" /\ Demo.reorder_apps
                   , "reorder_lets" /\ Demo.reorder_lets
-                  , "scratch_example" /\ Demo.scratch_example
                   , "tylr_user_study_example" /\ Demo.tylr_user_study_example
                   , "reorder_conslist" /\ Demo.reorder_conslist
                   , "manipulate_args" /\ Demo.manipulate_args
                   , "add_mul_infix_assoc" /\ Demo.add_mul_assoc_infix
                   , "add_mul_prefix_assoc" /\ Demo.add_mul_assoc_prefix
-                  , "mergesort" /\ Demo.mergesort
                   , "lambdas" /\ Lambdas.term
                   , "applications" /\ Applications.term
                   , "ycombinator" /\ YCombinator.term
