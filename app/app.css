@@ -188,7 +188,7 @@ body {
 }
 
 .cursor {
-  /* background-color: rgb(216, 216, 255); */
+  background-color: rgb(241, 241, 255);
 }
 
 
@@ -208,12 +208,13 @@ body {
 
 .selectStart {
   /* background-color: rgb(255, 233, 194); */
-  background-color: rgb(216, 216, 255);
+  background-color: rgb(203, 203, 255);
 }
 
 
 .selectEnd {
-  background-color: white;
+  /* background-color: white; */
+  background-color: rgb(241, 241, 255);
 }
 
 /* token */
@@ -248,7 +249,7 @@ body {
   color: rgb(140, 140, 140);
 }
 
-.punc-appHandle {
+.token-punc-appHandle {
   color: rgb(176, 176, 176);
 }
 
@@ -283,7 +284,8 @@ body {
   border-radius: 4px;
   padding: 0 6px;
 
-  background: linear-gradient(45deg,
+  /* rainbow */
+  /* background: linear-gradient(45deg,
       #CC99C9,
       #9EC1CF,
       #9EE09E,
@@ -304,7 +306,9 @@ body {
   animation-play-state: running;
   animation-iteration-count: infinite;
   animation-direction: normal;
-  animation-timing-function: linear;
+  animation-timing-function: linear; */
+
+  background-color: rgb(250, 189, 48);
 }
 
 .query-output-term-new {

@@ -145,10 +145,10 @@ tk_app :: Res
 tk_app = makeStringToken "token-keyword" "app"
 
 tk_lamArgHandle :: Res
-tk_lamArgHandle = makeStringToken "token-punc punc-lamArgHandle" "•"
+tk_lamArgHandle = makeStringToken "token-punc token-punc-lamArgHandle" "•"
 
 tk_aplHandle :: Res
-tk_aplHandle = makeStringToken "token-punc punc-appHandle" "•"
+tk_aplHandle = makeStringToken "token-punc token-punc-appHandle" "•"
 
 tk_space :: Res
 tk_space = makeStringToken "token-punc space" " "
@@ -190,7 +190,9 @@ tk_zipper = makeStringToken "token-keyword emoji" "🖇️"
 tk_infix :: InfixOp -> Res
 tk_infix =
   makeStringToken "token-keyword token-keyword-infix"
-    <<< PP.pprint
+    <<< case _ of 
+      Cons -> "∷"
+      op -> PP.pprint op 
 
 assoc :: Res -> Res
 assoc res = concat [ tk_lparen, res, tk_rparen ]
