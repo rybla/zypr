@@ -3,13 +3,17 @@ module Zypr.Menu where
 import Prelude
 import Zypr.EditorTypes
 
+import Control.Monad.Trans.Class (lift)
 import Data.Array (concat)
 import Data.Tuple.Nested ((/\))
 import Effect (Effect)
+import Effect.Class (liftEffect)
+import Effect.Class.Console (log)
 import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getProps, getState, modifyState)
 import React.DOM as DOM
 import React.DOM.Props as Props
 import React.SyntheticEvent (stopPropagation)
+import Undefined (undefined)
 import Zypr.EditorEffect (EditorEffect, runEditorEffect, toggleHelpVisible, toggleIntroVisible)
 import Zypr.EditorEffect as EditorEffect
 import Zypr.Example.Applications as Applications
@@ -17,6 +21,8 @@ import Zypr.Example.Demo as Demo
 import Zypr.Example.Lambdas as Lambdas
 import Zypr.Example.YCombinator as YCombinator
 import Zypr.SyntaxTheme (Res, appSyntaxTheme, basicSyntaxTheme, syntaxThemes)
+
+foreign import openUrl :: String -> Effect Unit
 
 renderMenu :: EditorThis -> EditorState -> Res
 renderMenu this _state =
@@ -83,7 +89,20 @@ renderMenu this _state =
             [ DOM.div [ Props.className "menu-item-title" ]
                 [ DOM.text "github" ]
             ]
+        , createLeafElement menuItemDropdownLinksClass
+            { title: "credits"
+            , thisEditor: this 
+            , options: 
+              [ { label: "Jacob Prinz"
+                , href: "https://plum-umd.github.io/people/#_people/jacob.md"
+                }
+              , { label: "Henry Blanchette", 
+                  href: "https://github.com/Riib11"
+                }
+              ]
+            }
         ]
+        
   ]
 
 -- MenuItemDropdown 
@@ -177,5 +196,61 @@ menuItemButtonComponent this = do
         ]
   pure
     { state: {}
+    , render: render <$> getState this
+    }
+
+
+-- MenuItemDropdownLinks 
+type MenuItemDropdownLinksProps
+  = { title :: String
+    , options :: Array { label :: String, href :: String }
+    , thisEditor :: EditorThis
+    }
+    
+type MenuItemDropdownLinksState
+  = { open :: Boolean }
+
+type MenuItemDropdownLinksGiven
+  = { state :: MenuItemDropdownLinksState, render :: Effect ReactElement }
+
+menuItemDropdownLinksClass :: ReactClass MenuItemDropdownLinksProps
+menuItemDropdownLinksClass = component "menu-item" menuItemDropdownLinksComponent
+
+menuItemDropdownLinksComponent ::
+  ReactThis MenuItemDropdownLinksProps MenuItemDropdownLinksState ->
+  Effect MenuItemDropdownLinksGiven
+menuItemDropdownLinksComponent this = do
+  props <- getProps this
+  let
+    render state =
+      DOM.div
+        [ Props.className $ "menu-item menu-item-dropdown "
+            <> if state.open then "open" else "closed"
+        ]
+        [ DOM.div
+            [ Props.className $ "menu-item-title"
+            , Props.onClick \event -> do
+                stopPropagation event
+                modifyState this _ { open = not state.open }
+            ]
+            [ DOM.text props.title ]
+        , DOM.div
+            [ Props.className $ "menu-item-options " ]
+            $ map
+                ( \opt ->
+                    DOM.div
+                      [ Props.className "menu-item-option"
+                      , Props.onClick \event -> do
+                          stopPropagation event
+                          modifyState this _ { open = false }
+                      ]
+                      [ DOM.a [ Props.href opt.href ] [DOM.text opt.label] ]
+                )
+                props.options
+        ]
+  pure
+    { state:
+        { open: false
+        }
     , render: render <$> getState this
     }
