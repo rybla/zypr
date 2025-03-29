@@ -84,7 +84,7 @@ renderMenu this _state =
             }
         , DOM.a
             [ Props.className "menu-item"
-            , Props.href "https://github.com/Riib11/zypr/"
+            , Props.href "https://github.com/rybla/zypr/"
             ]
             [ DOM.div [ Props.className "menu-item-title" ]
                 [ DOM.text "github" ]
@@ -97,7 +97,7 @@ renderMenu this _state =
                 , href: "https://plum-umd.github.io/people/#_people/jacob.md"
                 }
               , { label: "Henry Blanchette", 
-                  href: "https://github.com/Riib11"
+                  href: "https://github.com/rybla"
                 }
               ]
             }
